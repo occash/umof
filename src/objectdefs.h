@@ -22,7 +22,6 @@ USA.
 #ifndef OBJECTDEFS_H
 #define OBJECTDEFS_H
 
-#include <boost/any.hpp>
 #include <vector>
 #include <list>
 #include <map>
@@ -31,7 +30,14 @@ USA.
 #include <typeindex>
 #include <iostream>
 
-#include "types.h"
+#include "defines.h"
+#include "any.h"
+#include "enum.h"
+#include "type.h"
+#include "converters.h"
+#include "method.h"
+#include "property.h"
+#include "api.h"
 
 class Object;
 struct Type;
@@ -39,75 +45,27 @@ struct Type;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //TYPEDEFS
 ////////////////////////////////////////////////////////////////////////////////////////////////
-typedef boost::any(*InvokeFun)(std::vector<boost::any>);
-typedef boost::any(*InvokeMem)(Object *, const std::vector<boost::any>&);
-typedef boost::any(*ConvertFun)(const boost::any&);
-typedef bool(*CheckFun)(const boost::any&);
-typedef std::vector<boost::any> ArgPack;
-typedef std::list<std::string> StringList;
-typedef std::list<Type> TypeList;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //TYPE, METHOD, API, EXPOSE
 ////////////////////////////////////////////////////////////////////////////////////////////////
-struct Type
+
+struct Definition
 {
-	Type(std::type_index i = std::type_index(typeid(void)), 
-		CheckFun c = nullptr, ConvertFun f = nullptr)
-		: id(i), checker(c), converter(f) {}
-
-	std::type_index id = typeid(void);
-	CheckFun checker;
-	ConvertFun converter;
-};
-
-class Method
-{
-public:
-	Method() : data() {}
-
-	bool isValid() const;
-	boost::any invoke(Object *, const ArgPack&) const;
-	StringList parameterNames() const;
-	TypeList parameterTypes() const;
-	unsigned int parameterCount() const;
-	Type returnType() const;
-	std::string signature() const;
-
-	struct MethodData {
-		MethodData() : invoker(nullptr) {}
-
-		InvokeMem invoker;
-		Type rettype;
-		TypeList types;
-		std::string signature;
-	} data;
-};
-
-class Api
-{
-public:
-	Api(const Api *super);
-
-	//Api *super() const;
-	//boost::any data(const char *) const; //Additional data connected to class
-	//std::string name() const; //Class name
-	//Method constructor(const char *) const; //find constructor by signature
-	Method method(const char *) const; //find method by signature
-	//Enum enum(const char *) const; //find enum by name
-	//Property property(const char *) const; //find property by name
-	//Object *create(ArgPack args) const;
-
-	static boost::any invoke(Object *obj, const char *name, ArgPack args);
-
-	struct
+	enum
 	{
-		typedef std::multimap<std::string, Method> MethodMap;
-		const Api *super;
-		const char *name;
-		MethodMap methods;
-		//properties goes here
-	} data;
+		TMethod,
+		TProperty,
+		TEnumerator
+	} type;
+
+	union
+	{
+		Method m;
+		Property p;
+		Enumerator e;
+	};
 };
 
 template<typename Class>
@@ -175,13 +133,13 @@ struct Invoker<Return(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static boost::any invoke(F f, std::vector<boost::any> args, unpack::indices<Is...>)
+	inline static Any invoke(F f, std::vector<Any> args, unpack::indices<Is...>)
 	{
 		return f(boost::spirit::any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
-	static boost::any invoke(std::vector<boost::any> args)
+	static Any invoke(std::vector<Any> args)
 	{
 		if (args.size() != sizeof...(Args))
 			throw std::runtime_error("bad argument count");
@@ -217,13 +175,13 @@ struct Invoker <Return(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static boost::any invoke(Object *obj, F f, const std::vector<boost::any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
 	{
-		return (static_cast<Class *>(obj)->*f)(boost::any_cast<Args>(args[Is])...);
+		return (static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
-	static boost::any invoke(Object *obj, const std::vector<boost::any>& args)
+	static Any invoke(Object *obj, const std::vector<Any>& args)
 	{
 		if (args.size() != sizeof...(Args))
 			throw std::runtime_error("Bad argument count");
@@ -254,13 +212,13 @@ struct Invoker <Return(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static boost::any invoke(Object *obj, F f, const std::vector<boost::any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
 	{
 		return (static_cast<Class *>(obj)->*f)();
 	}
 
 	template<Fun fun>
-	static boost::any invoke(Object *obj, const std::vector<boost::any>& args)
+	static Any invoke(Object *obj, const std::vector<Any>& args)
 	{
 		if (args.size() != 0)
 			throw std::runtime_error("Bad argument count");
@@ -296,14 +254,14 @@ struct Invoker <void(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static boost::any invoke(Object *obj, F f, const std::vector<boost::any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
 	{
 		(static_cast<Class *>(obj)->*f)(boost::spirit::any_cast<Args>(args[Is])...);
-		return boost::any();
+		return Any();
 	}
 
 	template<Fun fun>
-	static boost::any invoke(Object *obj, const std::vector<boost::any>& args)
+	static Any invoke(Object *obj, const std::vector<Any>& args)
 	{
 		if (args.size() != sizeof...(Args))
 			throw std::runtime_error("Bad argument count");
@@ -334,14 +292,14 @@ struct Invoker <void(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static boost::any invoke(Object *obj, F f, const std::vector<boost::any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
 	{
 		(static_cast<Class *>(obj)->*f)(boost::spirit::any_cast<Args>(args[Is])...);
-		return boost::any();
+		return Any();
 	}
 
 	template<Fun fun>
-	static boost::any invoke(Object *obj, const std::vector<boost::any>& args)
+	static Any invoke(Object *obj, const std::vector<Any>& args)
 	{
 		if (args.size() != 0)
 			throw std::runtime_error("Bad argument count");
@@ -388,7 +346,17 @@ Method method(const char *name)
 	return m;
 }
 
-#define declare(m) method<decltype(&m), &m>(#m)
-#define overload(m, s) method<s, &m>(#m)
+#define METHOD(m) method<decltype(&m), &m>(#m)
+#define OVERLOAD(m, s) method<s, &m>(#m)
+
+/*template<typename GetSignature, typename SetSignature>
+struct Holder;
+
+template<typename Class, typename T>
+Holder <T(Class::*)(), void(Class::*)(T const&)>
+{
+	typedef T(Class::*)() Getter;
+	typedef void(Class::*)(T const&) Setter;
+};*/
 
 #endif

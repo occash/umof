@@ -24,7 +24,7 @@ USA.
 
 #include "objectdefs.h"
 
-#define OBJECT_CHECK
+//#define OBJECT_CHECK
 #define OBJECT(Class, Super) \
 public: \
 	static const Api *classApi() \
@@ -36,6 +36,18 @@ public: \
 		{ \
 		return Class::classApi(); \
 		} \
+private:
+
+#define EXPOSE(Class, ...) \
+public: \
+	static const Expose<Class> *expose() \
+	{ \
+		static const Expose<Class> exposer \
+		{ \
+			__VA_ARGS__ \
+		}; \
+		return &exposer; \
+	} \
 private:
 
 class Object
@@ -59,7 +71,7 @@ public:
 
 	Expose<Object> methods{
 			{
-				declare(Object::op)
+				METHOD(Object::op)
 			}
 	};
 };

@@ -19,36 +19,36 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include "types.h"
+#include "converters.h"
 
-boost::any Converter<int>::convert(const boost::any& a)
+Any Converter<int>::convert(const Any& a)
 {
 	if (typeid(float) == a.type())
 		return helper<int, double>::convert(a);
 	else if (typeid(const char *) == a.type())
 		return helper<int, const char *>::convert(a);
 
-	return boost::any_cast<int>(a);
+	return any_cast<int>(a);
 }
 
-bool Converter<int>::canConvert(const boost::any& a)
+bool Converter<int>::canConvert(const Any& a)
 {
 	return (typeid(int) == a.type()
 		|| typeid(float) == a.type()
 		|| typeid(const char *) == a.type());
 }
 
-boost::any Converter<float>::convert(const boost::any& a)
+Any Converter<float>::convert(const Any& a)
 {
 	if (typeid(int) == a.type())
-		return boost::any(helper<float, int>::convert(a));
+		return Any(helper<float, int>::convert(a));
 	else if (typeid(const char *) == a.type())
-		return boost::any(helper<float, const char *>::convert(a));
+		return Any(helper<float, const char *>::convert(a));
 
-	return boost::any_cast<float>(a);
+	return any_cast<float>(a);
 }
 
-bool Converter<float>::canConvert(const boost::any& a)
+bool Converter<float>::canConvert(const Any& a)
 {
 	return (typeid(float) == a.type()
 		|| typeid(int) == a.type()

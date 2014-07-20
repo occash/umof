@@ -86,6 +86,12 @@ inline T* any_cast(Any* operand)
 }
 
 template <typename T>
+inline T* any_cast(Any const* operand)
+{
+	return any_cast<T>(const_cast<Any*>(operand));
+}
+
+template <typename T>
 T any_cast(Any& operand)
 {
 	typedef typename std::remove_reference<T>::type nonref;
@@ -94,6 +100,15 @@ T any_cast(Any& operand)
 	if (!result)
 		throw std::runtime_error("Bad cast");
 	return *result;
+}
+
+template <typename T>
+T const& any_cast(Any const& operand)
+{
+	typedef typename std::remove_reference<T>::type nonref;
+
+
+	return any_cast<nonref const&>(const_cast<Any&>(operand));
 }
 
 #endif

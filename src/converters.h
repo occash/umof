@@ -19,39 +19,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef CONVERTERS_H
+#define CONVERTERS_H
 
-#include <boost/any.hpp>
+#include "any.h"
+
 #include <boost/lexical_cast.hpp>
 
 template<class U, class Y>
 struct helper
 {
-	inline static U convert(boost::any a)
+	inline static U convert(Any a)
 	{
-		return static_cast<U>(boost::any_cast<Y>(a));
+		return static_cast<U>(any_cast<Y>(a));
 	}
 };
 
 template<class U>
 struct helper <U, const char *>
 {
-	inline static U convert(boost::any a)
+	inline static U convert(Any a)
 	{
-		return boost::lexical_cast<U>(boost::any_cast<const char *>(a));
+		return boost::lexical_cast<U>(any_cast<const char *>(a));
 	}
 };
 
 template<class T>
 struct Converter
 {
-	static boost::any convert(const boost::any &a)
+	static Any convert(const Any &a)
 	{
-		return boost::any_cast<T>(a);
+		return Any_cast<T>(a);
 	}
 
-	static bool canConvert(const boost::any &a)
+	static bool canConvert(const Any &a)
 	{
 		return typeid(T) == a.type();
 	}
@@ -60,15 +61,15 @@ struct Converter
 template<>
 struct Converter<int>
 {
-	static boost::any convert(const boost::any &a);
-	static bool canConvert(const boost::any &a);
+	static Any convert(const Any &a);
+	static bool canConvert(const Any &a);
 };
 
 template<>
 struct Converter <float>
 {
-	static boost::any convert(const boost::any &a);
-	static bool canConvert(const boost::any &a);
+	static Any convert(const Any &a);
+	static bool canConvert(const Any &a);
 };
 
 #endif

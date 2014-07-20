@@ -5,20 +5,16 @@
 class Test : public Object
 {
 	OBJECT(Test, Object)
+	EXPOSE
+	(Test, 
+	OVERLOAD(lol, int(Test::*)(int, int)),
+	OVERLOAD(lol, float(Test::*)(float, float)),
+
+	METHOD(null),
+	METHOD(test)
+	)
 
 public:
-	static void expose()
-	{
-		static Expose<Test> m{
-				{
-					overload(Test::lol, int(Test::*)(int, int)),
-					overload(Test::lol, float(Test::*)(float, float)),
-					declare(Test::null),
-					declare(Test::test)
-				}
-		};
-	}
-
 	Test() = default;
 
 	int lol(int a, int b)
@@ -65,10 +61,11 @@ int main()
 	int l0 = 0;
 	if (m.isValid())
 	{
-		ArgPack args{ 2, 45 };
-		for (int i = 0; i < 1000000; ++i)
+		for (int i = 0; i < 100000; ++i)
 		{
-			l0 += boost::any_cast<int>(m.invoke(&t, args));
+			l0 += any_cast<int>(m.invoke(&t, {i, i})); 
+			//m.invoke(&t, { i, i });
+			//m.invoke(&t, args);
 			//Invoker<int(Test::*)(int, int)>::invoke<&Test::lol>(&t, args);
 		}
 	}
@@ -79,23 +76,23 @@ int main()
 
 	c_start = std::clock();
 	int l1 = 0;
-	for (int i = 0; i < 1000000; ++i)
+	for (int i = 0; i < 100000; ++i)
 	{
-		l1 += t.lol(2, 45);
+		l1 += t.lol(i, i);
 	}
 	c_end = std::clock();
 	std::cout << "Native CPU time used: "
 		<< 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC
 		<< " ms\n" << l1 << std::endl;
 
-	boost::any res = Api::invoke(&t, "lol", {5.0f, "6.0"});
+	/*Any res = Api::invoke(&t, "lol", {5.0f, "6.0"});
 	Api::invoke(&t, "test", {});
 	Api::invoke(&t, "null", {});
 
-	boost::any a{ 5 };
+	Any a{ 5 };*/
 	//std::cout << res.type().name() << boost::spirit::any_cast<float>(res);
 
-	/*boost::any ha(5.0);
+	/*Any ha(5.0);
 	int i = boost::spirit::any_cast<int>(ha);*/
 
 	return 0;
