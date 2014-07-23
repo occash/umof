@@ -5,7 +5,7 @@
 #include <list>
 
 class Any;
-class Type;
+struct Type;
 class Object;
 
 typedef std::vector<Any> ArgPack;

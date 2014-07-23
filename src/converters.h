@@ -24,7 +24,7 @@ USA.
 
 #include "any.h"
 
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 
 template<class U, class Y>
 struct helper
@@ -40,7 +40,9 @@ struct helper <U, const char *>
 {
 	inline static U convert(Any a)
 	{
-		return boost::lexical_cast<U>(any_cast<const char *>(a));
+		U u;
+		std::istringstream(any_cast<const char *>(a)) >> u;
+		return u;
 	}
 };
 

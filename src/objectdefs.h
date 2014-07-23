@@ -51,7 +51,7 @@ struct Type;
 //TYPE, METHOD, API, EXPOSE
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Definition
+/*struct Definition
 {
 	enum
 	{
@@ -66,7 +66,7 @@ struct Definition
 		Property p;
 		Enumerator e;
 	};
-};
+};*/
 
 template<typename Class>
 struct Expose
@@ -133,13 +133,13 @@ struct Invoker<Return(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(F f, std::vector<Any> args, unpack::indices<Is...>)
+	inline static Any invoke(F f, const ArgPack& args, unpack::indices<Is...>)
 	{
 		return f(boost::spirit::any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(std::vector<Any> args)
+	static Any invoke(const ArgPack& args)
 	{
 		if (args.size() != sizeof...(Args))
 			throw std::runtime_error("bad argument count");
@@ -175,13 +175,13 @@ struct Invoker <Return(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
 	{
 		return (static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const std::vector<Any>& args)
+	static Any invoke(Object *obj, const ArgPack& args)
 	{
 		if (args.size() != sizeof...(Args))
 			throw std::runtime_error("Bad argument count");
@@ -212,13 +212,13 @@ struct Invoker <Return(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const ArgPack&, unpack::indices<Is...>)
 	{
 		return (static_cast<Class *>(obj)->*f)();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const std::vector<Any>& args)
+	static Any invoke(Object *obj, const ArgPack& args)
 	{
 		if (args.size() != 0)
 			throw std::runtime_error("Bad argument count");
@@ -254,14 +254,14 @@ struct Invoker <void(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
 	{
 		(static_cast<Class *>(obj)->*f)(boost::spirit::any_cast<Args>(args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const std::vector<Any>& args)
+	static Any invoke(Object *obj, const ArgPack& args)
 	{
 		if (args.size() != sizeof...(Args))
 			throw std::runtime_error("Bad argument count");
@@ -292,14 +292,14 @@ struct Invoker <void(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const std::vector<Any>& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
 	{
 		(static_cast<Class *>(obj)->*f)(boost::spirit::any_cast<Args>(args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const std::vector<Any>& args)
+	static Any invoke(Object *obj, const ArgPack& args)
 	{
 		if (args.size() != 0)
 			throw std::runtime_error("Bad argument count");

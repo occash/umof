@@ -1,6 +1,7 @@
 #include "object.h"
 
 #include <iostream>
+#include <ctime>
 
 class Test : public Object
 {
