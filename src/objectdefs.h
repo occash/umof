@@ -135,7 +135,7 @@ struct Invoker<Return(Args...)>
 	template<typename F, unsigned... Is>
 	inline static Any invoke(F f, const ArgPack& args, unpack::indices<Is...>)
 	{
-		return f(boost::spirit::any_cast<Args>(args[Is])...);
+		return f(any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
@@ -256,7 +256,7 @@ struct Invoker <void(Class::*)(Args...)>
 	template<typename F, unsigned... Is>
 	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
 	{
-		(static_cast<Class *>(obj)->*f)(boost::spirit::any_cast<Args>(args[Is])...);
+		(static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 		return Any();
 	}
 
@@ -294,7 +294,7 @@ struct Invoker <void(Class::*)()>
 	template<typename F, unsigned... Is>
 	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
 	{
-		(static_cast<Class *>(obj)->*f)(boost::spirit::any_cast<Args>(args[Is])...);
+		(static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 		return Any();
 	}
 

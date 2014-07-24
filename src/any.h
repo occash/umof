@@ -54,9 +54,12 @@ Any::Any(T const& x) :
 	_object(nullptr)
 {
 	if (Table<T>::is_small::value)
-		new (&_object) T(x);
-	else
-		_object = new T(x);
+		_table->clone((void**)&x, &_object);
+	else 
+	{
+		void *src = (void *)&x;
+		_table->clone(&src, &_object);
+	}
 }
 
 template<typename T, std::size_t N>

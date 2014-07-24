@@ -61,6 +61,8 @@ struct CheckType<T, False>
 struct TypeTable
 {
 	std::type_info const&(*get_type)();
+	void(*static_new)(void**);
+	void(*construct)(void**);
 	void(*static_delete)(void**);
 	void(*destruct)(void**);
 	void(*clone)(void* const*, void**);
@@ -81,6 +83,14 @@ struct TypeFuncs<True>
 		static std::type_info const& get_type()
 		{
 			return typeid(T);
+		}
+		static void static_new(void** dest)
+		{
+			new (dest) T();
+		}
+		static void construct(void** dest)
+		{
+			new (dest) T();
 		}
 		static void static_delete(void** x)
 		{
@@ -112,6 +122,14 @@ struct TypeFuncs<False>
 		static std::type_info const& get_type()
 		{
 			return typeid(T);
+		}
+		static void static_new(void** dest)
+		{
+			*dest = new T();
+		}
+		static void construct(void** dest)
+		{
+			new (*dest) T();
 		}
 		static void static_delete(void** x)
 		{
@@ -148,6 +166,8 @@ struct Table
 		static TypeTable staticTable
 		{
 			TypeFuncs<is_small>::type<T_no_cv>::get_type,
+			TypeFuncs<is_small>::type<T_no_cv>::static_new,
+			TypeFuncs<is_small>::type<T_no_cv>::construct,
 			TypeFuncs<is_small>::type<T_no_cv>::static_delete,
 			TypeFuncs<is_small>::type<T_no_cv>::destruct,
 			TypeFuncs<is_small>::type<T_no_cv>::clone,
