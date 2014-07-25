@@ -86,11 +86,11 @@ struct TypeFuncs<True>
 		}
 		static void static_new(void** dest)
 		{
-			new (dest) T();
+			new (*dest) T();
 		}
 		static void construct(void** dest)
 		{
-			new (dest) T();
+			new (*dest) T();
 		}
 		static void static_delete(void** x)
 		{

@@ -175,15 +175,15 @@ struct Invoker <Return(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
 	{
 		return (static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const ArgPack& args)
+	static Any invoke(Object *obj, int argc, const Any *args)
 	{
-		if (args.size() != sizeof...(Args))
+		if (argc != sizeof...(Args))
 			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
@@ -212,15 +212,15 @@ struct Invoker <Return(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const ArgPack&, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const Any *, unpack::indices<Is...>)
 	{
 		return (static_cast<Class *>(obj)->*f)();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const ArgPack& args)
+	static Any invoke(Object *obj, int argc, const Any *args)
 	{
-		if (args.size() != 0)
+		if (argc != 0)
 			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
@@ -254,16 +254,16 @@ struct Invoker <void(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
 	{
 		(static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const ArgPack& args)
+	static Any invoke(Object *obj, int argc, const Any *args)
 	{
-		if (args.size() != sizeof...(Args))
+		if (argc != sizeof...(Args))
 			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
@@ -292,16 +292,16 @@ struct Invoker <void(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const ArgPack& args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
 	{
 		(static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, const ArgPack& args)
+	static Any invoke(Object *obj, int argc, const Any *args)
 	{
-		if (args.size() != 0)
+		if (argc != 0)
 			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
@@ -310,6 +310,21 @@ struct Invoker <void(Class::*)()>
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //Expose functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename Signature, Signature S>
+struct MTable
+{
+	static MethodTable *get()
+	{
+		static MethodTable staticTable
+		{
+			&Invoker<Signature>::invoke<S>,
+			Invoker<Signature>::returnType(),
+			Invoker<Signature>::types()
+		};
+		return &staticTable;
+	}
+};
+
 template<typename Signature, Signature& S>
 InvokeFun free_function()
 {
@@ -319,35 +334,11 @@ InvokeFun free_function()
 template<typename Signature, Signature S>
 Method method(const char *name)
 {
-	Method m;
-
-	std::string sig(name);
-	int pos = sig.rfind(':');
-	if (pos != -1)
-		sig = sig.substr(pos + 1, sig.size() - pos);
-	sig += '(';
-
-	TypeList args = Invoker<Signature>::types();
-	for (Type arg : args)
-	{
-		sig += arg.id.name();
-		sig += ',';
-	}
-	if (args.size() > 0)
-		sig[sig.size() - 1] = ')';
-	else
-		sig += ')';
-
-	m.data.signature = sig;
-	m.data.invoker = &Invoker<Signature>::invoke<S>;
-	m.data.rettype = Invoker<Signature>::returnType();
-	m.data.types = Invoker<Signature>::types();
-
-	return m;
+	return Method(name, MTable<Signature, S>::get());
 }
 
 #define METHOD(m) method<decltype(&m), &m>(#m)
-#define OVERLOAD(m, s) method<s, &m>(#m)
+#define OVERLOAD(m, c, r, ...) method<r(c::*)(__VA_ARGS__), &m>(#m)
 
 /*template<typename GetSignature, typename SetSignature>
 struct Holder;

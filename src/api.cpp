@@ -1,11 +1,6 @@
 #include "api.h"
 #include "object.h"
 
-std::string Method::signature() const
-{
-	return data.signature;
-}
-
 Api::Api(const Api *super)
 {
 	data.super = super;
@@ -31,7 +26,7 @@ Method Api::method(const char *signature) const
 		a = a->data.super;
 	}
 
-	return Method();
+	return Method("", nullptr);
 }
 
 Any Api::invoke(Object *obj, const char *name, ArgPack args)
@@ -50,8 +45,8 @@ Any Api::invoke(Object *obj, const char *name, ArgPack args)
 	else
 		sig += ')';
 
-	Method func = api->method(sig.c_str());
-	if (func.isValid())
+	/*Method func = api->method(sig.c_str());
+	if (func.valid())
 		return func.invoke(obj, args);
 
 	auto mrange = api->data.methods.equal_range(name);
@@ -90,7 +85,9 @@ Any Api::invoke(Object *obj, const char *name, ArgPack args)
 		}
 
 		return (*m).second.invoke(obj, newArgs);
-	}
+	}*/
+
+	return Any();
 
 	throw std::runtime_error("No such method");
 }

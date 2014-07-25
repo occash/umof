@@ -31,25 +31,32 @@ Any::Any(Any const& x) :
 	_table(nullptr),
 	_object(nullptr)
 {
-	/*if (&x != this)
-	{
-	if (_table == x._table)
-	_table->move(&x._object, &_object);
-	else
-	{
-	reset();*/
 	if (x._table != nullptr)
 	{
 		x._table->clone(&x._object, &_object);
 		_table = x._table;
 	}
-	/*}
-	}*/
+	else
+		reset();
+}
+
+Any::Any(Any &&x)
+{
+	if (x._table != nullptr)
+	{
+		x._table->move(&x._object, &_object);
+		_table = x._table;
+		x._table = nullptr;
+		x._object = nullptr;
+	}
+	else
+		reset();
 }
 
 Any::~Any()
 {
-	_table->static_delete(&_object);
+	if (_table)
+		_table->static_delete(&_object);
 }
 
 void Any::reset()

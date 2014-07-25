@@ -30,6 +30,7 @@ class Any
 public:
 	Any();
 	Any(Any const& x);
+	Any(Any &&x);
 	~Any();
 
 	template<typename T>
