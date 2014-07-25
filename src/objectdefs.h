@@ -284,6 +284,39 @@ struct Invoker <void(Class::*)()>
 	}
 };
 
+template<typename Signature, Signature S>
+struct Reader;
+
+template<typename T, typename Class, T(Class::*ReadFunc)()const>
+struct Reader<T(Class::*)()const, ReadFunc>
+{
+	inline static Any read(Object *obj)
+	{
+		return (static_cast<Class *>(obj)->*ReadFunc)();
+	}
+};
+
+template<typename Signature, Signature S>
+struct Writer;
+
+template<typename T, typename Class, void(Class::*WriteFunc)(T)>
+struct Writer<void(Class::*)(T), WriteFunc>
+{
+	inline static void write(Object *obj, const Any& value)
+	{
+		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
+	}
+};
+
+template<typename T, typename Class, void(Class::*WriteFunc)(const T&)>
+struct Writer<void(Class::*)(const T&), WriteFunc>
+{
+	inline static void write(Object *obj, const Any& value)
+	{
+		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
+	}
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //Expose functions
 ////////////////////////////////////////////////////////////////////////////////////////////////

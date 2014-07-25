@@ -1,17 +1,33 @@
 #ifndef PROPERTY_H
 #define PROPERTY_H
 
-class Any;
-struct Type;
+#include "defines.h"
+#include "any.h"
+#include "type.h"
+
 class Object;
+
+struct PropertyTable
+{
+	Type type;
+	ReadMem reader;
+	WriteMem writer;
+};
 
 class Property
 {
-	const char *name() const;
+	Property(const char *name, PropertyTable *table);
+
+	std::string name() const;
 	Type type() const;
 
-	Any read(Object *) const;
-	void write(Object *, const Any&);
+	Any read(Object *obj) const;
+	void write(Object *obj, const Any& value) const;
+
+private:
+	std::string _name;
+	PropertyTable *_table;
+
 };
 
 #endif

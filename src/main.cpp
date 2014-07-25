@@ -36,6 +36,19 @@ public:
 		std::cout << "loool" << std::endl;
 	}
 	
+	int getVal() const
+	{
+		return _val;
+	}
+
+	void setVal(int v)
+	{
+		_val = v;
+	}
+
+private:
+	int _val;
+
 };
 
 int my_fun(float f)
@@ -47,6 +60,9 @@ int main()
 {
 	Test t;
 	t.expose();
+
+	Writer<decltype(&Test::setVal), &Test::setVal>::write(&t, 25);
+	int i = any_cast<int>(Reader<decltype(&Test::getVal), &Test::getVal>::read(&t));
 
 	Method m = t.api()->method("lol(int,int)");
 

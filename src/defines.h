@@ -14,5 +14,7 @@ typedef std::list<Type> TypeList;
 
 typedef Any(*InvokeFun)(std::vector<Any>);
 typedef Any(*InvokeMem)(Object *, int argc, const Any *);
+typedef Any(*ReadMem)(Object *);
+typedef void(*WriteMem)(Object *, const Any&);
 
 #endif
