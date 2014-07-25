@@ -43,10 +43,6 @@ int my_fun(float f)
 	return 5;
 }
 
-/*#define BOOST_SPIRIT_ANY_IMPLICIT_CASTING
-#include <boost\spirit\home\support\detail\hold_any.hpp>*/
-//#include <boost/timer/timer.hpp>
-
 int main()
 {
 	Test t;

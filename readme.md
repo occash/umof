@@ -6,20 +6,14 @@ To use meta system the class should enherit from class Object. Use OBJECT macro 
 class Test : public Object
 {
 	OBJECT(Test, Object)
+	EXPOSE(Test, 
+		OVERLOAD(lol, Test, int, int, int),
+		OVERLOAD(lol, Test, float, float, float),
+		METHOD(null),
+		METHOD(test)
+	)
 
 public:
-	static void expose()
-	{
-		static Expose<Test> m{
-				{
-					overload(Test::func, int(Test::*)(int, int)),
-					overload(Test::func, float(Test::*)(float, float)),
-					declare(Test::null),
-					declare(Test::test)
-				}
-		};
-	}
-
 	Test() = default;
 
 	int func(int a, int b)
@@ -50,10 +44,10 @@ Test t;
 //Api for exact signature
 //Will throw if types are not consistent
 Method m = t.api()->method("func(int,int)");
-int i = boost::any_cast<int>(m.invoke(&t, args));
+int i = any_cast<int>(m.invoke(&t, args));
 
 //This function will try to cast type if possible
 //else will throw
-boost::any res = Api::invoke(&t, "lol", {5.0f, "6.0"});
+Any res = Api::invoke(&t, "func", {5.0f, "6.0"});
 
 ```
