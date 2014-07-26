@@ -60,6 +60,8 @@ private:
 class Object
 {
 public:
+	virtual ~Object() {}
+
 	static const Api *classApi()
 	{
 		static const Api staticApi("Object", nullptr, nullptr);

@@ -15,7 +15,8 @@ class Test : public Object
 		OVERLOAD(lol, Test, int, int, int),
 		OVERLOAD(lol, Test, float, float, float),
 		METHOD(null),
-		METHOD(test)
+		METHOD(test),
+		PROPERTY(val, getVal, setVal)
 	)
 
 public:
@@ -60,9 +61,12 @@ int main()
 {
 	Test t;
 
-	Property p("val", PTable<decltype(&Test::getVal), &Test::getVal, decltype(&Test::setVal), &Test::setVal>::get());
-	p.write(&t, 25);
-	int i = any_cast<int>(p.read(&t));
+	Property p = t.api()->property("val");
+	if (p.valid())
+	{
+		p.write(&t, 25);
+		int i = any_cast<int>(p.read(&t));
+	}
 
 	Method m = t.api()->method("lol(int,int)");
 

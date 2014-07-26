@@ -9,11 +9,20 @@ Api::Api(const char *name, const Api *super, const Expose *exp) :
 	{
 		std::for_each(exp->_defines.begin(), exp->_defines.end(), [&](Define d)
 		{
-			if (d.type == Define::MetaMethod)
-				methods.insert(std::make_pair(
-				std::string(d.name), 
-				(MethodTable *)d.table
-				));
+			switch (d.type)
+			{
+			case Define::MetaMethod:
+				_methods.insert(std::make_pair(
+					std::string(d.name),
+					(MethodTable *)d.table
+					));
+				break;
+			case Define::MetaProperty:
+				_props.insert(std::make_pair(
+					std::string(d.name),
+					(PropertyTable *)d.table
+					));
+			}
 		});
 	}
 }
@@ -38,7 +47,7 @@ Method Api::method(const char *signature) const
 
 	while (a)
 	{
-		auto mrange = a->methods.equal_range(sig);
+		auto mrange = a->_methods.equal_range(sig);
 		for (auto i = mrange.first; i != mrange.second; ++i)
 		{
 			Method m((*i).first.c_str(), (*i).second);
@@ -50,6 +59,22 @@ Method Api::method(const char *signature) const
 	}
 
 	return Method("", nullptr);
+}
+
+Property Api::property(const char *name) const
+{
+	const Api *a = this;
+
+	while (a)
+	{
+		auto i = a->_props.find(name);
+		if (i != a->_props.end())
+			return Property((*i).first.c_str(), (*i).second);
+
+		a = a->_super;
+	}
+
+	return Property("", nullptr);
 }
 
 Any Api::invoke(Object *obj, const char *name, ArgPack args)

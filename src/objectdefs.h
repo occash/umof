@@ -399,9 +399,16 @@ Define method(const char *name)
 	return{ Define::MetaMethod, name, MTable<Signature, S>::get() };
 }
 
+template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
+Define property(const char *name)
+{
+	return{ Define::MetaProperty, name, PTable<ReadSig, RS, WriteSig, WS>::get() };
+}
+
 #define METHOD(m) method<decltype(&m), &m>(#m)
 #define OVERLOAD(m, c, r, ...) method<r(c::*)(__VA_ARGS__), &m>(#m)
 #define FUNCTION(f) method<decltype(&f), &f>(#f)
+#define PROPERTY(p, r, w) property<decltype(&r), &r, decltype(&w), &w>(#p)
 
 template<typename T>
 struct expose_method

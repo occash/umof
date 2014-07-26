@@ -11,6 +11,11 @@ std::string Property::name() const
 	return _name;
 }
 
+bool Property::valid() const
+{
+	return (_table != nullptr);
+}
+
 Type Property::type() const
 {
 	if (_table)

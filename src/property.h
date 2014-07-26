@@ -20,6 +20,7 @@ public:
 	Property(const char *name, PropertyTable *table);
 
 	std::string name() const;
+	bool valid() const;
 	Type type() const;
 
 	Any read(Object *obj) const;
