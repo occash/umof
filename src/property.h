@@ -16,6 +16,7 @@ struct PropertyTable
 
 class Property
 {
+public:
 	Property(const char *name, PropertyTable *table);
 
 	std::string name() const;

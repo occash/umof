@@ -61,8 +61,9 @@ int main()
 	Test t;
 	t.expose();
 
-	Writer<decltype(&Test::setVal), &Test::setVal>::write(&t, 25);
-	int i = any_cast<int>(Reader<decltype(&Test::getVal), &Test::getVal>::read(&t));
+	Property p("val", PTable<decltype(&Test::getVal), &Test::getVal, decltype(&Test::setVal), &Test::setVal>::get());
+	p.write(&t, 25);
+	int i = any_cast<int>(p.read(&t));
 
 	Method m = t.api()->method("lol(int,int)");
 

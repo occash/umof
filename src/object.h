@@ -24,11 +24,14 @@ USA.
 
 #include "objectdefs.h"
 
-//#define OBJECT_CHECK
+#define OBJECT_CHECK(Class) \
+	static_assert(std::is_base_of<Object, Class>::value, "Class " #Class " should inherit from Object");
+
 #define OBJECT(Class, Super) \
 public: \
 	static const Api *classApi() \
 		{ \
+		OBJECT_CHECK(Class) \
 		static const Api staticApi(Super::classApi()); \
 		return &staticApi; \
 		} \
@@ -63,17 +66,6 @@ public:
 	{
 		return Object::classApi();
 	}
-
-	int op(int e, int f)
-	{
-		return e * f;
-	}
-
-	Expose<Object> methods{
-			{
-				METHOD(Object::op)
-			}
-	};
 };
 
 #endif

@@ -287,9 +287,36 @@ struct Invoker <void(Class::*)()>
 template<typename Signature, Signature S>
 struct Reader;
 
+template<typename T, typename Class, T(Class::*ReadFunc)()>
+struct Reader < T(Class::*)(), ReadFunc >
+{
+	inline static Type type()
+	{
+		return{
+			std::type_index(typeid(T)),
+			nullptr,
+			nullptr
+		};
+	}
+
+	inline static Any read(Object *obj)
+	{
+		return (static_cast<Class *>(obj)->*ReadFunc)();
+	}
+};
+
 template<typename T, typename Class, T(Class::*ReadFunc)()const>
 struct Reader<T(Class::*)()const, ReadFunc>
 {
+	inline static Type type()
+	{
+		return{
+			std::type_index(typeid(T)),
+			nullptr,
+			nullptr
+		};
+	}
+
 	inline static Any read(Object *obj)
 	{
 		return (static_cast<Class *>(obj)->*ReadFunc)();
@@ -330,6 +357,21 @@ struct MTable
 			&Invoker<Signature>::invoke<S>,
 			Invoker<Signature>::returnType(),
 			Invoker<Signature>::types()
+		};
+		return &staticTable;
+	}
+};
+
+template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
+struct PTable
+{
+	static PropertyTable *get()
+	{
+		static PropertyTable staticTable
+		{
+			Reader<ReadSig, RS>::type(),
+			&Reader<ReadSig, RS>::read,
+			&Writer<WriteSig, WS>::write
 		};
 		return &staticTable;
 	}
