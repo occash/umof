@@ -3,6 +3,11 @@
 #include <iostream>
 #include <ctime>
 
+/*void my_fun(Object *obj)
+{
+	std::cout << "free function" << std::endl;
+}*/
+
 class Test : public Object
 {
 	OBJECT(Test, Object)
@@ -50,11 +55,6 @@ private:
 	int _val;
 
 };
-
-int my_fun(float f)
-{
-	return 5;
-}
 
 int main()
 {

@@ -85,44 +85,40 @@ struct Invoker;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //Free function
 ////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename Return, typename... Args>
-struct Invoker<Return(Args...)>
+/*template<>
+struct Invoker<void(*)(Object *)>
 {
-	typedef Return(*Fun)(Args...);
+	typedef void(*Fun)();
 
 	inline static TypeList types()
 	{
-		return TypeList({
-				{
-					std::type_index(typeid(Args)),
-					&Converter<Args>::canConvert,
-					&Converter<Args>::convert
-				}... });
+		return TypeList();
 	}
 
 	inline static Type returnType()
 	{
 		return{
-			std::type_index(typeid(Return)),
-			&Converter<Args>::canConvert,
-			&Converter<Args>::convert
+			std::type_index(typeid(void)),
+			nullptr,
+			nullptr
 		};
 	}
 
-	template<typename F, unsigned... Is>
-	inline static Any invoke(F f, const ArgPack& args, unpack::indices<Is...>)
+	template<unsigned... Is>
+	inline static Any invoke(Object *obj, Fun f, const Any *args, unpack::indices<Is...>)
 	{
-		return f(any_cast<Args>(args[Is])...);
+		f(obj);
+		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(const ArgPack& args)
+	static Any invoke(Object *obj, int argc, const Any *args)
 	{
-		if (args.size() != sizeof...(Args))
+		if (argc != sizeof...(Args))
 			throw std::runtime_error("bad argument count");
-		return invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
+		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
-};
+};*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //Base method template
@@ -284,6 +280,10 @@ struct Invoker <void(Class::*)()>
 	}
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+//Property read/write 
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<typename Signature, Signature S>
 struct Reader;
 
@@ -377,12 +377,6 @@ struct PTable
 	}
 };
 
-template<typename Signature, Signature& S>
-InvokeFun free_function()
-{
-	return &Invoker<Signature>::invoke<S>;
-}
-
 template<typename Signature, Signature S>
 Method method(const char *name)
 {
@@ -391,15 +385,6 @@ Method method(const char *name)
 
 #define METHOD(m) method<decltype(&m), &m>(#m)
 #define OVERLOAD(m, c, r, ...) method<r(c::*)(__VA_ARGS__), &m>(#m)
-
-/*template<typename GetSignature, typename SetSignature>
-struct Holder;
-
-template<typename Class, typename T>
-Holder <T(Class::*)(), void(Class::*)(T const&)>
-{
-	typedef T(Class::*)() Getter;
-	typedef void(Class::*)(T const&) Setter;
-};*/
+#define FUNCTION(f) method<decltype(&f), &f>(#f)
 
 #endif
