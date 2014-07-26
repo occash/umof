@@ -32,7 +32,11 @@ public: \
 	static const Api *classApi() \
 		{ \
 		OBJECT_CHECK(Class) \
-		static const Api staticApi(Super::classApi()); \
+		static const Api staticApi( \
+			#Class, \
+			Super::classApi(), \
+			expose_method<Class>::exec() \
+		); \
 		return &staticApi; \
 		} \
 	virtual const Api *api() const \
@@ -41,11 +45,11 @@ public: \
 		} \
 private:
 
-#define EXPOSE(Class, ...) \
+#define EXPOSE(...) \
 public: \
-	static const Expose<Class> *expose() \
+	static const Expose *expose() \
 	{ \
-		static const Expose<Class> exposer \
+		static const Expose exposer \
 		{ \
 			__VA_ARGS__ \
 		}; \
@@ -58,7 +62,7 @@ class Object
 public:
 	static const Api *classApi()
 	{
-		static const Api staticApi(nullptr);
+		static const Api staticApi("Object", nullptr, nullptr);
 		return &staticApi;
 	}
 

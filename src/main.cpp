@@ -11,7 +11,7 @@
 class Test : public Object
 {
 	OBJECT(Test, Object)
-	EXPOSE(Test, 
+	EXPOSE(
 		OVERLOAD(lol, Test, int, int, int),
 		OVERLOAD(lol, Test, float, float, float),
 		METHOD(null),
@@ -59,7 +59,6 @@ private:
 int main()
 {
 	Test t;
-	t.expose();
 
 	Property p("val", PTable<decltype(&Test::getVal), &Test::getVal, decltype(&Test::setVal), &Test::setVal>::get());
 	p.write(&t, 25);

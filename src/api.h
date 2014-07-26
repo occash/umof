@@ -6,30 +6,30 @@
 #include "defines.h"
 #include "method.h"
 
+struct Expose;
+
 class Api
 {
 public:
-	Api(const Api *super);
+	Api(const char *name, const Api *super, const Expose *exp);
 
-	//Api *super() const;
+	std::string name() const; //Class name
+	const Api *super() const;
 	//Any data(const char *) const; //Additional data connected to class
-	//std::string name() const; //Class name
 	//Method constructor(const char *) const; //find constructor by signature
 	Method method(const char *) const; //find method by signature
-	//Enum enum(const char *) const; //find enum by name
 	//Property property(const char *) const; //find property by name
-	//Object *create(ArgPack args) const;
-
+	//Enum enum(const char *) const; //find enum by name
+	
+	//static Object *create(ArgPack args) const;
 	static Any invoke(Object *obj, const char *name, ArgPack args);
 
-	struct
-	{
-		typedef std::multimap<std::string, Method> MethodMap;
-		const Api *super;
-		const char *name;
-		MethodMap methods;
-		//properties goes here
-	} data;
+private:
+	typedef std::multimap<std::string, MethodTable *> MethodMap;
+	std::string _name;
+	const Api *_super;
+	MethodMap methods;
+	//properties goes here
 };
 
 #endif

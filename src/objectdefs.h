@@ -29,6 +29,7 @@ USA.
 #include <typeinfo>
 #include <typeindex>
 #include <iostream>
+#include <algorithm>
 
 #include "defines.h"
 #include "any.h"
@@ -45,21 +46,36 @@ struct Type;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //TYPE, METHOD, API, EXPOSE
 ////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename Class>
+struct Define
+{
+	enum Type
+	{
+		MetaMethod,
+		MetaProperty,
+		MetaEnumerator
+	};
+	Type type;
+	std::string name;
+	void *table;
+};
+
 struct Expose
 {
-	Expose(std::initializer_list<Method> methods)
+	Expose(std::initializer_list<Define> defines) :
+		_defines(defines)
 	{
-		Api *_api = const_cast<Api *>(Class::classApi());
-
-		for (Method method : methods)
+		std::sort(_defines.begin(), _defines.end(), [](Define l, Define r)
 		{
-			std::string sig = method.signature();
-			int idx = sig.find('(');
-			sig = sig.substr(0, idx);
-			_api->data.methods.insert(std::make_pair(sig, method));
-		}
+			if (l.type < r.type)
+				return true;
+			else if (l.type == r.type && l.name < r.name)
+				return true;
+			else
+				return false;
+		});
 	}
+
+	std::vector<Define> _defines;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -378,13 +394,52 @@ struct PTable
 };
 
 template<typename Signature, Signature S>
-Method method(const char *name)
+Define method(const char *name)
 {
-	return Method(name, MTable<Signature, S>::get());
+	return{ Define::MetaMethod, name, MTable<Signature, S>::get() };
 }
 
 #define METHOD(m) method<decltype(&m), &m>(#m)
 #define OVERLOAD(m, c, r, ...) method<r(c::*)(__VA_ARGS__), &m>(#m)
 #define FUNCTION(f) method<decltype(&f), &f>(#f)
+
+template<typename T>
+struct expose_method
+{
+private:
+	typedef std::true_type yes;
+	typedef std::false_type no;
+
+	template<typename U>
+	static auto test(int) -> decltype(std::declval<U>().expose(), yes())
+	{
+		return yes();
+	}
+
+	template<typename>
+	static no test(...)
+	{
+		return no();
+	}
+
+	static const Expose *exec_impl(std::true_type) 
+	{
+		return T::expose();
+	}
+
+	static const Expose *exec_impl(...) 
+	{
+		return nullptr;
+	}
+
+public:
+	static const Expose *exec()
+	{
+		return exec_impl(test<T>(0));
+	}
+
+	//static constexpr bool exists = std::is_same<decltype(test<T>(0)),yes>::value;
+	enum { exists = std::is_same<decltype(test<T>(0)), yes>::value };
+};
 
 #endif

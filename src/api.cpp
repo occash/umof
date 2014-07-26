@@ -1,9 +1,31 @@
 #include "api.h"
 #include "object.h"
 
-Api::Api(const Api *super)
+Api::Api(const char *name, const Api *super, const Expose *exp) :
+	_name(name),
+	_super(super)
 {
-	data.super = super;
+	if (exp)
+	{
+		std::for_each(exp->_defines.begin(), exp->_defines.end(), [&](Define d)
+		{
+			if (d.type == Define::MetaMethod)
+				methods.insert(std::make_pair(
+				std::string(d.name), 
+				(MethodTable *)d.table
+				));
+		});
+	}
+}
+
+std::string Api::name() const
+{
+	return _name;
+}
+
+const Api *Api::super() const
+{
+	return _super;
 }
 
 Method Api::method(const char *signature) const
@@ -16,14 +38,15 @@ Method Api::method(const char *signature) const
 
 	while (a)
 	{
-		auto mrange = a->data.methods.equal_range(sig);
+		auto mrange = a->methods.equal_range(sig);
 		for (auto i = mrange.first; i != mrange.second; ++i)
 		{
-			if ((*i).second.signature() == signature)
-				return (*i).second;
+			Method m((*i).first.c_str(), (*i).second);
+			if (m.signature() == signature)
+				return m;
 		}
 
-		a = a->data.super;
+		a = a->_super;
 	}
 
 	return Method("", nullptr);
