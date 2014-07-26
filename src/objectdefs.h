@@ -393,6 +393,18 @@ struct PTable
 	}
 };
 
+struct ETable
+{
+	static EnumeratorTable *get()
+	{
+		static EnumeratorTable staticTable
+		{
+
+		};
+		return &staticTable;
+	}
+};
+
 template<typename Signature, Signature S>
 Define method(const char *name)
 {
