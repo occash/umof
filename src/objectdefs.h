@@ -393,13 +393,16 @@ struct PTable
 	}
 };
 
+template<typename T>
 struct ETable
 {
 	static EnumeratorTable *get()
 	{
 		static EnumeratorTable staticTable
 		{
-
+			T::size(),
+			T::keys(),
+			T::values()
 		};
 		return &staticTable;
 	}
@@ -417,10 +420,35 @@ Define property(const char *name)
 	return{ Define::MetaProperty, name, PTable<ReadSig, RS, WriteSig, WS>::get() };
 }
 
+template<typename T>
+Define enumerator(const char *name)
+{
+	return{ Define::MetaEnumerator, name, ETable<T>::get() };
+}
+
 #define METHOD(m) method<decltype(&m), &m>(#m)
 #define OVERLOAD(m, c, r, ...) method<r(c::*)(__VA_ARGS__), &m>(#m)
 #define FUNCTION(f) method<decltype(&f), &f>(#f)
 #define PROPERTY(p, r, w) property<decltype(&r), &r, decltype(&w), &w>(#p)
+#define ENUMERATOR(e) enumerator<e ## Def>(#e)
+#define ENUM(e, ...) \
+struct e ## Def \
+{ \
+	static int size() \
+	{ \
+		return VA_NARGS(__VA_ARGS__); \
+	} \
+	static const char** keys() \
+	{ \
+		static const char *keys[] = { #__VA_ARGS__ }; \
+		return keys; \
+	} \
+	static const int *values() \
+	{ \
+		static const int values[] = { __VA_ARGS__ }; \
+		return values; \
+	} \
+};
 
 template<typename T>
 struct expose_method

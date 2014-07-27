@@ -16,8 +16,21 @@ class Test : public Object
 		OVERLOAD(lol, Test, float, float, float),
 		METHOD(null),
 		METHOD(test),
-		PROPERTY(val, getVal, setVal)
+		PROPERTY(val, getVal, setVal),
+		ENUMERATOR(TestEnum)
 	)
+
+	enum TestEnum
+	{
+		Value1,
+		Value2,
+		Value3
+	};
+
+	ENUM(TestEnum,
+		Value1,
+		Value2,
+		Value3)
 
 public:
 	Test() = default;
@@ -60,6 +73,14 @@ private:
 int main()
 {
 	Test t;
+
+	Enumerator e = t.api()->enumerator("TestEnum");
+	if (e.valid())
+	{
+		std::cout << e.keyCount() << std::endl;
+		std::cout << e.key(0) << std::endl;
+		std::cout << e.value("Value2") << std::endl;
+	}
 
 	Property p = t.api()->property("val");
 	if (p.valid())

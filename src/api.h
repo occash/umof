@@ -6,6 +6,7 @@
 #include "defines.h"
 #include "method.h"
 #include "property.h"
+#include "enum.h"
 
 struct Expose;
 
@@ -20,7 +21,7 @@ public:
 	//Method constructor(const char *) const; //find constructor by signature
 	Method method(const char *) const; //find method by signature
 	Property property(const char *) const; //find property by name
-	//Enum enum(const char *) const; //find enum by name
+	Enumerator enumerator(const char *) const; //find enum by name
 	
 	//static Object *create(ArgPack args) const;
 	static Any invoke(Object *obj, const char *name, ArgPack args);
@@ -28,10 +29,12 @@ public:
 private:
 	typedef std::multimap<std::string, MethodTable *> MethodMap;
 	typedef std::map<std::string, PropertyTable *> PropertyMap;
+	typedef std::map<std::string, EnumeratorTable *> EnumeratorMap;
 	std::string _name;
 	const Api *_super;
 	MethodMap _methods;
 	PropertyMap _props;
+	EnumeratorMap _enums;
 
 };
 

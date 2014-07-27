@@ -22,6 +22,11 @@ Api::Api(const char *name, const Api *super, const Expose *exp) :
 					std::string(d.name),
 					(PropertyTable *)d.table
 					));
+			case Define::MetaEnumerator:
+				_enums.insert(std::make_pair(
+					std::string(d.name),
+					(EnumeratorTable *)d.table
+					));
 			}
 		});
 	}
@@ -75,6 +80,22 @@ Property Api::property(const char *name) const
 	}
 
 	return Property("", nullptr);
+}
+
+Enumerator Api::enumerator(const char *name) const
+{
+	const Api *a = this;
+
+	while (a)
+	{
+		auto i = a->_enums.find(name);
+		if (i != a->_enums.end())
+			return Enumerator((*i).first.c_str(), (*i).second);
+
+		a = a->_super;
+	}
+
+	return Enumerator("", nullptr);
 }
 
 Any Api::invoke(Object *obj, const char *name, ArgPack args)

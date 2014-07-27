@@ -6,8 +6,8 @@
 struct EnumeratorTable
 {
 	int size;
-	char **keys;
-	int *values;
+	const char **keys;
+	const int *values;
 };
 
 class Enumerator
