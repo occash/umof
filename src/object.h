@@ -30,7 +30,7 @@ USA.
 #define OBJECT(Class, Super) \
 public: \
 	static const Api *classApi() \
-		{ \
+	{ \
 		OBJECT_CHECK(Class) \
 		static const Api staticApi( \
 			#Class, \
@@ -38,22 +38,23 @@ public: \
 			expose_method<Class>::exec() \
 		); \
 		return &staticApi; \
-		} \
+	} \
 	virtual const Api *api() const \
-		{ \
+	{ \
 		return Class::classApi(); \
-		} \
+	} \
 private:
 
 #define EXPOSE(...) \
 public: \
-	static const Expose *expose() \
+	static const MethodDef *expose() \
 	{ \
-		static const Expose exposer \
+		static const MethodDef methods[] \
 		{ \
-			__VA_ARGS__ \
+			__VA_ARGS__, \
+			{ nullptr, nullptr} \
 		}; \
-		return &exposer; \
+		return methods; \
 	} \
 private:
 

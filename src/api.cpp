@@ -1,33 +1,22 @@
 #include "api.h"
 #include "object.h"
 
-Api::Api(const char *name, const Api *super, const Expose *exp) :
+Api::Api(const char *name, const Api *super, const MethodDef *exp) :
 	_name(name),
 	_super(super)
 {
 	if (exp)
 	{
-		std::for_each(exp->_defines.begin(), exp->_defines.end(), [&](Define d)
+		for(auto d = exp; d->name && d->table; ++d)
 		{
-			switch (d.type)
-			{
-			case Define::MetaMethod:
-				_methods.insert(std::make_pair(
-					std::string(d.name),
-					(MethodTable *)d.table
-					));
-				break;
-			case Define::MetaProperty:
-				_props.insert(std::make_pair(
-					std::string(d.name),
-					(PropertyTable *)d.table
-					));
-			}
-		});
+			_methods.insert(std::make_pair(
+				std::string(d->name),
+				d->table));
+		}
 	}
 }
 
-std::string Api::name() const
+const char *Api::name() const
 {
 	return _name;
 }

@@ -15,8 +15,8 @@ class Test : public Object
 		OVERLOAD(lol, Test, int, int, int),
 		OVERLOAD(lol, Test, float, float, float),
 		METHOD(null),
-		METHOD(test),
-		PROPERTY(val, getVal, setVal)
+		METHOD(test)
+		//PROPERTY(val, getVal, setVal)
 	)
 
 public:
@@ -60,6 +60,7 @@ private:
 int main()
 {
 	Test t;
+	int size = VA_NARGS(1, 2, 3, 4);
 
 	Property p = t.api()->property("val");
 	if (p.valid())

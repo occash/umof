@@ -7,14 +7,14 @@
 #include "method.h"
 #include "property.h"
 
-struct Expose;
+struct MethodDef;
 
 class Api
 {
 public:
-	Api(const char *name, const Api *super, const Expose *exp);
+	Api(const char *name, const Api *super, const MethodDef *exp);
 
-	std::string name() const; //Class name
+	const char *name() const; //Class name
 	const Api *super() const;
 	//Any data(const char *) const; //Additional data connected to class
 	//Method constructor(const char *) const; //find constructor by signature
@@ -28,7 +28,7 @@ public:
 private:
 	typedef std::multimap<std::string, MethodTable *> MethodMap;
 	typedef std::map<std::string, PropertyTable *> PropertyMap;
-	std::string _name;
+	const char *_name;
 	const Api *_super;
 	MethodMap _methods;
 	PropertyMap _props;

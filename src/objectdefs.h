@@ -46,7 +46,7 @@ struct Type;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //TYPE, METHOD, API, EXPOSE
 ////////////////////////////////////////////////////////////////////////////////////////////////
-struct Define
+/*struct Define
 {
 	enum Type
 	{
@@ -76,7 +76,7 @@ struct Expose
 	}
 
 	std::vector<Define> _defines;
-};
+};*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //UNPACK HELPER
@@ -378,6 +378,12 @@ struct MTable
 	}
 };
 
+struct MethodDef
+{
+	const char *name;
+	MethodTable *table;
+};
+
 template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
 struct PTable
 {
@@ -393,7 +399,7 @@ struct PTable
 	}
 };
 
-template<typename Signature, Signature S>
+/*template<typename Signature, Signature S>
 Define method(const char *name)
 {
 	return{ Define::MetaMethod, name, MTable<Signature, S>::get() };
@@ -403,10 +409,10 @@ template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
 Define property(const char *name)
 {
 	return{ Define::MetaProperty, name, PTable<ReadSig, RS, WriteSig, WS>::get() };
-}
+}*/
 
-#define METHOD(m) method<decltype(&m), &m>(#m)
-#define OVERLOAD(m, c, r, ...) method<r(c::*)(__VA_ARGS__), &m>(#m)
+#define METHOD(m) { #m, MTable<decltype(&m), &m>::get() }
+#define OVERLOAD(m, c, r, ...) { #m, MTable<r(c::*)(__VA_ARGS__), &m>::get() }
 #define FUNCTION(f) method<decltype(&f), &f>(#f)
 #define PROPERTY(p, r, w) property<decltype(&r), &r, decltype(&w), &w>(#p)
 
@@ -416,36 +422,29 @@ struct expose_method
 private:
 	typedef std::true_type yes;
 	typedef std::false_type no;
-
 	template<typename U>
 	static auto test(int) -> decltype(std::declval<U>().expose(), yes())
 	{
 		return yes();
 	}
-
 	template<typename>
 	static no test(...)
 	{
 		return no();
 	}
-
-	static const Expose *exec_impl(std::true_type) 
+	static const MethodDef *exec_impl(std::true_type)
 	{
 		return T::expose();
 	}
-
-	static const Expose *exec_impl(...) 
+	static const MethodDef *exec_impl(...)
 	{
 		return nullptr;
 	}
-
 public:
-	static const Expose *exec()
+	static const MethodDef *exec()
 	{
 		return exec_impl(test<T>(0));
 	}
-
-	//static constexpr bool exists = std::is_same<decltype(test<T>(0)),yes>::value;
 	enum { exists = std::is_same<decltype(test<T>(0)), yes>::value };
 };
 
