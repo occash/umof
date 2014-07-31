@@ -1,23 +1,31 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-#include <typeinfo>
-#include <typeindex>
+#include "type_traits.h"
 
 class Any;
 
-struct Type
+class Type
 {
-	typedef Any(*ConvertFun)(const Any&);
-	typedef bool(*CheckFun)(const Any&);
+public:
+	//typedef Any(*ConvertFun)(const Any&);
+	//typedef bool(*CheckFun)(const Any&);
 
-	Type(std::type_index i = std::type_index(typeid(void)),
-		CheckFun c = nullptr, ConvertFun f = nullptr)
-		: id(i), checker(c), converter(f) {}
+	Type(TypeTable *table);
 
-	std::type_index id = typeid(void);
-	CheckFun checker;
-	ConvertFun converter;
+	bool valid() const;
+	std::type_info const& id() const;
+	int size() const;
+	void *construct(void *where, void *const copy = nullptr) const;
+	void *create(void *const copy = nullptr) const;
+	void destroy(void *data) const;
+	void destruct(void *data) const;
+
+private:
+	TypeTable *_table;
+	//std::type_index id = typeid(void);
+	//CheckFun checker;
+	//ConvertFun converter;
 };
 
 #endif

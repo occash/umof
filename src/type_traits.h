@@ -61,6 +61,7 @@ struct CheckType<T, False>
 struct TypeTable
 {
 	std::type_info const&(*get_type)();
+	int(*get_size)();
 	void(*static_new)(void**);
 	void(*construct)(void**);
 	void(*static_delete)(void**);
@@ -83,6 +84,10 @@ struct TypeFuncs<True>
 		static std::type_info const& get_type()
 		{
 			return typeid(T);
+		}
+		static int get_size()
+		{
+			return sizeof(T);
 		}
 		static void static_new(void** dest)
 		{
@@ -122,6 +127,10 @@ struct TypeFuncs<False>
 		static std::type_info const& get_type()
 		{
 			return typeid(T);
+		}
+		static int get_size()
+		{
+			return sizeof(T);
 		}
 		static void static_new(void** dest)
 		{
@@ -166,6 +175,7 @@ struct Table
 		static TypeTable staticTable
 		{
 			TypeFuncs<is_small>::type<T_no_cv>::get_type,
+			TypeFuncs<is_small>::type<T_no_cv>::get_size,
 			TypeFuncs<is_small>::type<T_no_cv>::static_new,
 			TypeFuncs<is_small>::type<T_no_cv>::construct,
 			TypeFuncs<is_small>::type<T_no_cv>::static_delete,
