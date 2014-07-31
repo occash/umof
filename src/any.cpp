@@ -40,7 +40,9 @@ Any::Any(Any const& x) :
 		reset();
 }
 
-Any::Any(Any &&x)
+Any::Any(Any &&x) :
+	_table(nullptr),
+	_object(nullptr)
 {
 	if (x._table != nullptr)
 	{
