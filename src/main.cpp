@@ -15,7 +15,8 @@ class Test : public Object
 		OVERLOAD(lol, Test, int, int, int),
 		OVERLOAD(lol, Test, float, float, float),
 		METHOD(null),
-		METHOD(test)
+		METHOD(test),
+		METHOD(sfunc)
 		//PROPERTY(val, getVal, setVal)
 	)
 
@@ -40,6 +41,11 @@ public:
 	void test()
 	{
 		std::cout << "loool" << std::endl;
+	}
+
+	static void sfunc()
+	{
+		std::cout << "static func" << std::endl;
 	}
 	
 	int getVal() const
@@ -69,6 +75,8 @@ int main()
 		int i = any_cast<int>(p.read(&t));
 	}
 
+	Method sm = t.api()->method("sfunc()");
+	sm.invoke(0, {});
 	Method m = t.api()->method("lol(int,int)");
 
 	std::clock_t c_start = std::clock();
