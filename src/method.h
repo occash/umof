@@ -1,3 +1,24 @@
+/*********************************************************************
+This file is part of the uMOF library.
+Copyright (C) 2014 Artem Shal
+artiom.shal@gmail.com
+
+The uMOF library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+USA.
+**********************************************************************/
+
 #ifndef METHOD_H
 #define METHOD_H
 
@@ -9,32 +30,32 @@ class Object;
 
 struct MethodTable
 {
+	const char *name;
 	InvokeMem invoker;
-	Type rettype;
-	TypeList types;
+	int argc;
+	const TypeTable **types;
 };
 
 class Method
 {
 public:
-	Method(const char *name, MethodTable *table);
+	Method(const MethodTable *table);
 
 	bool valid() const;
 
-	std::string name() const;
+	const char *name() const;
 	std::string signature() const;
 
 	Type returnType() const;
 	int parameterCount() const;
-	TypeList parameterTypes() const;
+	//TypeList parameterTypes() const;
 	Type parmaeterType(int index) const;
 
 	Any invoke(Object *obj, int argc, const Any *args) const;
 	Any invoke(Object *obj, std::initializer_list<Any> args) const;
 
 private:
-	std::string _name;
-	MethodTable *_table;
+	const MethodTable *_table;
 
 };
 

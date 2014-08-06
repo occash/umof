@@ -1,3 +1,24 @@
+/*********************************************************************
+This file is part of the uMOF library.
+Copyright (C) 2014 Artem Shal
+artiom.shal@gmail.com
+
+The uMOF library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+USA.
+**********************************************************************/
+
 #ifndef DEFINES_H
 #define DEFINES_H
 
@@ -5,14 +26,14 @@
 #include <list>
 
 class Any;
-struct Type;
+class Type;
 class Object;
 
 typedef std::vector<Any> ArgPack;
 typedef std::list<std::string> StringList;
 typedef std::list<Type> TypeList;
 
-typedef Any(*InvokeFun)(int argc, const Any *);
+//typedef Any(*InvokeFun)(int argc, const Any *);
 typedef Any(*InvokeMem)(Object *, int argc, const Any *);
 typedef Any(*ReadMem)(Object *);
 typedef void(*WriteMem)(Object *, const Any&);

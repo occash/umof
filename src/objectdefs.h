@@ -37,55 +37,14 @@ USA.
 #include "type.h"
 #include "converters.h"
 #include "methoddefs.h"
+#include "propertydefs.h"
 #include "method.h"
 #include "property.h"
 #include "api.h"
 
-template<typename Signature, Signature S>
-struct Writer;
-
-template<typename T, typename Class, void(Class::*WriteFunc)(T)>
-struct Writer<void(Class::*)(T), WriteFunc>
-{
-	inline static void write(Object *obj, const Any& value)
-	{
-		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
-	}
-};
-
-template<typename T, typename Class, void(Class::*WriteFunc)(const T&)>
-struct Writer<void(Class::*)(const T&), WriteFunc>
-{
-	inline static void write(Object *obj, const Any& value)
-	{
-		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
-	}
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //Expose functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename Signature, Signature S>
-struct MTable
-{
-	static MethodTable *get()
-	{
-		static MethodTable staticTable
-		{
-			&Invoker<Signature>::invoke<S>,
-			Invoker<Signature>::returnType(),
-			Invoker<Signature>::types()
-		};
-		return &staticTable;
-	}
-};
-
-struct MethodDef
-{
-	const char *name;
-	MethodTable *table;
-};
-
 template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
 struct PTable
 {
@@ -101,20 +60,20 @@ struct PTable
 	}
 };
 
-/*template<typename Signature, Signature S>
-Define method(const char *name)
-{
-	return{ Define::MetaMethod, name, MTable<Signature, S>::get() };
+#define METHOD(m) \
+{ \
+	#m, \
+	(InvokeMem)&Invoker<decltype(&m)>::invoke<&m>, \
+	Invoker<decltype(&m)>::argCount(), \
+	Invoker<decltype(&m)>::types() \
 }
-
-template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
-Define property(const char *name)
-{
-	return{ Define::MetaProperty, name, PTable<ReadSig, RS, WriteSig, WS>::get() };
-}*/
-
-#define METHOD(m) { #m, MTable<decltype(&m), &m>::get() }
-#define OVERLOAD(m, c, r, ...) { #m, MTable<r(c::*)(__VA_ARGS__), &m>::get() }
+#define OVERLOAD(c, m, r, ...) \
+{ \
+	#m, \
+	(InvokeMem)&Invoker<r(c::*)(__VA_ARGS__)>::invoke<&m>, \
+	Invoker<r(c::*)(__VA_ARGS__)>::argCount(), \
+	Invoker<r(c::*)(__VA_ARGS__)>::types() \
+}
 #define FUNCTION(f) method<decltype(&f), &f>(#f)
 #define PROPERTY(p, r, w) property<decltype(&r), &r, decltype(&w), &w>(#p)
 
@@ -134,16 +93,16 @@ private:
 	{
 		return no();
 	}
-	static const MethodDef *exec_impl(std::true_type)
+	static const MethodTable *exec_impl(std::true_type)
 	{
 		return T::expose();
 	}
-	static const MethodDef *exec_impl(...)
+	static const MethodTable *exec_impl(...)
 	{
 		return nullptr;
 	}
 public:
-	static const MethodDef *exec()
+	static const MethodTable *exec()
 	{
 		return exec_impl(test<T>(0));
 	}

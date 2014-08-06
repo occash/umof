@@ -1,8 +1,30 @@
+/*********************************************************************
+This file is part of the uMOF library.
+Copyright (C) 2014 Artem Shal
+artiom.shal@gmail.com
+
+The uMOF library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+USA.
+**********************************************************************/
+
 #ifndef METHODDEFS_H
 #define METHODDEFS_H
 
+#include "type.h"
+
 class Object;
-struct Type;
 
 //Helper stuff
 namespace unpack
@@ -21,37 +43,37 @@ template<typename Signature>
 struct Invoker;
 
 //Free functions
-template<typename Class, typename Return, typename... Args>
-struct Invoker < Return(*)(Args...) >
+template<typename Return, typename... Args>
+struct Invoker<Return(*)(Args...)>
 {
+	// Workaround for the Visual Studio bug
 	typedef Return(*Fun)(Args...);
 
-	inline static Type *types()
+	inline static int argCount()
 	{
-		static const Type staticTypes[] =
-		{
-			{
-				std::type_index(typeid(Args)),
-				&Converter<Args>::canConvert,
-				&Converter<Args>::convert
-			}...
-		};
-		return staticTypes;
+		return sizeof...(Args);
 	}
 
-	inline static Type returnType()
+	template<typename T>
+	inline static TypeTable *getTable()
 	{
-		return{
-			std::type_index(typeid(Return)),
-			&Converter<Return>::canConvert,
-			&Converter<Return>::convert
+		return Table<T>::get();
+	}
+
+	inline static const TypeTable **types()
+	{
+		static const TypeTable *staticTypes[] =
+		{
+			Table<Return>::get(),
+			getTable<Args>()...
 		};
+		return staticTypes;
 	}
 
 	template<typename F, unsigned... Is>
 	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
 	{
-		return (static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
+		return f(any_cast<Args>(args[Is])...);
 	}
 
 	template<Fun fun>
@@ -63,23 +85,101 @@ struct Invoker < Return(*)(Args...) >
 	}
 };
 
+//Free function with no parameters
+template<typename Return>
+struct Invoker<Return(*)()>
+{
+	typedef Return(*Fun)();
+
+	inline static int argCount()
+	{
+		return 0;
+	}
+
+	inline static const TypeTable **types()
+	{
+		static const TypeTable *staticTypes[] =
+		{
+			Table<Return>::get()
+		};
+		return staticTypes;
+	}
+
+	template<typename F, unsigned... Is>
+	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	{
+		return f(any_cast<Args>(args[Is])...);
+	}
+
+	template<Fun fun>
+	static Any invoke(Object *obj, int argc, const Any *args)
+	{
+		if (argc != 0)
+			throw std::runtime_error("Bad argument count");
+		return invoke(obj, fun, args, unpack::indices_gen<0>());
+	}
+};
+
+//Void free function
+template<typename... Args>
+struct Invoker<void(*)(Args...)>
+{
+	typedef void(*Fun)(Args...);
+
+	inline static int argCount()
+	{
+		return sizeof...(Args);
+	}
+
+	template<typename T>
+	inline static TypeTable *getTable()
+	{
+		return Table<T>::get();
+	}
+
+	inline static const TypeTable **types()
+	{
+		static const TypeTable *staticTypes[] =
+		{
+			nullptr,
+			getTable<Args>()...
+		};
+		return staticTypes;
+	}
+
+	template<typename F, unsigned... Is>
+	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	{
+		return f(any_cast<Args>(args[Is])...);
+	}
+
+	template<Fun fun>
+	static Any invoke(Object *obj, int argc, const Any *args)
+	{
+		if (argc != sizeof...(Args))
+			throw std::runtime_error("Bad argument count");
+		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+	}
+};
+
+//Void free function with no arguments
 template<>
-struct Invoker < void(*)() >
+struct Invoker<void(*)()>
 {
 	typedef void(*Fun)();
 
-	inline static TypeList types()
+	inline static int argCount()
 	{
-		return TypeList();
+		return 0;
 	}
 
-	inline static Type returnType()
+	inline static const TypeTable **types()
 	{
-		return{
-			std::type_index(typeid(void)),
-			nullptr,
+		static const TypeTable *staticTypes[] =
+		{
 			nullptr
 		};
+		return staticTypes;
 	}
 
 	template<unsigned... Is>
@@ -102,27 +202,29 @@ struct Invoker < void(*)() >
 //Base method template
 ////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename Class, typename Return, typename... Args>
-struct Invoker < Return(Class::*)(Args...) >
+struct Invoker<Return(Class::*)(Args...)>
 {
 	typedef Return(Class::*Fun)(Args...);
 
-	inline static TypeList types()
+	inline static int argCount()
 	{
-		return TypeList({
-			Type{
-				std::type_index(typeid(Args)),
-				&Converter<Args>::canConvert,
-				&Converter<Args>::convert
-			}... });
+		return sizeof...(Args);
 	}
 
-	inline static Type returnType()
+	template<typename T>
+	inline static TypeTable *getTable()
 	{
-		return{
-			std::type_index(typeid(Return)),
-			&Converter<Return>::canConvert,
-			&Converter<Return>::convert
+		return Table<T>::get();
+	}
+
+	inline static const TypeTable **types()
+	{
+		static const TypeTable *staticTypes[] =
+		{
+			Table<Return>::get(),
+			getTable<Args>()...
 		};
+		return staticTypes;
 	}
 
 	template<typename F, unsigned... Is>
@@ -144,22 +246,22 @@ struct Invoker < Return(Class::*)(Args...) >
 //Method with no parameters
 ////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename Class, typename Return>
-struct Invoker < Return(Class::*)() >
+struct Invoker<Return(Class::*)()>
 {
 	typedef Return(Class::*Fun)();
 
-	inline static TypeList types()
+	inline static int argCount()
 	{
-		return TypeList();
+		return 0;
 	}
 
-	inline static Type returnType()
+	inline static const TypeTable **types()
 	{
-		return{
-			std::type_index(typeid(Return)),
-			&Converter<Return>::canConvert,
-			&Converter<Return>::convert
+		static const TypeTable *staticTypes[] =
+		{
+			Table<Return>::get()
 		};
+		return staticTypes;
 	}
 
 	template<typename F, unsigned... Is>
@@ -181,27 +283,29 @@ struct Invoker < Return(Class::*)() >
 //Void method
 ////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename Class, typename... Args>
-struct Invoker < void(Class::*)(Args...) >
+struct Invoker<void(Class::*)(Args...)>
 {
 	typedef void(Class::*Fun)(Args...);
 
-	inline static TypeList types()
+	inline static int argCount()
 	{
-		return TypeList({
-				{
-					std::type_index(typeid(Args)),
-					&Converter<Args>::canConvert,
-					&Converter<Args>::convert
-				}... });
+		return sizeof...(Args);
 	}
 
-	inline static Type returnType()
+	template<typename T>
+	inline static TypeTable *getTable()
 	{
-		return{
-			std::type_index(typeid(void)),
+		return Table<T>::get();
+	}
+
+	inline static const TypeTable **types()
+	{
+		static const TypeTable *staticTypes[] =
+		{
 			nullptr,
-			nullptr
+			getTable<Args>()...
 		};
+		return staticTypes;
 	}
 
 	template<typename F, unsigned... Is>
@@ -224,22 +328,22 @@ struct Invoker < void(Class::*)(Args...) >
 //Void method with no parameters
 ////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename Class>
-struct Invoker < void(Class::*)() >
+struct Invoker<void(Class::*)()>
 {
 	typedef void(Class::*Fun)();
 
-	inline static TypeList types()
+	inline static int argCount()
 	{
-		return TypeList();
+		return 0;
 	}
 
-	inline static Type returnType()
+	inline static const TypeTable **types()
 	{
-		return{
-			std::type_index(typeid(void)),
-			nullptr,
+		static const TypeTable *staticTypes[] =
+		{
 			nullptr
 		};
+		return staticTypes;
 	}
 
 	template<typename F, unsigned... Is>
@@ -255,49 +359,6 @@ struct Invoker < void(Class::*)() >
 		if (argc != 0)
 			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
-	}
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-//Property read/write 
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename Signature, Signature S>
-struct Reader;
-
-template<typename T, typename Class, T(Class::*ReadFunc)()>
-struct Reader < T(Class::*)(), ReadFunc >
-{
-	inline static Type type()
-	{
-		return{
-			std::type_index(typeid(T)),
-			nullptr,
-			nullptr
-		};
-	}
-
-	inline static Any read(Object *obj)
-	{
-		return (static_cast<Class *>(obj)->*ReadFunc)();
-	}
-};
-
-template<typename T, typename Class, T(Class::*ReadFunc)()const>
-struct Reader < T(Class::*)()const, ReadFunc >
-{
-	inline static Type type()
-	{
-		return{
-			std::type_index(typeid(T)),
-			nullptr,
-			nullptr
-		};
-	}
-
-	inline static Any read(Object *obj)
-	{
-		return (static_cast<Class *>(obj)->*ReadFunc)();
 	}
 };
 

@@ -11,9 +11,24 @@
 class Test : public Object
 {
 	OBJECT(Test, Object)
+public:
+	/*static const MethodTable *expose()
+	{
+		static const MethodTable methods[]
+		{
+			MethodTable
+			{
+				"null",
+				(InvokeMem)&Invoker<decltype(&Test::null)>::invoke<&Test::null>,
+				Invoker<decltype(&Test::null)>::argCount(),
+				Invoker<decltype(&Test::null)>::types()
+			} 
+		}; 
+		return methods;
+	}*/
 	EXPOSE(
-		OVERLOAD(lol, Test, int, int, int),
-		OVERLOAD(lol, Test, float, float, float),
+		OVERLOAD(Test, lol, int, int, int),
+		OVERLOAD(Test, lol, float, float, float),
 		METHOD(null),
 		METHOD(test),
 		METHOD(sfunc)

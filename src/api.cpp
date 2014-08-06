@@ -1,17 +1,40 @@
+/*********************************************************************
+This file is part of the uMOF library.
+Copyright (C) 2014 Artem Shal
+artiom.shal@gmail.com
+
+The uMOF library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+USA.
+**********************************************************************/
+
 #include "api.h"
 #include "object.h"
 
-Api::Api(const char *name, const Api *super, const MethodDef *exp) :
+Api::Api(const char *name, const Api *super, const MethodTable *exp) :
 	_name(name),
 	_super(super)
 {
 	if (exp)
 	{
-		for(auto d = exp; d->name && d->table; ++d)
+		int i = 0;
+		while (exp[i].invoker)
 		{
 			_methods.insert(std::make_pair(
-				std::string(d->name),
-				d->table));
+				std::string(exp[i].name),
+				exp + i));
+			i++;
 		}
 	}
 }
@@ -39,7 +62,7 @@ Method Api::method(const char *signature) const
 		auto mrange = a->_methods.equal_range(sig);
 		for (auto i = mrange.first; i != mrange.second; ++i)
 		{
-			Method m((*i).first.c_str(), (*i).second);
+			Method m((*i).second);
 			if (m.signature() == signature)
 				return m;
 		}
@@ -47,7 +70,7 @@ Method Api::method(const char *signature) const
 		a = a->_super;
 	}
 
-	return Method("", nullptr);
+	return Method(nullptr);
 }
 
 Property Api::property(const char *name) const

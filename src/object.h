@@ -47,12 +47,12 @@ private:
 
 #define EXPOSE(...) \
 public: \
-	static const MethodDef *expose() \
+	static const MethodTable *expose() \
 	{ \
-		static const MethodDef methods[] \
+		static const MethodTable methods[] \
 		{ \
 			__VA_ARGS__, \
-			{ nullptr, nullptr} \
+			{nullptr, nullptr, 0, nullptr} \
 		}; \
 		return methods; \
 	} \
