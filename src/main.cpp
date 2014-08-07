@@ -3,35 +3,22 @@
 #include <iostream>
 #include <ctime>
 
-/*void my_fun(Object *obj)
+void my_fun(int i)
 {
-	std::cout << "free function" << std::endl;
-}*/
+	std::cout << "free function" << i << std::endl;
+}
 
 class Test : public Object
 {
 	OBJECT(Test, Object)
 public:
-	/*static const MethodTable *expose()
-	{
-		static const MethodTable methods[]
-		{
-			MethodTable
-			{
-				"null",
-				(InvokeMem)&Invoker<decltype(&Test::null)>::invoke<&Test::null>,
-				Invoker<decltype(&Test::null)>::argCount(),
-				Invoker<decltype(&Test::null)>::types()
-			} 
-		}; 
-		return methods;
-	}*/
 	EXPOSE(
 		OVERLOAD(Test, lol, int, int, int),
 		OVERLOAD(Test, lol, float, float, float),
 		METHOD(null),
 		METHOD(test),
-		METHOD(sfunc)
+		METHOD(sfunc),
+		METHOD(my_fun)
 		//PROPERTY(val, getVal, setVal)
 	)
 
@@ -48,12 +35,12 @@ public:
 		return a + b;
 	}
 
-	int null()
+	int null() const
 	{
 		return 0;
 	}
 
-	void test()
+	void test() const
 	{
 		std::cout << "loool" << std::endl;
 	}
@@ -92,6 +79,7 @@ int main()
 
 	Method sm = t.api()->method("sfunc()");
 	sm.invoke(0, {});
+
 	Method m = t.api()->method("lol(int,int)");
 
 	std::clock_t c_start = std::clock();
