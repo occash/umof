@@ -74,7 +74,7 @@ struct PTable
 	Invoker<r(c::*)(__VA_ARGS__)>::argCount(), \
 	Invoker<r(c::*)(__VA_ARGS__)>::types() \
 }
-#define FUNCTION(f) method<decltype(&f), &f>(#f)
+#define FUNCTION(f) METHOD(f)
 #define PROPERTY(p, r, w) property<decltype(&r), &r, decltype(&w), &w>(#p)
 
 template<typename T>
