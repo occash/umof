@@ -15,12 +15,12 @@ solution "metasystem"
 		
 		configuration "Debug"
 			targetdir "bin/debug"
-			defines "_DEBUG"
+			defines { "_DEBUG", "UMOF_LIBRARY" }
 			flags { "Symbols" }
 			
 		configuration "Release"
 			targetdir "bin/release"
-			defines "NDEBUG"
+			defines { "NDEBUG", "UMOF_LIBRARY" }
 			optimize "On"
 			
 	project "test"
@@ -34,14 +34,18 @@ solution "metasystem"
 			"test/**.cpp"
 		}
 		
-		links { "umof" }
+		includedirs { "src" }
 		
 		configuration "Debug"
 			targetdir "bin/debug"
 			defines "_DEBUG"
 			flags { "Symbols" }
+			libdirs { "bin/debug" }
+			links { "umof" }
 			
 		configuration "Release"
 			targetdir "bin/release"
 			defines "NDEBUG"
 			optimize "On"
+			libdirs { "bin/release" }
+			links { "umof" }
