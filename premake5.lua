@@ -23,29 +23,3 @@ solution "metasystem"
 			defines { "NDEBUG", "UMOF_LIBRARY" }
 			optimize "On"
 			
-	project "test"
-		targetname "umof_test"
-		language "C++"
-		kind "ConsoleApp"
-		
-		files
-		{
-			"test/**.h",
-			"test/**.cpp"
-		}
-		
-		includedirs { "src" }
-		
-		configuration "Debug"
-			targetdir "bin/debug"
-			defines "_DEBUG"
-			flags { "Symbols" }
-			libdirs { "bin/debug" }
-			links { "umof" }
-			
-		configuration "Release"
-			targetdir "bin/release"
-			defines "NDEBUG"
-			optimize "On"
-			libdirs { "bin/release" }
-			links { "umof" }
