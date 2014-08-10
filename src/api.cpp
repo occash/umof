@@ -22,21 +22,19 @@ USA.
 #include "api.h"
 #include "object.h"
 
-Api::Api(const char *name, const Api *super, const MethodTable *exp) :
+Api::Api(const char *name, 
+	const Api *super, 
+	const MethodTable *methods, 
+	const PropertyTable *props) :
 	_name(name),
-	_super(super)
+	_super(super),
+	_methods(methods),
+	_props(props),
+	_methodCount(0),
+	_propCount(0)
 {
-	if (exp)
-	{
-		int i = 0;
-		while (exp[i].invoker)
-		{
-			_methods.insert(std::make_pair(
-				std::string(exp[i].name),
-				exp + i));
-			i++;
-		}
-	}
+	while (methods && methods[_methodCount].invoker) _methodCount++;
+	while (props && props[_propCount].type) _propCount++;
 }
 
 const char *Api::name() const
@@ -49,47 +47,112 @@ const Api *Api::super() const
 	return _super;
 }
 
-Method Api::method(const char *signature) const
+int Api::indexOfMethod(const char *signature) const
 {
-	const Api *a = this;
-
+	const Api *s = this;
 	std::string sig = signature;
-	int idx = sig.find('(');
-	sig = sig.substr(0, idx);
 
-	while (a)
+	while (s)
 	{
-		auto mrange = a->_methods.equal_range(sig);
-		for (auto i = mrange.first; i != mrange.second; ++i)
-		{
-			Method m((*i).second);
-			if (m.signature() == signature)
-				return m;
-		}
+		for (int i = 0; i < s->_methodCount; ++i)
+			if (Method(_methods + i).signature() == signature)
+				return i + s->methodOffset();
 
-		a = a->_super;
+		s = s->_super;
 	}
+
+	return -1;
+}
+
+Method Api::method(int index) const
+{
+	int i = index - methodOffset();
+	if (i < 0 && _super)
+		return _super->method(index);
+
+	if (i >= 0 && i < _methodCount)
+		return Method(_methods + index);
 
 	return Method(nullptr);
 }
 
-Property Api::property(const char *name) const
+int Api::methodCount() const
 {
-	const Api *a = this;
-
-	while (a)
+	int count = _methodCount;
+	const Api *s = _super;
+	while (s)
 	{
-		auto i = a->_props.find(name);
-		if (i != a->_props.end())
-			return Property((*i).first.c_str(), (*i).second);
-
-		a = a->_super;
+		count += s->_methodCount;
+		s = s->_super;
 	}
-
-	return Property("", nullptr);
+	return count;
 }
 
-Any Api::invoke(Object *obj, const char *name, ArgPack args)
+int Api::methodOffset() const
+{
+	int offset = 0;
+	const Api *s = _super;
+	while (s)
+	{
+		offset += s->_methodCount;
+		s = s->_super;
+	}
+	return offset;
+}
+
+int Api::indexOfProperty(const char *name) const
+{
+	const Api *s = this;
+
+	while (s)
+	{
+		for (int i = 0; i < s->_propCount; ++i)
+			if (strcmp(s->_props[i].name, name) == 0)
+				return i + propertyOffset();
+
+		s = s->_super;
+	}
+
+	return -1;
+}
+
+Property Api::property(int index) const
+{
+	int i = index - propertyOffset();
+	if (i < 0 && _super)
+		return _super->property(index);
+
+	if (i >= 0 && i < _methodCount)
+		return Property(_props + index);
+
+	return Property(nullptr);
+}
+
+int Api::propertyCount() const
+{
+	int count = _propCount;
+	const Api *s = _super;
+	while (s)
+	{
+		count += s->_propCount;
+		s = s->_super;
+	}
+	return count;
+}
+
+int Api::propertyOffset() const
+{
+	int offset = 0;
+	const Api *s = _super;
+	while (s)
+	{
+		offset += s->_propCount;
+		s = s->_super;
+	}
+	return offset;
+}
+
+Any Api::invoke(Object *obj, const char *name, std::initializer_list<Any> args)
 {
 	const Api *api = obj->api();
 
@@ -105,6 +168,14 @@ Any Api::invoke(Object *obj, const char *name, ArgPack args)
 	else
 		sig += ')';
 
+	int index = api->indexOfMethod(sig.c_str());
+	if (index >= 0)
+		throw std::runtime_error("No such method");
+
+	Method m = api->method(index);
+	return m.invoke(obj, args.size(), args.begin());
+
+	//TODO try to convert parameters 
 	/*Method func = api->method(sig.c_str());
 	if (func.valid())
 		return func.invoke(obj, args);
@@ -146,8 +217,4 @@ Any Api::invoke(Object *obj, const char *name, ArgPack args)
 
 		return (*m).second.invoke(obj, newArgs);
 	}*/
-
-	return Any();
-
-	throw std::runtime_error("No such method");
 }

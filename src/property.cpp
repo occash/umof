@@ -21,15 +21,14 @@ USA.
 
 #include "property.h"
 
-Property::Property(const char *name, PropertyTable *table) :
-	_name(name),
+Property::Property(const PropertyTable *table) :
 	_table(table)
 {
 }
 
-std::string Property::name() const
+const char *Property::name() const
 {
-	return _name;
+	return _table->name;
 }
 
 bool Property::valid() const
@@ -39,22 +38,15 @@ bool Property::valid() const
 
 Type Property::type() const
 {
-	if (_table)
-		return _table->type;
-	else
-		return Type(nullptr);
+	return Type(_table->type);
 }
 
 Any Property::read(Object *obj) const
 {
-	if (_table)
-		return _table->reader(obj);
-	else
-		return Any();
+	return _table->reader(obj);
 }
 
 void Property::write(Object *obj, const Any& value) const
 {
-	if (_table)
-		_table->writer(obj, value);
+	_table->writer(obj, value);
 }

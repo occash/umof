@@ -19,7 +19,9 @@ public:
 		METHOD(test),
 		METHOD(sfunc),
 		METHOD(my_fun)
-		//PROPERTY(val, getVal, setVal)
+	)
+	PROPERTIES(
+		PROPERTY(val, getVal, setVal)
 	)
 
 public:
@@ -70,17 +72,17 @@ int main()
 	Test t;
 	int size = VA_NARGS(1, 2, 3, 4);
 
-	Property p = t.api()->property("val");
+	Property p = t.api()->property(t.api()->indexOfProperty("val"));
 	if (p.valid())
 	{
 		p.write(&t, 25);
 		int i = any_cast<int>(p.read(&t));
 	}
 
-	Method sm = t.api()->method("sfunc()");
+	Method sm = t.api()->method(t.api()->indexOfMethod("sfunc()"));
 	sm.invoke(0, {});
 
-	Method m = t.api()->method("lol(int,int)");
+	Method m = t.api()->method(t.api()->indexOfMethod("lol(int,int)"));
 
 	std::clock_t c_start = std::clock();
 	int l0 = 0;

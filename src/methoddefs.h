@@ -22,7 +22,8 @@ USA.
 #ifndef METHODDEFS_H
 #define METHODDEFS_H
 
-#include "type.h"
+#include "type_traits.h"
+#include "any.h"
 
 class Object;
 

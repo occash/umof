@@ -33,26 +33,36 @@ struct MethodDef;
 class Api
 {
 public:
-	Api(const char *name, const Api *super, const MethodTable *exp);
+	Api(const char *name, 
+		const Api *super, 
+		const MethodTable *methods, 
+		const PropertyTable *props);
 
 	const char *name() const; //Class name
-	const Api *super() const;
+	const Api *super() const; //Super class api
 	//Any data(const char *) const; //Additional data connected to class
-	//Method constructor(const char *) const; //find constructor by signature
-	Method method(const char *) const; //find method by signature
-	Property property(const char *) const; //find property by name
+	//Method constructor(const char *) const; //Find constructor by signature
+	int indexOfMethod(const char *) const; //Find index of method by signature
+	Method method(int) const; //Get method
+	int methodCount() const;
+	int methodOffset() const;
+
+	int indexOfProperty(const char *) const;
+	Property property(int) const; //find property by name
+	int propertyCount() const;
+	int propertyOffset() const;
 	//Enum enum(const char *) const; //find enum by name
 	
 	//static Object *create(ArgPack args) const;
-	static Any invoke(Object *obj, const char *name, ArgPack args);
+	static Any invoke(Object *obj, const char *name, std::initializer_list<Any> args);
 
 private:
-	typedef std::multimap<std::string, const MethodTable *> MethodMap;
-	typedef std::map<std::string, PropertyTable *> PropertyMap;
 	const char *_name;
 	const Api *_super;
-	MethodMap _methods;
-	PropertyMap _props;
+	const MethodTable *_methods;
+	const PropertyTable *_props;
+	int _methodCount;
+	int _propCount;
 
 };
 

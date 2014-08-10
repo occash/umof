@@ -30,7 +30,8 @@ class Object;
 
 struct PropertyTable
 {
-	Type type;
+	const char *name;
+	const TypeTable *type;
 	ReadMem reader;
 	WriteMem writer;
 };
@@ -38,9 +39,9 @@ struct PropertyTable
 class Property
 {
 public:
-	Property(const char *name, PropertyTable *table);
+	Property(const PropertyTable *table);
 
-	std::string name() const;
+	const char *name() const;
 	bool valid() const;
 	Type type() const;
 
@@ -48,8 +49,7 @@ public:
 	void write(Object *obj, const Any& value) const;
 
 private:
-	std::string _name;
-	PropertyTable *_table;
+	const PropertyTable *_table;
 
 };
 

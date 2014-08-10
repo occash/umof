@@ -23,6 +23,7 @@ USA.
 #define OBJECT_H
 
 #include "objectdefs.h"
+#include "api.h"
 
 #define OBJECT_CHECK(Class) \
 	static_assert(std::is_base_of<Object, Class>::value, "Class " #Class " should inherit from Object");
@@ -35,7 +36,8 @@ public: \
 		static const Api staticApi( \
 			#Class, \
 			Super::classApi(), \
-			expose_method<Class>::exec() \
+			expose_method<Class>::exec(), \
+			expose_props_method<Class>::exec() \
 		); \
 		return &staticApi; \
 	} \
@@ -58,6 +60,19 @@ public: \
 	} \
 private:
 
+#define PROPERTIES(...) \
+public: \
+	static const PropertyTable *expose_props() \
+	{ \
+		static const PropertyTable props[] \
+		{ \
+			__VA_ARGS__, \
+			{nullptr, nullptr, nullptr, nullptr} \
+		}; \
+		return props; \
+	} \
+private:
+
 class Object
 {
 public:
@@ -65,7 +80,7 @@ public:
 
 	static const Api *classApi()
 	{
-		static const Api staticApi("Object", nullptr, nullptr);
+		static const Api staticApi("Object", nullptr, nullptr, nullptr);
 		return &staticApi;
 	}
 

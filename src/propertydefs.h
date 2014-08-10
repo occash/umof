@@ -22,18 +22,17 @@ USA.
 #ifndef PROPERTYDEFS_H
 #define PROPERTYDEFS_H
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-//Property read/write 
-////////////////////////////////////////////////////////////////////////////////////////////////
+#include "type_traits.h"
+#include "any.h"
 
-/*template<typename RSignature, RSignature RS, typename WSignature, WSignature WS>
-struct PropertyReader;
+//Property read
+template<typename Signature, Signature S>
+struct Reader;
 
-template<typename T, typename Class, T(Class::*ReadFunc)()const, void(Class::*WriteFunc)(const T&)>
-struct PropertyReader<T(Class::*)()const, 
-	ReadFunc, void(Class::*WriteFunc)(const T&), WriteFunc>
+template<typename T, typename Class, T(Class::*ReadFunc)()>
+struct Reader<T(Class::*)(), ReadFunc>
 {
-	inline static TypeTable *type()
+	inline static const TypeTable *type()
 	{
 		return Table<T>::get();
 	}
@@ -42,26 +41,14 @@ struct PropertyReader<T(Class::*)()const,
 	{
 		return (static_cast<Class *>(obj)->*ReadFunc)();
 	}
-
-	inline static void write(Object *obj, const Any& value)
-	{
-		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
-	}
-};*/
-
-template<typename Signature, Signature S>
-struct Reader;
+};
 
 template<typename T, typename Class, T(Class::*ReadFunc)()const>
-struct Reader < T(Class::*)()const, ReadFunc >
+struct Reader<T(Class::*)()const, ReadFunc>
 {
-	inline static Type type()
+	inline static const TypeTable *type()
 	{
-		return{
-			std::type_index(typeid(T)),
-			nullptr,
-			nullptr
-		};
+		return Table<T>::get();
 	}
 
 	inline static Any read(Object *obj)
@@ -70,11 +57,12 @@ struct Reader < T(Class::*)()const, ReadFunc >
 	}
 };
 
+//Property write
 template<typename Signature, Signature S>
 struct Writer;
 
 template<typename T, typename Class, void(Class::*WriteFunc)(T)>
-struct Writer < void(Class::*)(T), WriteFunc >
+struct Writer<void(Class::*)(T), WriteFunc>
 {
 	inline static void write(Object *obj, const Any& value)
 	{
@@ -83,7 +71,7 @@ struct Writer < void(Class::*)(T), WriteFunc >
 };
 
 template<typename T, typename Class, void(Class::*WriteFunc)(const T&)>
-struct Writer < void(Class::*)(const T&), WriteFunc >
+struct Writer<void(Class::*)(const T&), WriteFunc>
 {
 	inline static void write(Object *obj, const Any& value)
 	{

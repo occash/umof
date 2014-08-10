@@ -22,43 +22,13 @@ USA.
 #ifndef OBJECTDEFS_H
 #define OBJECTDEFS_H
 
-#include <vector>
-#include <list>
-#include <map>
-#include <initializer_list>
-#include <typeinfo>
-#include <typeindex>
-#include <iostream>
-#include <algorithm>
-
 #include "defines.h"
-#include "any.h"
-#include "enum.h"
-#include "type.h"
-#include "converters.h"
-#include "methoddefs.h"
-#include "propertydefs.h"
 #include "method.h"
+#include "methoddefs.h"
 #include "property.h"
-#include "api.h"
+#include "propertydefs.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-//Expose functions
-////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename ReadSig, ReadSig RS, typename WriteSig, WriteSig WS>
-struct PTable
-{
-	static PropertyTable *get()
-	{
-		static PropertyTable staticTable
-		{
-			Reader<ReadSig, RS>::type(),
-			&Reader<ReadSig, RS>::read,
-			&Writer<WriteSig, WS>::write
-		};
-		return &staticTable;
-	}
-};
+#include <type_traits>
 
 #define METHOD(m) \
 { \
@@ -75,7 +45,13 @@ struct PTable
 	Invoker<r(c::*)(__VA_ARGS__)>::types() \
 }
 #define FUNCTION(f) METHOD(f)
-#define PROPERTY(p, r, w) property<decltype(&r), &r, decltype(&w), &w>(#p)
+#define PROPERTY(p, r, w) \
+{ \
+	#p, \
+	Reader<decltype(&r), &r>::type(), \
+	&Reader<decltype(&r), &r>::read, \
+	&Writer<decltype(&w), &w>::write \
+}
 
 template<typename T>
 struct expose_method
@@ -103,6 +79,38 @@ private:
 	}
 public:
 	static const MethodTable *exec()
+	{
+		return exec_impl(test<T>(0));
+	}
+	enum { exists = std::is_same<decltype(test<T>(0)), yes>::value };
+};
+
+template<typename T>
+struct expose_props_method
+{
+private:
+	typedef std::true_type yes;
+	typedef std::false_type no;
+	template<typename U>
+	static auto test(int) -> decltype(std::declval<U>().expose_props(), yes())
+	{
+		return yes();
+	}
+	template<typename>
+	static no test(...)
+	{
+		return no();
+	}
+	static const PropertyTable *exec_impl(std::true_type)
+	{
+		return T::expose_props();
+	}
+	static const PropertyTable *exec_impl(...)
+	{
+		return nullptr;
+	}
+public:
+	static const PropertyTable *exec()
 	{
 		return exec_impl(test<T>(0));
 	}
