@@ -36,7 +36,7 @@ struct PropertyTable
 	WriteMem writer;
 };
 
-class Property
+class UMOF_EXPORT Property
 {
 public:
 	Property(const PropertyTable *table);

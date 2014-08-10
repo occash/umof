@@ -22,10 +22,11 @@ USA.
 #ifndef ANY_H
 #define ANY_H
 
+#include "defines.h"
 #include "type_traits.h"
 #include <new>
 
-class Any
+class UMOF_EXPORT Any
 {
 public:
 	Any();
@@ -110,8 +111,6 @@ template <typename T>
 T const& any_cast(Any const& operand)
 {
 	typedef typename std::remove_reference<T>::type nonref;
-
-
 	return any_cast<nonref const&>(const_cast<Any&>(operand));
 }
 

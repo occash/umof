@@ -30,7 +30,7 @@ USA.
 
 struct MethodDef;
 
-class Api
+class UMOF_EXPORT Api
 {
 public:
 	Api(const char *name, 

@@ -19,35 +19,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef TYPE_H
-#define TYPE_H
+#include "object.h"
 
-#include "defines.h"
-#include "type_traits.h"
-
-class Any;
-
-class UMOF_EXPORT Type
+Object::Object()
 {
-public:
-	//typedef Any(*ConvertFun)(const Any&);
-	//typedef bool(*CheckFun)(const Any&);
+}
 
-	Type(const TypeTable *table);
+Object::~Object()
+{
+}
 
-	bool valid() const;
-	std::type_info const& id() const;
-	int size() const;
-	void *construct(void *where, void *const copy = nullptr) const;
-	void *create(void *const copy = nullptr) const;
-	void destroy(void *data) const;
-	void destruct(void *data) const;
+const Api * Object::classApi()
+{
+	static const Api staticApi("Object", nullptr, nullptr, nullptr);
+	return &staticApi;
+}
 
-private:
-	const TypeTable *_table;
-	//std::type_index id = typeid(void);
-	//CheckFun checker;
-	//ConvertFun converter;
-};
-
-#endif
+const Api * Object::api() const
+{
+	return Object::classApi();
+}

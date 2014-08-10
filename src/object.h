@@ -73,21 +73,13 @@ public: \
 	} \
 private:
 
-class Object
+class UMOF_EXPORT Object
 {
 public:
-	virtual ~Object() {}
-
-	static const Api *classApi()
-	{
-		static const Api staticApi("Object", nullptr, nullptr, nullptr);
-		return &staticApi;
-	}
-
-	virtual const Api *api() const
-	{
-		return Object::classApi();
-	}
+	Object();
+	virtual ~Object();
+	static const Api *classApi();
+	virtual const Api *api() const;
 };
 
 #endif

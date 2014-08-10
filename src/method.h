@@ -26,6 +26,8 @@ USA.
 #include "any.h"
 #include "type.h"
 
+#include <string>
+
 class Object;
 
 struct MethodTable
@@ -36,7 +38,7 @@ struct MethodTable
 	const TypeTable **types;
 };
 
-class Method
+class UMOF_EXPORT Method
 {
 public:
 	Method(const MethodTable *table);
