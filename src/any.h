@@ -42,7 +42,7 @@ public:
 	void reset();
 	std::type_info const& type() const;
 
-	void *object() const { return (void *)&_object; }
+	void *object() const { return _object; }
 
 private:
 	template <typename T>
