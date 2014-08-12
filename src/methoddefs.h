@@ -89,6 +89,11 @@ struct Invoker<Return(*)(Args...)>
 	// Workaround for the Visual Studio bug
 	typedef Return(*Fun)(Args...);
 
+	inline static bool isStatic()
+	{
+		return true;
+	}
+
 	inline static int argCount()
 	{
 		return sizeof...(Args);
@@ -105,15 +110,15 @@ struct Invoker<Return(*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
+	inline static void invoke(F f, void **args, unpack::indices<Is...>)
 	{
-		return f(*ArgType<Args>::cast(&args[Is])...);
+		*reinterpret_cast<Return *>(args[0]) = f(*ArgType<Args>::cast(&args[Is + 1])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+		invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
 
@@ -123,6 +128,11 @@ struct Invoker<Return(*)()>
 {
 	typedef Return(*Fun)();
 
+	inline static bool isStatic()
+	{
+		return true;
+	}
+
 	inline static int argCount()
 	{
 		return 0;
@@ -137,16 +147,10 @@ struct Invoker<Return(*)()>
 		return staticTypes;
 	}
 
-	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
-	{
-		return f(*ArgType<Args>::cast(&args[Is])...);
-	}
-
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<0>());
+		*reinterpret_cast<Return *>(args[0]) = fun();
 	}
 };
 
@@ -156,6 +160,11 @@ struct Invoker<void(*)(Args...)>
 {
 	typedef void(*Fun)(Args...);
 
+	inline static bool isStatic()
+	{
+		return true;
+	}
+
 	inline static int argCount()
 	{
 		return sizeof...(Args);
@@ -172,16 +181,15 @@ struct Invoker<void(*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
+	inline static void invoke(F f, void **args, unpack::indices<Is...>)
 	{
-		f(*ArgType<Args>::cast(&args[Is])...);
-		return Any();
+		f(*ArgType<Args>::cast(&args[Is + 1])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+		invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
 
@@ -191,6 +199,11 @@ struct Invoker<void(*)()>
 {
 	typedef void(*Fun)();
 
+	inline static bool isStatic()
+	{
+		return true;
+	}
+
 	inline static int argCount()
 	{
 		return 0;
@@ -205,17 +218,10 @@ struct Invoker<void(*)()>
 		return staticTypes;
 	}
 
-	template<unsigned... Is>
-	inline static Any invoke(Object *obj, Fun f, void **args, unpack::indices<Is...>)
-	{
-		f();
-		return Any();
-	}
-
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void ** /*args*/)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<0>());
+		fun();
 	}
 };
 
@@ -224,6 +230,11 @@ template<typename Class, typename Return, typename... Args>
 struct Invoker<Return(Class::*)(Args...)>
 {
 	typedef Return(Class::*Fun)(Args...);
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -241,15 +252,16 @@ struct Invoker<Return(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
+	inline static void invoke(F f, void **args, unpack::indices<Is...>)
 	{
-		return (static_cast<Class *>(obj)->*f)(*ArgType<Args>::cast(&args[Is])...);
+		*reinterpret_cast<Return *>(args[0]) = 
+			(reinterpret_cast<Class *>(args[1])->*f)(*ArgType<Args>::cast(&args[Is + 2])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+		invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
 
@@ -258,6 +270,11 @@ template<typename Class, typename Return>
 struct Invoker<Return(Class::*)()>
 {
 	typedef Return(Class::*Fun)();
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -273,16 +290,11 @@ struct Invoker<Return(Class::*)()>
 		return staticTypes;
 	}
 
-	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **, unpack::indices<Is...>)
-	{
-		return (static_cast<Class *>(obj)->*f)();
-	}
-
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<0>());
+		*reinterpret_cast<Return *>(args[0]) =
+			(reinterpret_cast<Class *>(args[1])->*fun)();
 	}
 };
 
@@ -291,6 +303,11 @@ template<typename Class, typename... Args>
 struct Invoker<void(Class::*)(Args...)>
 {
 	typedef void(Class::*Fun)(Args...);
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -308,16 +325,15 @@ struct Invoker<void(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
+	inline static void invoke(F f, void **args, unpack::indices<Is...>)
 	{
-		(static_cast<Class *>(obj)->*f)(*ArgType<Args>::cast(&args[Is])...);
-		return Any();
+		(reinterpret_cast<Class *>(args[1])->*f)(*ArgType<Args>::cast(&args[Is + 2])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj,void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+		return invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
 
@@ -326,6 +342,11 @@ template<typename Class>
 struct Invoker<void(Class::*)()>
 {
 	typedef void(Class::*Fun)();
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -341,17 +362,10 @@ struct Invoker<void(Class::*)()>
 		return staticTypes;
 	}
 
-	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
-	{
-		(static_cast<Class *>(obj)->*f)(*ArgType<Args>::cast(&args[Is])...);
-		return Any();
-	}
-
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<0>());
+		(reinterpret_cast<Class *>(args[1])->*fun)();
 	}
 };
 
@@ -360,6 +374,11 @@ template<typename Class, typename Return, typename... Args>
 struct Invoker<Return(Class::*)(Args...)const>
 {
 	typedef Return(Class::*Fun)(Args...)const;
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -377,15 +396,16 @@ struct Invoker<Return(Class::*)(Args...)const>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
+	inline static void invoke(F f, void **args, unpack::indices<Is...>)
 	{
-		return (const_cast<const Class *>(static_cast<Class *>(obj))->*f)(*ArgType<Args>::cast(&args[Is])...);
+		*reinterpret_cast<Return *>(args[0]) =
+			(reinterpret_cast<const Class *>(args[1])->*f)(*ArgType<Args>::cast(&args[Is + 2])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+		invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
 
@@ -394,6 +414,11 @@ template<typename Class, typename Return>
 struct Invoker<Return(Class::*)()const>
 {
 	typedef Return(Class::*Fun)()const;
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -409,16 +434,11 @@ struct Invoker<Return(Class::*)()const>
 		return staticTypes;
 	}
 
-	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **, unpack::indices<Is...>)
-	{
-		return (const_cast<const Class *>(static_cast<Class *>(obj))->*f)();
-	}
-
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<0>());
+		*reinterpret_cast<Return *>(args[0]) =
+			(reinterpret_cast<const Class *>(args[1])->*fun)();
 	}
 };
 
@@ -427,6 +447,11 @@ template<typename Class, typename... Args>
 struct Invoker<void(Class::*)(Args...)const>
 {
 	typedef void(Class::*Fun)(Args...)const;
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -450,16 +475,15 @@ struct Invoker<void(Class::*)(Args...)const>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
+	inline static void invoke(F f, void **args, unpack::indices<Is...>)
 	{
-		(const_cast<const Class *>(static_cast<Class *>(obj))->*f)(*ArgType<Args>::cast(&args[Is])...);
-		return Any();
+		(reinterpret_cast<const Class *>(args[1])->*f)(*ArgType<Args>::cast(&args[Is + 2])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
+		return invoke(fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
 
@@ -468,6 +492,11 @@ template<typename Class>
 struct Invoker<void(Class::*)()const>
 {
 	typedef void(Class::*Fun)()const;
+
+	inline static bool isStatic()
+	{
+		return false;
+	}
 
 	inline static int argCount()
 	{
@@ -483,17 +512,10 @@ struct Invoker<void(Class::*)()const>
 		return staticTypes;
 	}
 
-	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
-	{
-		(const_cast<const Class *>(static_cast<Class *>(obj))->*f)(*ArgType<Args>::cast(&args[Is])...);
-		return Any();
-	}
-
 	template<Fun fun>
-	static Any invoke(Object *obj, void **args)
+	static void invoke(void **args)
 	{
-		return invoke(obj, fun, args, unpack::indices_gen<0>());
+		(reinterpret_cast<const Class *>(args[1])->*fun)();
 	}
 };
 

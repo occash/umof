@@ -35,6 +35,11 @@ public:
 
 	Type(const TypeTable *table);
 
+	bool operator==(const Type& other)
+	{
+		return id() == other.id();
+	}
+
 	bool valid() const;
 	std::type_info const& id() const;
 	int size() const;
@@ -44,6 +49,7 @@ public:
 	void destruct(void *data) const;
 
 private:
+	friend class Any;
 	const TypeTable *_table;
 	//std::type_index id = typeid(void);
 	//CheckFun checker;

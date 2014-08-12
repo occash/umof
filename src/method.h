@@ -34,6 +34,7 @@ struct MethodTable
 {
 	const char *name;
 	InvokeMem invoker;
+	bool is_static;
 	int argc;
 	const TypeTable **types;
 };

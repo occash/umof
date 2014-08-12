@@ -34,6 +34,7 @@ USA.
 { \
 	#m, \
 	(InvokeMem)&Invoker<decltype(&m)>::invoke<&m>, \
+	Invoker<decltype(&m)>::isStatic(), \
 	Invoker<decltype(&m)>::argCount(), \
 	Invoker<decltype(&m)>::types() \
 }
@@ -41,6 +42,7 @@ USA.
 { \
 	#m, \
 	(InvokeMem)&Invoker<r(c::*)(__VA_ARGS__)>::invoke<&m>, \
+	Invoker<r(c::*)(__VA_ARGS__)>::isStatic(), \
 	Invoker<r(c::*)(__VA_ARGS__)>::argCount(), \
 	Invoker<r(c::*)(__VA_ARGS__)>::types() \
 }

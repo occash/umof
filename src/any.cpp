@@ -27,6 +27,13 @@ Any::Any() :
 {
 }
 
+/*Any::Any(const Type& type) :
+	_table(type._table),
+	_object(nullptr)
+{
+	_table->static_new(&_object);
+}*/
+
 Any::Any(Any const& x) :
 	_table(nullptr),
 	_object(nullptr)
@@ -71,7 +78,7 @@ void Any::reset()
 	}
 }
 
-std::type_info const& Any::type() const
+Type Any::type() const
 {
-	return _table->get_type();
+	return Type(_table);
 }

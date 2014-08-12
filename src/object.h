@@ -54,7 +54,7 @@ public: \
 		static const MethodTable methods[] \
 		{ \
 			__VA_ARGS__, \
-			{nullptr, nullptr, 0, nullptr} \
+			{nullptr, nullptr, false, 0, nullptr} \
 		}; \
 		return methods; \
 	} \

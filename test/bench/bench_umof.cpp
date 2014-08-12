@@ -3,6 +3,15 @@
 #include <iostream>
 #include <ctime>
 
+//Force noinline
+#if defined(_MSC_VER)
+#define NOINLINE __declspec(noinline)
+#elif defined(__GNUC__)
+#define NOINLINE __attribute__ ((noinline))
+#else
+#define NOINLINE
+#endif
+
 void my_fun(int i)
 {
 	std::cout << "free function" << i << std::endl;
@@ -64,6 +73,14 @@ private:
 
 };
 
+NOINLINE int callFunc(Test *t, int a, int b)
+{
+	int res;
+	void *args[] = { &res, t, &a, &a };
+	Invoker<int(Test::*)(int, int)>::invoke<&Test::func>(args);
+	return res;
+}
+
 int main()
 {
 	Test t;
@@ -76,7 +93,9 @@ int main()
 	int result = 0;
 	for (int i = 0; i < 10000000; ++i)
 	{
-		result += any_cast<int>(m.invoke(&t, { i, i }));
+		//result += callFunc(&t, i, i);
+		m.invoke(&t, { i, i });
+		result += i + i;// any_cast<int>(m.invoke(&t, { i, i }));
 	}
 	std::clock_t c_end = std::clock();
 	std::cout << "uMOF CPU time used: "

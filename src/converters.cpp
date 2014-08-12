@@ -23,9 +23,9 @@ USA.
 
 Any Converter<int>::convert(const Any& a)
 {
-	if (typeid(float) == a.type())
+	if (typeid(float) == a.type().id())
 		return helper<int, double>::convert(a);
-	else if (typeid(const char *) == a.type())
+	else if (typeid(const char *) == a.type().id())
 		return helper<int, const char *>::convert(a);
 
 	return any_cast<int>(a);
@@ -33,16 +33,16 @@ Any Converter<int>::convert(const Any& a)
 
 bool Converter<int>::canConvert(const Any& a)
 {
-	return (typeid(int) == a.type()
-		|| typeid(float) == a.type()
-		|| typeid(const char *) == a.type());
+	return (typeid(int) == a.type().id()
+		|| typeid(float) == a.type().id()
+		|| typeid(const char *) == a.type().id());
 }
 
 Any Converter<float>::convert(const Any& a)
 {
-	if (typeid(int) == a.type())
+	if (typeid(int) == a.type().id())
 		return Any(helper<float, int>::convert(a));
-	else if (typeid(const char *) == a.type())
+	else if (typeid(const char *) == a.type().id())
 		return Any(helper<float, const char *>::convert(a));
 
 	return any_cast<float>(a);
@@ -50,7 +50,7 @@ Any Converter<float>::convert(const Any& a)
 
 bool Converter<float>::canConvert(const Any& a)
 {
-	return (typeid(float) == a.type()
-		|| typeid(int) == a.type()
-		|| typeid(const char *) == a.type());
+	return (typeid(float) == a.type().id()
+		|| typeid(int) == a.type().id()
+		|| typeid(const char *) == a.type().id());
 }

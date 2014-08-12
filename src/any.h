@@ -24,12 +24,14 @@ USA.
 
 #include "defines.h"
 #include "type_traits.h"
+#include "type.h"
 #include <new>
 
 class UMOF_EXPORT Any
 {
 public:
 	Any();
+	//Any(const Type& type);
 	Any(Any const& x);
 	Any(Any &&x);
 	~Any();
@@ -40,15 +42,16 @@ public:
 	Any(T(&x)[N]);
 
 	void reset();
-	std::type_info const& type() const;
+	Type type() const;
 
 	void *object() const { return _object; }
+	void *pointer() const { return (void *)&_object;  }
 
 private:
 	template <typename T>
 	friend T* any_cast(Any*);
 
-	TypeTable* _table;
+	const TypeTable* _table;
 	void* _object;
 };
 
@@ -83,7 +86,7 @@ inline T* any_cast(Any* operand)
 	typedef Bool<std::is_pointer<T>::value> is_pointer;
 	typedef typename CheckType<T, is_pointer>::type T_no_cv;
 
-	if (operand && operand->type() == typeid(T_no_cv)) {
+	if (operand && operand->type().id() == typeid(T_no_cv)) {
 		return Table<T>::is_small::value ?
 			const_cast<T*>(reinterpret_cast<T_no_cv*>(&operand->_object)) :
 			const_cast<T*>(reinterpret_cast<T_no_cv*>(operand->_object));
