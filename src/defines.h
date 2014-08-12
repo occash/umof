@@ -51,7 +51,7 @@ USA.
 class Any;
 class Object;
 
-typedef Any(*InvokeMem)(Object *, int argc, const Any *);
+typedef Any(*InvokeMem)(Object *, void **);
 typedef Any(*ReadMem)(Object *);
 typedef void(*WriteMem)(Object *, const Any&);
 

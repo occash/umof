@@ -46,6 +46,38 @@ inline static TypeTable *getTable()
 	return Table<T>::get();
 }
 
+template<typename T, typename Ptr>
+struct TypeHelper;
+
+template<typename T>
+struct TypeHelper<T, True>
+{
+	inline static T *cast(void **arg)
+	{
+		return reinterpret_cast<T *>(arg);
+	}
+};
+
+template<typename T>
+struct TypeHelper<T, False>
+{
+	inline static T *cast(void **arg)
+	{
+		return reinterpret_cast<T *>(*arg);
+	}
+};
+
+template<typename T>
+struct ArgType
+{
+	typedef Bool<(sizeof(T) <= sizeof(void*))> is_small;
+
+	inline static T *cast(void **arg)
+	{
+		return TypeHelper<T, is_small>::cast(arg);
+	}
+};
+
 //Base template for function and methods invocation
 template<typename Signature>
 struct Invoker;
@@ -73,16 +105,14 @@ struct Invoker<Return(*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		return f(any_cast<Args>(args[Is])...);
+		return f(*ArgType<Args>::cast(&args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != sizeof...(Args))
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
@@ -108,16 +138,14 @@ struct Invoker<Return(*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		return f(any_cast<Args>(args[Is])...);
+		return f(*ArgType<Args>::cast(&args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != 0)
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
 };
@@ -144,17 +172,15 @@ struct Invoker<void(*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		f(any_cast<Args>(args[Is])...);
+		f(*ArgType<Args>::cast(&args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != sizeof...(Args))
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
@@ -180,17 +206,15 @@ struct Invoker<void(*)()>
 	}
 
 	template<unsigned... Is>
-	inline static Any invoke(Object *obj, Fun f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, Fun f, void **args, unpack::indices<Is...>)
 	{
 		f();
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != 0)
-			throw std::runtime_error("bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
 };
@@ -217,16 +241,14 @@ struct Invoker<Return(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		return (static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
+		return (static_cast<Class *>(obj)->*f)(*ArgType<Args>::cast(&args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != sizeof...(Args))
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
@@ -252,16 +274,14 @@ struct Invoker<Return(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **, unpack::indices<Is...>)
 	{
 		return (static_cast<Class *>(obj)->*f)();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != 0)
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
 };
@@ -288,17 +308,15 @@ struct Invoker<void(Class::*)(Args...)>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		(static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
+		(static_cast<Class *>(obj)->*f)(*ArgType<Args>::cast(&args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj,void **args)
 	{
-		if (argc != sizeof...(Args))
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
@@ -324,17 +342,15 @@ struct Invoker<void(Class::*)()>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		(static_cast<Class *>(obj)->*f)(any_cast<Args>(args[Is])...);
+		(static_cast<Class *>(obj)->*f)(*ArgType<Args>::cast(&args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != 0)
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
 };
@@ -361,16 +377,14 @@ struct Invoker<Return(Class::*)(Args...)const>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		return (const_cast<const Class *>(static_cast<Class *>(obj))->*f)(any_cast<Args>(args[Is])...);
+		return (const_cast<const Class *>(static_cast<Class *>(obj))->*f)(*ArgType<Args>::cast(&args[Is])...);
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != sizeof...(Args))
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
@@ -396,16 +410,14 @@ struct Invoker<Return(Class::*)()const>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **, unpack::indices<Is...>)
 	{
 		return (const_cast<const Class *>(static_cast<Class *>(obj))->*f)();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != 0)
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
 };
@@ -438,17 +450,15 @@ struct Invoker<void(Class::*)(Args...)const>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		(const_cast<const Class *>(static_cast<Class *>(obj))->*f)(any_cast<Args>(args[Is])...);
+		(const_cast<const Class *>(static_cast<Class *>(obj))->*f)(*ArgType<Args>::cast(&args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != sizeof...(Args))
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<sizeof...(Args)>());
 	}
 };
@@ -474,17 +484,15 @@ struct Invoker<void(Class::*)()const>
 	}
 
 	template<typename F, unsigned... Is>
-	inline static Any invoke(Object *obj, F f, const Any *args, unpack::indices<Is...>)
+	inline static Any invoke(Object *obj, F f, void **args, unpack::indices<Is...>)
 	{
-		(const_cast<const Class *>(static_cast<Class *>(obj))->*f)(any_cast<Args>(args[Is])...);
+		(const_cast<const Class *>(static_cast<Class *>(obj))->*f)(*ArgType<Args>::cast(&args[Is])...);
 		return Any();
 	}
 
 	template<Fun fun>
-	static Any invoke(Object *obj, int argc, const Any *args)
+	static Any invoke(Object *obj, void **args)
 	{
-		if (argc != 0)
-			throw std::runtime_error("Bad argument count");
 		return invoke(obj, fun, args, unpack::indices_gen<0>());
 	}
 };

@@ -42,6 +42,8 @@ public:
 	void reset();
 	std::type_info const& type() const;
 
+	void *object() const { return (void *)&_object; }
+
 private:
 	template <typename T>
 	friend T* any_cast(Any*);
