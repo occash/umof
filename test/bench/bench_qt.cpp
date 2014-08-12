@@ -15,7 +15,7 @@ int main()
 
 	std::clock_t c_start = std::clock();
 	int result = 0;
-	for (int i = 0; i < 100000; ++i)
+	for (int i = 0; i < 10000000; ++i)
 	{
 		int res;
 		m.invoke(&t, Q_RETURN_ARG(int, res), Q_ARG(int, i), Q_ARG(int, i));

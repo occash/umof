@@ -49,22 +49,44 @@ solution "benchmark"
 		kind "ConsoleApp"
 		
 		files {	"bench_camp.cpp" }
-		includedirs { "D:/third-party/camp-master/include", os.getenv("BOOST_ROOT") }
+		includedirs { "W:/third-party/camp-master/include", os.getenv("BOOST_ROOT") }
 		
 		configuration "Debug"
 			targetdir "bin/debug"
 			defines "_DEBUG"
 			flags { "Symbols" }
 			-- Oops, get rid of absolute path in future
-			libdirs { "D:/third-party/camp-master/Debug" }
+			libdirs { "W:/third-party/camp-master/Debug" }
 			links { "campd" }
 			
 		configuration "Release"
 			targetdir "bin/release"
 			defines "NDEBUG"
 			optimize "On"
-			libdirs { "D:/third-party/camp-master/Release" }
+			libdirs { "W:/third-party/camp-master/Release" }
 			links { "camp" }
+			
+	project "bench_cpgf"
+		targetname "bench_cpgf"
+		language "C++"
+		kind "ConsoleApp"
+		
+		files {	"bench_cpgf.cpp" }
+		includedirs { "W:/third-party/cpgf-develop/include"}
+		links { "cpgf" }
+		
+		configuration "Debug"
+			targetdir "bin/debug"
+			defines "_DEBUG"
+			flags { "Symbols" }
+			-- Oops, get rid of absolute path in future
+			libdirs { "W:/third-party/cpgf-develop/lib/Debug" }
+			
+		configuration "Release"
+			targetdir "bin/release"
+			defines "NDEBUG"
+			optimize "On"
+			libdirs { "W:/third-party/cpgf-develop/lib/Release" }
 			
 	project "bench_qt"
 		targetname "bench_qt"
@@ -73,7 +95,7 @@ solution "benchmark"
 		
 		qt.enable()
 		-- Set local Qt path
-		qtpath "D:/third-party/Qt5.3.1/5.3/msvc2013"
+		qtpath "C:/qt5"
 		qtmodules { "core" }
 		qtprefix "Qt5"
 		
@@ -83,6 +105,7 @@ solution "benchmark"
 			targetdir "bin/debug"
 			defines "_DEBUG"
 			flags { "Symbols" }
+			qtsuffix "d"
 			
 		configuration "Release"
 			targetdir "bin/release"

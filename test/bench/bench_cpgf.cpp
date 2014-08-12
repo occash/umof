@@ -1,5 +1,8 @@
-#include <camp/camptype.hpp>
-#include <camp/class.hpp>
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
+#include "cpgf/gmetaapiutil.h"
+#include "cpgf/gscopedinterface.h"
 
 #include <iostream>
 #include <ctime>
@@ -57,35 +60,36 @@ private:
 
 void declare()
 {
-	camp::Class::declare<Test>("Test")
-		.property("val", &Test::getVal, &Test::setVal)
-		.function("func", &Test::func)
-		.function("null", &Test::null)
-		.function("print", &Test::print);
-		//Static methods and free function not supported
-		//.function("static_func", &Test::static_func);
-		//.function("my_fun", my_fun);
+	using namespace cpgf;
+	GDefineMetaClass<Test>
+		::define("Test")
+		._method("func", &Test::func)
+		._method("null", &Test::null)
+		._method("print", &Test::print)
+		._method("static_func", &Test::static_func)
+		._property("val", &Test::getVal, &Test::setVal)
+		;
 }
-
-CAMP_TYPE(Test)
 
 int main()
 {
 	Test t;
 
 	declare();
-	const camp::Class *metaclass = &camp::classByName("Test");
-	const camp::Function *nullFunc = &metaclass->function("func");
+	const cpgf::GMetaClass *metaClass;
+	const cpgf::GMetaMethod *method;
+
+	metaClass = cpgf::findMetaClass("Test");
+	method = metaClass->getMethod("func");
 
 	std::clock_t c_start = std::clock();
 	int result = 0;
 	for (int i = 0; i < 10000000; ++i)
 	{
-		camp::Value v = nullFunc->call(t, camp::Args(i, i));
-		result += v.to<int>();
+		result += cpgf::fromVariant<int>(method->invoke(&t, i, i));
 	}
 	std::clock_t c_end = std::clock();
-	std::cout << "Camp CPU time used: "
+	std::cout << "Cpgf CPU time used: "
 		<< 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC
 		<< " ms\n" << result << std::endl;
 

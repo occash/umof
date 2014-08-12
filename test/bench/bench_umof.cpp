@@ -74,7 +74,7 @@ int main()
 
 	std::clock_t c_start = std::clock();
 	int result = 0;
-	for (int i = 0; i < 100000; ++i)
+	for (int i = 0; i < 10000000; ++i)
 	{
 		result += any_cast<int>(m.invoke(&t, { i, i }));
 	}
