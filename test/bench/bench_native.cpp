@@ -1,6 +1,15 @@
 #include <iostream>
 #include <ctime>
 
+//Force noinline
+#if defined(_MSC_VER)
+#define NOINLINE __declspec(noinline)
+#elif defined(__GNUC__)
+#define NOINLINE __attribute__ ((noinline))
+#else
+#define NOINLINE
+#endif
+
 void my_fun(int i)
 {
 	std::cout << "free function" << i << std::endl;
@@ -11,37 +20,37 @@ class Object {};
 class Test : public Object
 {
 public:
-	int func(int a, int b)
+	NOINLINE int func(int a, int b)
 	{
 		return a + b;
 	}
 
-	float func(float a, float b)
+	NOINLINE float func(float a, float b)
 	{
 		return a + b;
 	}
 
-	int null() const
+	NOINLINE int null() const
 	{
 		return 0;
 	}
 
-	void print() const
+	NOINLINE void print() const
 	{
 		std::cout << "Hello from native func" << std::endl;
 	}
 
-	static void static_func()
+	NOINLINE static void static_func()
 	{
 		std::cout << "Hello from static func" << std::endl;
 	}
 	
-	int getVal() const
+	NOINLINE int getVal() const
 	{
 		return _val;
 	}
 
-	void setVal(int v)
+	NOINLINE void setVal(int v)
 	{
 		_val = v;
 	}
@@ -50,7 +59,6 @@ private:
 	int _val;
 
 };
-
 
 int main()
 {
