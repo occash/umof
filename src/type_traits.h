@@ -170,7 +170,7 @@ struct Table
 	typedef Bool<std::is_pointer<T>::value> is_pointer;
 	typedef typename CheckType<T, is_pointer>::type T_no_cv;
 
-	static TypeTable *get()
+	inline static TypeTable *get()
 	{
 		static TypeTable staticTable
 		{

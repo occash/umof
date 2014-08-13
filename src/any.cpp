@@ -27,12 +27,12 @@ Any::Any() :
 {
 }
 
-/*Any::Any(const Type& type) :
+Any::Any(const Type& type) :
 	_table(type._table),
 	_object(nullptr)
 {
 	_table->static_new(&_object);
-}*/
+}
 
 Any::Any(Any const& x) :
 	_table(nullptr),
@@ -64,8 +64,8 @@ Any::Any(Any &&x) :
 
 Any::~Any()
 {
-	if (_table)
-		_table->static_delete(&_object);
+	//if (_table)
+		//_table->static_delete(&_object);
 }
 
 void Any::reset()

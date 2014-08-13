@@ -54,7 +54,7 @@ public:
 	//TypeList parameterTypes() const;
 	Type parmaeterType(int index) const;
 
-	Any invoke(Object *obj, int argc, const Any *args) const;
+	void invoke(void **args) const;
 	Any invoke(Object *obj, std::initializer_list<Any> args) const;
 
 private:

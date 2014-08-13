@@ -73,10 +73,10 @@ private:
 
 };
 
-NOINLINE int callFunc(Test *t, int a, int b)
+NOINLINE int callFunc(Test *t, std::initializer_list<int> a)
 {
 	int res;
-	void *args[] = { &res, t, &a, &a };
+	void *args[] = { &res, t, (void *)a.begin(), (void *)(a.begin() + 1) };
 	Invoker<int(Test::*)(int, int)>::invoke<&Test::func>(args);
 	return res;
 }
@@ -93,8 +93,18 @@ int main()
 	int result = 0;
 	for (int i = 0; i < 10000000; ++i)
 	{
-		//result += callFunc(&t, i, i);
-		//m.invoke(&t, { i, i });
+		/*void *args[10];
+		//Any ret = 0;
+		//args[0] = ret.pointer();
+		int ret;
+		args[0] = &ret;
+		args[1] = &t;
+		for (int i = 0; i < 2; ++i)
+			args[i + 2] = (void *)i;
+		m.invoke(args);
+		Any a(ret);
+		result += any_cast<int>(a);
+		//result += ret;*/
 		result += any_cast<int>(m.invoke(&t, { i, i }));
 	}
 	std::clock_t c_end = std::clock();
