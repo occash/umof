@@ -94,8 +94,8 @@ int main()
 	for (int i = 0; i < 10000000; ++i)
 	{
 		//result += callFunc(&t, i, i);
-		m.invoke(&t, { i, i });
-		result += i + i;// any_cast<int>(m.invoke(&t, { i, i }));
+		//m.invoke(&t, { i, i });
+		result += any_cast<int>(m.invoke(&t, { i, i }));
 	}
 	std::clock_t c_end = std::clock();
 	std::cout << "uMOF CPU time used: "

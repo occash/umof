@@ -160,7 +160,7 @@ Any Api::invoke(Object *obj, const char *name, std::initializer_list<Any> args)
 	sig += '(';
 	for (Any arg : args)
 	{
-		sig += arg.type().id().name();
+		sig += arg.type().name();
 		sig += ',';
 	}
 	if (args.size() > 0)

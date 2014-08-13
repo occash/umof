@@ -78,7 +78,7 @@ void Any::reset()
 	}
 }
 
-Type Any::type() const
+std::type_info const& Any::type() const
 {
-	return Type(_table);
+	return _table->get_type();
 }

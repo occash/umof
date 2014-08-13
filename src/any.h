@@ -42,7 +42,7 @@ public:
 	Any(T(&x)[N]);
 
 	void reset();
-	Type type() const;
+	std::type_info const& type() const;
 
 	void *object() const { return _object; }
 	void *pointer() const { return (void *)&_object;  }
@@ -86,7 +86,7 @@ inline T* any_cast(Any* operand)
 	typedef Bool<std::is_pointer<T>::value> is_pointer;
 	typedef typename CheckType<T, is_pointer>::type T_no_cv;
 
-	if (operand && operand->type().id() == typeid(T_no_cv)) {
+	if (operand && operand->type() == typeid(T_no_cv)) {
 		return Table<T>::is_small::value ?
 			const_cast<T*>(reinterpret_cast<T_no_cv*>(&operand->_object)) :
 			const_cast<T*>(reinterpret_cast<T_no_cv*>(operand->_object));
@@ -102,18 +102,19 @@ inline T* any_cast(Any const* operand)
 }
 
 template <typename T>
-T any_cast(Any& operand)
+inline T any_cast(Any& operand)
 {
 	typedef typename std::remove_reference<T>::type nonref;
 
 	nonref* result = any_cast<nonref>(&operand);
 	if (!result)
-		throw std::runtime_error("Bad cast");
+		return T();
+		//throw std::runtime_error("Bad cast");
 	return *result;
 }
 
 template <typename T>
-T const& any_cast(Any const& operand)
+inline T const& any_cast(Any const& operand)
 {
 	typedef typename std::remove_reference<T>::type nonref;
 	return any_cast<nonref const&>(const_cast<Any&>(operand));
