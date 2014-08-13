@@ -26,6 +26,43 @@ USA.
 #include "type_traits.h"
 #include <new>
 
+template<typename T, typename Ptr>
+struct AnyHelper;
+
+template<typename T>
+struct AnyHelper<T, True>
+{
+	typedef Bool<std::is_pointer<T>::value> is_pointer;
+	typedef typename CheckType<T, is_pointer>::type T_no_cv;
+
+	inline static void clone(const T **src, void **dest)
+	{
+		Table<T>::get()->clone((void**)*src, dest);
+	}
+
+	inline static T *cast(void **object)
+	{
+		return const_cast<T*>(reinterpret_cast<T_no_cv*>(object));
+	}
+};
+
+template<typename T>
+struct AnyHelper<T, False>
+{
+	typedef Bool<std::is_pointer<T>::value> is_pointer;
+	typedef typename CheckType<T, is_pointer>::type T_no_cv;
+
+	inline static void clone(const T **src, void **dest)
+	{
+		Table<T>::get()->clone(src, dest);
+	}
+
+	inline static T *cast(void **object)
+	{
+		return const_cast<T*>(reinterpret_cast<T_no_cv*>(*object));
+	}
+};
+
 class UMOF_EXPORT Any
 {
 public:
@@ -55,24 +92,16 @@ Any::Any(T const& x) :
 	_table(Table<T>::get()),
 	_object(nullptr)
 {
-	if (Table<T>::is_small::value)
-		_table->clone((void**)&x, &_object);
-	else 
-	{
-		void *src = (void *)&x;
-		_table->clone(&src, &_object);
-	}
+	const T *src = &x;
+	AnyHelper<T, Table<T>::is_small>::clone(&src, &_object);
 }
 
 template<typename T, std::size_t N>
 Any::Any(T(&x)[N]) :
-_table(Table<T*>::get()),
-_object(nullptr)
+	_table(Table<T*>::get()),
+	_object(nullptr)
 {
-	if (Table<T*>::is_small::value)
-		new (&_object) T*(&x[0]);
-	else
-		_object = new T*(&x[0]);
+	new (&_object) T*(&x[0]);
 }
 
 template <typename T>
@@ -81,11 +110,8 @@ inline T* any_cast(Any* operand)
 	typedef Bool<std::is_pointer<T>::value> is_pointer;
 	typedef typename CheckType<T, is_pointer>::type T_no_cv;
 
-	if (operand && operand->type() == typeid(T_no_cv)) {
-		return Table<T>::is_small::value ?
-			const_cast<T*>(reinterpret_cast<T_no_cv*>(&operand->_object)) :
-			const_cast<T*>(reinterpret_cast<T_no_cv*>(operand->_object));
-	}
+	if (operand && operand->type() == typeid(T_no_cv))
+		return AnyHelper<T, Table<T>::is_small>::cast(&operand->_object);
 
 	return nullptr;
 }
