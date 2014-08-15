@@ -38,7 +38,7 @@ struct Bool
 	typedef Bool type;
 };
 
-//Remove all quilifiers
+//Remove all qualifiers
 template<typename T, typename Ptr>
 struct CheckType;
 

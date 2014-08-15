@@ -54,7 +54,7 @@ struct AnyHelper<T, False>
 
 	inline static void clone(const T **src, void **dest)
 	{
-		*dest = new T(**reinterpret_cast<T* const*>(src));
+		*dest = new T(**src);
 	}
 
 	inline static T *cast(void **object)
@@ -76,11 +76,14 @@ public:
 	template<typename T, std::size_t N>
 	Any(T(&x)[N]);
 
+	template<typename T>
+	void reset(T const& x);
+
 	void reset();
 	std::type_info const& type() const;
 
 private:
-	template <typename T>
+	template<typename T>
 	friend T* any_cast(Any*);
 
 	TypeTable* _table;
@@ -102,6 +105,16 @@ Any::Any(T(&x)[N]) :
 	_object(nullptr)
 {
 	new (&_object) T*(&x[0]);
+}
+
+template<typename T>
+void Any::reset(T const& x)
+{
+	if (_table)
+		_table->static_delete(&_object);
+	_table = Table<T>::get();
+	const T *src = &x;
+	AnyHelper<T, Table<T>::is_small>::clone(&src, &_object);
 }
 
 template <typename T>
