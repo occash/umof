@@ -37,7 +37,7 @@ struct AnyHelper<T, True>
 
 	inline static void clone(const T **src, void **dest)
 	{
-		Table<T>::get()->clone((void**)*src, dest);
+		new (dest)T(*reinterpret_cast<T const*>(src));
 	}
 
 	inline static T *cast(void **object)
@@ -54,7 +54,7 @@ struct AnyHelper<T, False>
 
 	inline static void clone(const T **src, void **dest)
 	{
-		Table<T>::get()->clone(src, dest);
+		*dest = new T(**reinterpret_cast<T* const*>(src));
 	}
 
 	inline static T *cast(void **object)
@@ -107,10 +107,7 @@ Any::Any(T(&x)[N]) :
 template <typename T>
 inline T* any_cast(Any* operand)
 {
-	typedef Bool<std::is_pointer<T>::value> is_pointer;
-	typedef typename CheckType<T, is_pointer>::type T_no_cv;
-
-	if (operand && operand->type() == typeid(T_no_cv))
+	if (operand && operand->_table == Table<T>::get())
 		return AnyHelper<T, Table<T>::is_small>::cast(&operand->_object);
 
 	return nullptr;
@@ -123,7 +120,7 @@ inline T* any_cast(Any const* operand)
 }
 
 template <typename T>
-T any_cast(Any& operand)
+inline T any_cast(Any& operand)
 {
 	typedef typename std::remove_reference<T>::type nonref;
 
@@ -134,7 +131,7 @@ T any_cast(Any& operand)
 }
 
 template <typename T>
-T const& any_cast(Any const& operand)
+inline T const& any_cast(Any const& operand)
 {
 	typedef typename std::remove_reference<T>::type nonref;
 	return any_cast<nonref const&>(const_cast<Any&>(operand));

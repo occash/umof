@@ -162,6 +162,29 @@ struct TypeFuncs<False>
 	};
 };
 
+//Get type table with all qualifiers
+template<typename T>
+struct TableCV
+{
+	typedef Bool<(sizeof(T) <= sizeof(void*))> is_small;
+
+	static inline TypeTable *get()
+	{
+		static TypeTable staticTable
+		{
+			TypeFuncs<is_small>::type<T>::get_type,
+			TypeFuncs<is_small>::type<T>::get_size,
+			TypeFuncs<is_small>::type<T>::static_new,
+			TypeFuncs<is_small>::type<T>::construct,
+			TypeFuncs<is_small>::type<T>::static_delete,
+			TypeFuncs<is_small>::type<T>::destruct,
+			TypeFuncs<is_small>::type<T>::clone,
+			TypeFuncs<is_small>::type<T>::move
+		};
+		return &staticTable;
+	}
+};
+
 //Get the table for type
 template<typename T>
 struct Table
@@ -170,20 +193,9 @@ struct Table
 	typedef Bool<std::is_pointer<T>::value> is_pointer;
 	typedef typename CheckType<T, is_pointer>::type T_no_cv;
 
-	static TypeTable *get()
+	static inline TypeTable *get()
 	{
-		static TypeTable staticTable
-		{
-			TypeFuncs<is_small>::type<T_no_cv>::get_type,
-			TypeFuncs<is_small>::type<T_no_cv>::get_size,
-			TypeFuncs<is_small>::type<T_no_cv>::static_new,
-			TypeFuncs<is_small>::type<T_no_cv>::construct,
-			TypeFuncs<is_small>::type<T_no_cv>::static_delete,
-			TypeFuncs<is_small>::type<T_no_cv>::destruct,
-			TypeFuncs<is_small>::type<T_no_cv>::clone,
-			TypeFuncs<is_small>::type<T_no_cv>::move
-		};
-		return &staticTable;
+		return TableCV<T_no_cv>::get();
 	}
 };
 
