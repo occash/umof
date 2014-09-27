@@ -51,3 +51,20 @@ int i = any_cast<int>(m.invoke(&t, args));
 Any res = Api::invoke(&t, "func", {5.0f, "6.0"});
 
 ```
+
+## Benchmark results
+Configuration: Windows, Visual Studio 2013, Release x86
+
+Framework | Compile/Link time, ms | Executable size, KB | Call time spent*, ms
+-----|------|-----|-----
+Native | 371/63 | 12 | 2 (45**)
+uMOF | 406/78 | 18 | 349
+Camp | 4492/116 | 66 | 6889
+Qt | 1040/80 (+129***) | 15 | 498
+cpgf | 2514/166 | 71 | 1184
+
+\* 10000000 calls
+
+\*\* Force noinline
+
+\*\*\* Meta object compiler
