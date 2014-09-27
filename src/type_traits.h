@@ -26,24 +26,15 @@ USA.
 #include <type_traits>
 
 //Bool template type
-template<bool B> struct Bool;
-typedef Bool<true> True;
-typedef Bool<false> False;
-
-//Bool implementation
-template<bool B>
-struct Bool
-{
-	static const bool value = B;
-	typedef Bool type;
-};
+typedef std::integral_constant<bool, true> True;
+typedef std::integral_constant<bool, false> False;
 
 //Remove all qualifiers
 template<typename T, typename Ptr>
-struct CheckType;
+struct Pointer;
 
 template<typename T>
-struct CheckType<T, True>
+struct Pointer<T, True>
 {
 	typedef typename std::add_pointer<
 		    typename std::remove_cv<
@@ -52,7 +43,7 @@ struct CheckType<T, True>
 };
 
 template<typename T>
-struct CheckType<T, False>
+struct Pointer<T, False>
 {
 	typedef typename std::remove_cv<T>::type type;
 };
@@ -166,7 +157,7 @@ struct TypeFuncs<False>
 template<typename T>
 struct TableCV
 {
-	typedef Bool<(sizeof(T) <= sizeof(void*))> is_small;
+	typedef std::integral_constant<bool, (sizeof(T) <= sizeof(void*))> is_small;
 
 	static inline TypeTable *get()
 	{
@@ -189,9 +180,10 @@ struct TableCV
 template<typename T>
 struct Table
 {
-	typedef Bool<(sizeof(T) <= sizeof(void*))> is_small;
-	typedef Bool<std::is_pointer<T>::value> is_pointer;
-	typedef typename CheckType<T, is_pointer>::type T_no_cv;
+	typedef std::integral_constant<bool, (sizeof(T) <= sizeof(void*))> is_small;
+	typedef typename std::is_pointer<T>::type is_pointer;
+	typedef typename std::decay<T>::type T_dec;
+	typedef typename Pointer<T_dec, is_pointer>::type T_no_cv;
 
 	static inline TypeTable *get()
 	{

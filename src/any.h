@@ -26,14 +26,16 @@ USA.
 #include "type_traits.h"
 #include <new>
 
-template<typename T, typename Ptr>
+template<typename T, typename S>
 struct AnyHelper;
 
+//Type helper for small types, such as pointers
 template<typename T>
 struct AnyHelper<T, True>
 {
-	typedef Bool<std::is_pointer<T>::value> is_pointer;
-	typedef typename CheckType<T, is_pointer>::type T_no_cv;
+	typedef typename std::is_pointer<T>::type is_pointer;
+	typedef typename std::decay<T>::type T_dec;
+	typedef typename Pointer<T_dec, is_pointer>::type T_no_cv;
 
 	inline static void clone(const T **src, void **dest)
 	{
@@ -46,11 +48,13 @@ struct AnyHelper<T, True>
 	}
 };
 
+//Type helper for bigger types
 template<typename T>
 struct AnyHelper<T, False>
 {
-	typedef Bool<std::is_pointer<T>::value> is_pointer;
-	typedef typename CheckType<T, is_pointer>::type T_no_cv;
+	typedef typename std::is_pointer<T>::type is_pointer;
+	typedef typename std::decay<T>::type T_dec;
+	typedef typename Pointer<T_dec, is_pointer>::type T_no_cv;
 
 	inline static void clone(const T **src, void **dest)
 	{
