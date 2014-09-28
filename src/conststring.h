@@ -19,39 +19,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef PROPERTY_H
-#define PROPERTY_H
+#ifndef CONSTSTRING_H
+#define CONSTSTRING_H
 
-#include "defines.h"
-#include "conststring.h"
-#include "any.h"
-#include "type.h"
+#include <cstddef>
+#include <stdexcept>
 
-class Object;
-
-struct PropertyTable
-{
-	ConstString name;
-	const TypeTable *type;
-	ReadMem reader;
-	WriteMem writer;
-};
-
-class UMOF_EXPORT Property
+class ConstString
 {
 public:
-	Property(const PropertyTable *table);
+	template<std::size_t N>
+	constexpr ConstString(const char(&a)[N]) :
+		_string(a), _size(N - 1) {}
 
-	ConstString name() const;
-	bool valid() const;
-	Type type() const;
+	constexpr char operator[](std::size_t n) {
+		return n < _size ? _string[n] :
+			throw std::out_of_range("");
+	}
 
-	Any read(Object *obj) const;
-	void write(Object *obj, const Any& value) const;
+	constexpr operator const char *() const { return _string; }
+	constexpr std::size_t size() const { return _size; }
 
 private:
-	const PropertyTable *_table;
-
+	const char* const _string;
+	const std::size_t _size;
 };
 
 #endif

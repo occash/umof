@@ -23,6 +23,7 @@ USA.
 #define METHOD_H
 
 #include "defines.h"
+#include "conststring.h"
 #include "any.h"
 #include "type.h"
 
@@ -32,7 +33,7 @@ class Object;
 
 struct MethodTable
 {
-	const char *name;
+	ConstString name;
 	InvokeMem invoker;
 	int argc;
 	const TypeTable **types;
@@ -45,7 +46,7 @@ public:
 
 	bool valid() const;
 
-	const char *name() const;
+	ConstString Method::name() const;
 	std::string signature() const;
 
 	Type returnType() const;

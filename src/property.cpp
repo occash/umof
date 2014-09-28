@@ -26,7 +26,7 @@ Property::Property(const PropertyTable *table) :
 {
 }
 
-const char *Property::name() const
+ConstString Property::name() const
 {
 	return _table->name;
 }

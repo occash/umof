@@ -32,7 +32,7 @@ bool Method::valid() const
 	return (_table != nullptr);
 }
 
-const char *Method::name() const
+ConstString Method::name() const
 {
 	return _table->name;
 }
