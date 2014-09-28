@@ -25,6 +25,8 @@ USA.
 #include <cstddef>
 #include <stdexcept>
 
+/*! Compile-time string with known size.
+*/
 class ConstString
 {
 public:

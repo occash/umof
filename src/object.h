@@ -28,6 +28,9 @@ USA.
 #define OBJECT_CHECK(Class) \
 	static_assert(std::is_base_of<Object, Class>::value, "Class " #Class " should inherit from Object");
 
+/*! This macro makes meta information available for object.
+	\relates Object
+*/
 #define OBJECT(Class, Super) \
 public: \
 	static const Api *classApi() \
@@ -51,6 +54,9 @@ public: \
 	} \
 private:
 
+/*! This macro exposes class methods in Api.
+	\relates Object
+*/
 #define EXPOSE(...) \
 public: \
 	static const std::pair<int, const MethodTable *> expose() \
@@ -63,6 +69,9 @@ public: \
 	} \
 private:
 
+/*! This macro exposes class properties in Api.
+	\relates Object
+*/
 #define PROPERTIES(...) \
 public: \
 	static const std::pair<int, const PropertyTable *> expose_props() \
@@ -75,12 +84,25 @@ public: \
 	} \
 private:
 
+/*! \breif The Object class is the base class of all objects.
+*/
 class UMOF_EXPORT Object
 {
 public:
+	/*! Constructs an object.
+	*/
 	Object();
+
+	/*! Destroys an object.
+	*/
 	virtual ~Object();
+
+	/*! Return the Api of the class.
+	*/
 	static const Api *classApi();
+
+	/*! Returns the Api of this object.
+	*/
 	virtual const Api *api() const;
 };
 

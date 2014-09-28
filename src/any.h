@@ -67,23 +67,49 @@ struct AnyHelper<T, False>
 	}
 };
 
+/*! \breif The Any class holds the copy of any data type.
+*/
 class UMOF_EXPORT Any
 {
 public:
+	/*! Constructs invalid Any holder.
+	*/
 	Any();
-	Any(Any const& x);
-	Any(Any &&x);
+
+	/*! Copy value from other holder.
+	*/
+	Any(Any const& other);
+
+	/*! Move value from other holder.
+	*/
+	Any(Any &&other);
+
+	/*! Destroys Any and contained object.
+	*/
 	~Any();
 
+	/*! Constructs Any with the given value.
+	*/
 	template<typename T>
-	Any(T const& x);
+	Any(T const& value);
+
+	/*! Constructs Any with array value.
+		Special constructor for static arrays.
+	*/
 	template<typename T, std::size_t N>
-	Any(T(&x)[N]);
+	Any(T(&value)[N]);
 
+	/*! Destroys containing object and set new value.
+	*/
 	template<typename T>
-	void reset(T const& x);
+	void reset(T const& value);
 
+	/*! Destroys containing object.
+	*/
 	void reset();
+
+	/*! Get containing object type information.
+	*/
 	std::type_info const& type() const;
 
 private:
@@ -136,6 +162,14 @@ inline T* any_cast(Any const* operand)
 	return any_cast<T>(const_cast<Any*>(operand));
 }
 
+/*! Casts Any container to a given type T.
+	\relates Any
+	Use it as follows:
+	\code{.cpp}
+	Any a{5.0};
+	double d = any_cast<double>(a);
+	\endcode
+*/
 template <typename T>
 inline T any_cast(Any& operand)
 {
@@ -147,6 +181,14 @@ inline T any_cast(Any& operand)
 	return *result;
 }
 
+/*! Casts Any container to a given type T.
+	\relates Any
+	Use it as follows:
+	\code{.cpp}
+	Any a{5.0};
+	double d = any_cast<double>(a);
+	\endcode
+*/
 template <typename T>
 inline T const& any_cast(Any const& operand)
 {

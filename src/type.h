@@ -27,29 +27,68 @@ USA.
 
 class Any;
 
+/* \breif The Type class manages types.
+*/
 class UMOF_EXPORT Type
 {
 public:
-	//typedef Any(*ConvertFun)(const Any&);
-	//typedef bool(*CheckFun)(const Any&);
-
+	/*! Constructs the meta type with the given table.
+		Type constructor should never be used directly.
+		Please use from() function instead.
+	*/
 	Type(const TypeTable *table);
 
+	/*! Construct the meta information for the given type T.
+	*/
+	template<class T>
+	static Type from();
+
+	/*! Return true if type are equal.
+		Any qualifiers will be omitted.
+		So int, int&, int&&, const int& are all the same types.
+	*/
 	bool operator==(const Type& other);
 
+	/*! Checks whether Type is valid object.
+		Call to invalid type will result in application crash.
+	*/
 	bool valid() const;
+
+	/*! Returns RTTI information
+	*/
 	std::type_info const& id() const;
+
+	/*! Returns the size of type.
+	*/
 	int size() const;
+
+	/*! Construct the value of the type in the existing address in memory.
+		If copy is provided it will be copy constructed, otherwise it will
+		be default constructed. The function returns where.
+	*/
 	void *construct(void *where, void *const copy = nullptr) const;
+
+	/*! Creates the value of the type.
+	*/
 	void *create(void *const copy = nullptr) const;
-	void destroy(void *data) const;
+
+	/*! Destructs the value located at data.
+	*/
 	void destruct(void *data) const;
+
+	/*! Destruct the value and free memory.
+	*/
+	void destroy(void *data) const;
 
 private:
 	const TypeTable *_table;
-	//std::type_index id = typeid(void);
-	//CheckFun checker;
-	//ConvertFun converter;
+
 };
+
+template<class T>
+Type Type::from()
+{
+	return Table<T>::get();
+}
 
 #endif
