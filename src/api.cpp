@@ -22,29 +22,19 @@ USA.
 #include "api.h"
 #include "object.h"
 
-Api::Api(const char *name, 
-	const Api *super, 
-	const MethodTable *methods, 
-	const PropertyTable *props) :
-	_name(name),
-	_super(super),
-	_methods(methods),
-	_props(props),
-	_methodCount(0),
-	_propCount(0)
+Api::Api(const ApiTable *table) :
+	_table(table)
 {
-	while (methods && methods[_methodCount].invoker) _methodCount++;
-	while (props && props[_propCount].type) _propCount++;
 }
 
-const char *Api::name() const
+ConstString Api::name() const
 {
-	return _name;
+	return _table->name;
 }
 
 const Api *Api::super() const
 {
-	return _super;
+	return _table->super;
 }
 
 int Api::indexOfMethod(const char *signature) const
@@ -54,11 +44,11 @@ int Api::indexOfMethod(const char *signature) const
 
 	while (s)
 	{
-		for (int i = 0; i < s->_methodCount; ++i)
-			if (Method(_methods + i).signature() == signature)
+		for (int i = 0; i < s->_table->methodCount; ++i)
+			if (Method(_table->methods + i).signature() == signature)
 				return i + s->methodOffset();
 
-		s = s->_super;
+		s = s->_table->super;
 	}
 
 	return -1;
@@ -67,23 +57,23 @@ int Api::indexOfMethod(const char *signature) const
 Method Api::method(int index) const
 {
 	int i = index - methodOffset();
-	if (i < 0 && _super)
-		return _super->method(index);
+	if (i < 0 && _table->super)
+		return _table->super->method(index);
 
-	if (i >= 0 && i < _methodCount)
-		return Method(_methods + index);
+	if (i >= 0 && i < _table->methodCount)
+		return Method(_table->methods + index);
 
 	return Method(nullptr);
 }
 
 int Api::methodCount() const
 {
-	int count = _methodCount;
-	const Api *s = _super;
+	int count = _table->methodCount;
+	const Api *s = _table-> super;
 	while (s)
 	{
-		count += s->_methodCount;
-		s = s->_super;
+		count += s->_table->methodCount;
+		s = s->_table->super;
 	}
 	return count;
 }
@@ -91,11 +81,11 @@ int Api::methodCount() const
 int Api::methodOffset() const
 {
 	int offset = 0;
-	const Api *s = _super;
+	const Api *s = _table->super;
 	while (s)
 	{
-		offset += s->_methodCount;
-		s = s->_super;
+		offset += s->_table->methodCount;
+		s = s->_table->super;
 	}
 	return offset;
 }
@@ -106,11 +96,11 @@ int Api::indexOfProperty(const char *name) const
 
 	while (s)
 	{
-		for (int i = 0; i < s->_propCount; ++i)
-			if (strcmp(s->_props[i].name, name) == 0)
+		for (int i = 0; i < s->_table->propCount; ++i)
+			if (strcmp(s->_table->props[i].name, name) == 0)
 				return i + propertyOffset();
 
-		s = s->_super;
+		s = s->_table->super;
 	}
 
 	return -1;
@@ -119,23 +109,23 @@ int Api::indexOfProperty(const char *name) const
 Property Api::property(int index) const
 {
 	int i = index - propertyOffset();
-	if (i < 0 && _super)
-		return _super->property(index);
+	if (i < 0 && _table->super)
+		return _table->super->property(index);
 
-	if (i >= 0 && i < _methodCount)
-		return Property(_props + index);
+	if (i >= 0 && i < _table->methodCount)
+		return Property(_table->props + index);
 
 	return Property(nullptr);
 }
 
 int Api::propertyCount() const
 {
-	int count = _propCount;
-	const Api *s = _super;
+	int count = _table->propCount;
+	const Api *s = _table->super;
 	while (s)
 	{
-		count += s->_propCount;
-		s = s->_super;
+		count += s->_table->propCount;
+		s = s->_table->super;
 	}
 	return count;
 }
@@ -143,11 +133,11 @@ int Api::propertyCount() const
 int Api::propertyOffset() const
 {
 	int offset = 0;
-	const Api *s = _super;
+	const Api *s = _table->super;
 	while (s)
 	{
-		offset += s->_propCount;
-		s = s->_super;
+		offset += s->_table->propCount;
+		s = s->_table->super;
 	}
 	return offset;
 }

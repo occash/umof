@@ -29,6 +29,7 @@ USA.
 #include "propertydefs.h"
 
 #include <type_traits>
+#include <utility>
 
 #define METHOD(m) \
 { \
@@ -69,16 +70,16 @@ private:
 	{
 		return no();
 	}
-	static const MethodTable *exec_impl(std::true_type)
+	static const std::pair<int, const MethodTable *> exec_impl(std::true_type)
 	{
 		return T::expose();
 	}
-	static const MethodTable *exec_impl(...)
+	static const std::pair<int, const MethodTable *> exec_impl(...)
 	{
-		return nullptr;
+		return{ 0, nullptr };
 	}
 public:
-	static const MethodTable *exec()
+	static const std::pair<int, const MethodTable *> exec()
 	{
 		return exec_impl(test<T>(0));
 	}
@@ -101,16 +102,16 @@ private:
 	{
 		return no();
 	}
-	static const PropertyTable *exec_impl(std::true_type)
+	static const std::pair<int, const PropertyTable *> exec_impl(std::true_type)
 	{
 		return T::expose_props();
 	}
-	static const PropertyTable *exec_impl(...)
+	static const std::pair<int, const PropertyTable *> exec_impl(...)
 	{
-		return nullptr;
+		return{ 0, nullptr };
 	}
 public:
-	static const PropertyTable *exec()
+	static const std::pair<int, const PropertyTable *> exec()
 	{
 		return exec_impl(test<T>(0));
 	}

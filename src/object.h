@@ -33,12 +33,16 @@ public: \
 	static const Api *classApi() \
 	{ \
 		OBJECT_CHECK(Class) \
-		static const Api staticApi( \
+		static const ApiTable apiTable \
+		{ \
 			#Class, \
 			Super::classApi(), \
-			expose_method<Class>::exec(), \
-			expose_props_method<Class>::exec() \
-		); \
+			expose_method<Class>::exec().second, \
+			expose_props_method<Class>::exec().second, \
+			expose_method<Class>::exec().first, \
+			expose_props_method<Class>::exec().first \
+		}; \
+		static const Api staticApi(&apiTable); \
 		return &staticApi; \
 	} \
 	virtual const Api *api() const \
@@ -49,27 +53,25 @@ private:
 
 #define EXPOSE(...) \
 public: \
-	static const MethodTable *expose() \
+	static const std::pair<int, const MethodTable *> expose() \
 	{ \
 		static const MethodTable methods[] \
 		{ \
-			__VA_ARGS__, \
-			{nullptr, nullptr, 0, nullptr} \
+			__VA_ARGS__ \
 		}; \
-		return methods; \
+		return { sizeof(methods) / sizeof(MethodTable *), methods }; \
 	} \
 private:
 
 #define PROPERTIES(...) \
 public: \
-	static const PropertyTable *expose_props() \
+	static const std::pair<int, const PropertyTable *> expose_props() \
 	{ \
 		static const PropertyTable props[] \
 		{ \
-			__VA_ARGS__, \
-			{nullptr, nullptr, nullptr, nullptr} \
+			__VA_ARGS__ \
 		}; \
-		return props; \
+		return { sizeof(props) / sizeof(PropertyTable *), props }; \
 	} \
 private:
 

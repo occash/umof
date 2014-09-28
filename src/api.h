@@ -22,23 +22,29 @@ USA.
 #ifndef API_H
 #define API_H
 
-#include <map>
-
 #include "defines.h"
+#include "conststring.h"
 #include "method.h"
 #include "property.h"
 
-struct MethodDef;
+class Api;
+
+struct ApiTable
+{
+	ConstString name;
+	const Api *super;
+	const MethodTable *methods;
+	const PropertyTable *props;
+	int methodCount;
+	int propCount;
+};
 
 class UMOF_EXPORT Api
 {
 public:
-	Api(const char *name, 
-		const Api *super, 
-		const MethodTable *methods, 
-		const PropertyTable *props);
+	Api::Api(const ApiTable *table);
 
-	const char *name() const; //Class name
+	ConstString Api::name() const; //Class name
 	const Api *super() const; //Super class api
 	//Any data(const char *) const; //Additional data connected to class
 	//Method constructor(const char *) const; //Find constructor by signature
@@ -57,12 +63,7 @@ public:
 	static Any invoke(Object *obj, const char *name, std::initializer_list<Any> args);
 
 private:
-	const char *_name;
-	const Api *_super;
-	const MethodTable *_methods;
-	const PropertyTable *_props;
-	int _methodCount;
-	int _propCount;
+	const ApiTable *_table;
 
 };
 

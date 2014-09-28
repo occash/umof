@@ -31,7 +31,8 @@ Object::~Object()
 
 const Api * Object::classApi()
 {
-	static const Api staticApi("Object", nullptr, nullptr, nullptr);
+	static const ApiTable objectTable{ "Object", nullptr, nullptr, nullptr, 0, 0 };
+	static const Api staticApi(&objectTable);
 	return &staticApi;
 }
 
