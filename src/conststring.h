@@ -24,12 +24,17 @@ USA.
 
 #include <cstddef>
 #include <stdexcept>
+#include <cstring>
 
 /*! Compile-time string with known size.
 */
 class ConstString
 {
 public:
+	//Workaround for GCC bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59879
+	constexpr ConstString(const char *a) :
+		_string(a), _size(std::strlen(a)) {}
+		
 	template<std::size_t N>
 	constexpr ConstString(const char(&a)[N]) :
 		_string(a), _size(N - 1) {}

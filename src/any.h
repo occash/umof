@@ -25,6 +25,7 @@ USA.
 #include "defines.h"
 #include "type_traits.h"
 #include <new>
+#include <stdexcept>
 
 template<typename T, typename S>
 struct AnyHelper;
@@ -126,7 +127,7 @@ Any::Any(T const& x) :
 	_object(nullptr)
 {
 	const T *src = &x;
-	AnyHelper<T, Table<T>::is_small>::clone(&src, &_object);
+	AnyHelper<T, typename Table<T>::is_small>::clone(&src, &_object);
 }
 
 template<typename T, std::size_t N>
@@ -144,14 +145,14 @@ void Any::reset(T const& x)
 		_table->static_delete(&_object);
 	_table = Table<T>::get();
 	const T *src = &x;
-	AnyHelper<T, Table<T>::is_small>::clone(&src, &_object);
+	AnyHelper<T, typename Table<T>::is_small>::clone(&src, &_object);
 }
 
 template <typename T>
 inline T* any_cast(Any* operand)
 {
 	if (operand && operand->_table == Table<T>::get())
-		return AnyHelper<T, Table<T>::is_small>::cast(&operand->_object);
+		return AnyHelper<T, typename Table<T>::is_small>::cast(&operand->_object);
 
 	return nullptr;
 }

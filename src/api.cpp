@@ -22,6 +22,8 @@ USA.
 #include "api.h"
 #include "object.h"
 
+#include <cstring>
+
 Api::Api(const ApiTable *table) :
 	_table(table)
 {
@@ -97,7 +99,7 @@ int Api::indexOfProperty(const char *name) const
 	while (s)
 	{
 		for (int i = 0; i < s->_table->propCount; ++i)
-			if (strcmp(s->_table->props[i].name, name) == 0)
+			if (std::strcmp(s->_table->props[i].name, name) == 0)
 				return i + propertyOffset();
 
 		s = s->_table->super;

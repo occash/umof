@@ -34,14 +34,14 @@ USA.
 #define METHOD(m) \
 { \
 	#m, \
-	(InvokeMem)&Invoker<decltype(&m)>::invoke<&m>, \
+	(InvokeMem)&Invoker<decltype(&m)>::template invoke<&m>, \
 	Invoker<decltype(&m)>::argCount(), \
 	Invoker<decltype(&m)>::types() \
 }
 #define OVERLOAD(c, m, r, ...) \
 { \
 	#m, \
-	(InvokeMem)&Invoker<r(c::*)(__VA_ARGS__)>::invoke<&m>, \
+	(InvokeMem)&Invoker<r(c::*)(__VA_ARGS__)>::template invoke<&m>, \
 	Invoker<r(c::*)(__VA_ARGS__)>::argCount(), \
 	Invoker<r(c::*)(__VA_ARGS__)>::types() \
 }

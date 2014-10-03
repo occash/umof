@@ -26,8 +26,8 @@ USA.
 #include <type_traits>
 
 //Bool template type
-typedef std::integral_constant<bool, true> True;
-typedef std::integral_constant<bool, false> False;
+typedef typename std::integral_constant<bool, true> True;
+typedef typename std::integral_constant<bool, false> False;
 
 //Remove all qualifiers
 template<typename T, typename Ptr>
@@ -157,20 +157,20 @@ struct TypeFuncs<False>
 template<typename T>
 struct TableCV
 {
-	typedef std::integral_constant<bool, (sizeof(T) <= sizeof(void*))> is_small;
+	typedef typename std::integral_constant<bool, (sizeof(T) <= sizeof(void*))> is_small;
 
 	static inline TypeTable *get()
 	{
 		static TypeTable staticTable
 		{
-			TypeFuncs<is_small>::type<T>::get_type,
-			TypeFuncs<is_small>::type<T>::get_size,
-			TypeFuncs<is_small>::type<T>::static_new,
-			TypeFuncs<is_small>::type<T>::construct,
-			TypeFuncs<is_small>::type<T>::static_delete,
-			TypeFuncs<is_small>::type<T>::destruct,
-			TypeFuncs<is_small>::type<T>::clone,
-			TypeFuncs<is_small>::type<T>::move
+			TypeFuncs<is_small>::template type<T>::get_type,
+			TypeFuncs<is_small>::template type<T>::get_size,
+			TypeFuncs<is_small>::template type<T>::static_new,
+			TypeFuncs<is_small>::template type<T>::construct,
+			TypeFuncs<is_small>::template type<T>::static_delete,
+			TypeFuncs<is_small>::template type<T>::destruct,
+			TypeFuncs<is_small>::template type<T>::clone,
+			TypeFuncs<is_small>::template type<T>::move
 		};
 		return &staticTable;
 	}
@@ -180,7 +180,7 @@ struct TableCV
 template<typename T>
 struct Table
 {
-	typedef std::integral_constant<bool, (sizeof(T) <= sizeof(void*))> is_small;
+	typedef typename std::integral_constant<bool, (sizeof(T) <= sizeof(void*))> is_small;
 	typedef typename std::is_pointer<T>::type is_pointer;
 	typedef typename std::decay<T>::type T_dec;
 	typedef typename Pointer<T_dec, is_pointer>::type T_no_cv;

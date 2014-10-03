@@ -51,7 +51,7 @@ struct Converter
 {
 	static Any convert(const Any &a)
 	{
-		return Any_cast<T>(a);
+		return any_cast<T>(a);
 	}
 
 	static bool canConvert(const Any &a)

@@ -56,12 +56,12 @@ public:
 		Api constructor should never be used directly. 
 		Please use OBJECT() macro instead.
 	*/
-	Api::Api(const ApiTable *table);
+	Api(const ApiTable *table);
 
 	/*! Returns the class name
 		\sa super()
 	*/
-	ConstString Api::name() const;
+	ConstString name() const;
 
 	/*! Returns the Api of the superclass, 
 		or nullptr if there is no such object.

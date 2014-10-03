@@ -23,3 +23,5 @@ solution "metasystem"
 			defines { "NDEBUG", "UMOF_LIBRARY" }
 			optimize "On"
 			
+		configuration "gmake"
+			buildoptions { "-std=c++11" }
