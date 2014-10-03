@@ -21,7 +21,7 @@ solution "metasystem"
 		configuration "Release"
 			targetdir "bin/release"
 			defines { "NDEBUG", "UMOF_LIBRARY" }
-			optimize "On"
+			flags { "Optimize" }
 			
 		configuration "gmake"
 			buildoptions { "-std=c++11" }
