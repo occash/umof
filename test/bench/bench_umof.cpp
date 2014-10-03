@@ -12,15 +12,15 @@ class Test : public Object
 {
 	OBJECT(Test, Object)
 	EXPOSE(
-		OVERLOAD(Test, func, int, int, int),
-		OVERLOAD(Test, func, float, float, float),
-		METHOD(null),
-		METHOD(print),
-		METHOD(static_func),
+		OVERLOAD(Test, Test::func, int, int, int),
+		OVERLOAD(Test, Test::func, float, float, float),
+		METHOD(Test::null),
+		METHOD(Test::print),
+		METHOD(Test::static_func),
 		METHOD(my_fun)
 	)
 	PROPERTIES(
-		PROPERTY(val, getVal, setVal)
+		PROPERTY(val, Test::getVal, Test::setVal)
 	)
 
 public:

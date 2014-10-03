@@ -43,6 +43,9 @@ solution "benchmark"
 			optimize "On"
 			libdirs { "../../bin/release" }
 			
+		configuration "gmake"
+			buildoptions { "-std=c++11" }
+			
 	project "bench_camp"
 		targetname "bench_camp"
 		language "C++"
