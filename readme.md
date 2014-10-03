@@ -1,5 +1,7 @@
 The uMOF library is meta system for C++.
 
+[![Build Status](https://drone.io/bitbucket.org/occash/umof/status.png)](https://drone.io/bitbucket.org/occash/umof/latest)
+
 ## Usage
 To use meta system the class should enherit from class Object. Use OBJECT macro to define metaclass specific api. 
 ```
