@@ -31,22 +31,22 @@ USA.
 #include <type_traits>
 #include <utility>
 
-#define METHOD(m) \
+#define U_METHOD(m) \
 { \
 	#m, \
 	(InvokeMem)&Invoker<decltype(&m)>::template invoke<&m>, \
 	Invoker<decltype(&m)>::argCount(), \
 	Invoker<decltype(&m)>::types() \
 }
-#define OVERLOAD(c, m, r, ...) \
+#define U_OVERLOAD(c, m, s) \
 { \
 	#m, \
-	(InvokeMem)&Invoker<r(c::*)(__VA_ARGS__)>::template invoke<&m>, \
-	Invoker<r(c::*)(__VA_ARGS__)>::argCount(), \
-	Invoker<r(c::*)(__VA_ARGS__)>::types() \
+	(InvokeMem)&Invoker<s>::template invoke<&m>, \
+	Invoker<s>::argCount(), \
+	Invoker<s>::types() \
 }
-#define FUNCTION(f) METHOD(f)
-#define PROPERTY(p, r, w) \
+#define U_FUNCTION(f) U_METHOD(f)
+#define U_PROPERTY(p, r, w) \
 { \
 	#p, \
 	Reader<decltype(&r), &r>::type(), \

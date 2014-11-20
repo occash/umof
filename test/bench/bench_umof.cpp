@@ -10,17 +10,17 @@ void my_fun(int i)
 
 class Test : public Object
 {
-	OBJECT(Test, Object)
-	EXPOSE(
-		OVERLOAD(Test, Test::func, int, int, int),
-		OVERLOAD(Test, Test::func, float, float, float),
-		METHOD(Test::null),
-		METHOD(Test::print),
-		METHOD(Test::static_func),
-		METHOD(my_fun)
+	U_OBJECT(Test, Object)
+	U_EXPOSE(
+		U_OVERLOAD(Test, Test::func, int(Test::*)(int, int)),
+		U_OVERLOAD(Test, Test::func, float(Test::*)(float, float)),
+		U_METHOD(Test::null),
+		U_METHOD(Test::print),
+		U_METHOD(Test::static_func),
+		U_METHOD(my_fun)
 	)
-	PROPERTIES(
-		PROPERTY(val, Test::getVal, Test::setVal)
+	U_PROPERTIES(
+		U_PROPERTY(val, Test::getVal, Test::setVal)
 	)
 
 public:

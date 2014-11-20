@@ -42,7 +42,7 @@ struct ApiTable
 };
 
 /*! \breif The Api class contains meta information about objects.
-	An Api instance is created for every object with OBJECT macro
+	An Api instance is created for every object with U_OBJECT macro
 	defined inside its declaration. The api is available as
 	Object::api() or Object::classApi().
 	This class is used for type introspection. It is useful for
@@ -54,7 +54,7 @@ class UMOF_EXPORT Api
 public:
 	/*! \breif Constructs an Api with the given table.
 		Api constructor should never be used directly. 
-		Please use OBJECT() macro instead.
+		Please use U_OBJECT() macro instead.
 	*/
 	Api(const ApiTable *table);
 

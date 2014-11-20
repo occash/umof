@@ -25,17 +25,17 @@ USA.
 #include "objectdefs.h"
 #include "api.h"
 
-#define OBJECT_CHECK(Class) \
+#define U_OBJECT_CHECK(Class) \
 	static_assert(std::is_base_of<Object, Class>::value, "Class " #Class " should inherit from Object");
 
 /*! This macro makes meta information available for object.
 	\relates Object
 */
-#define OBJECT(Class, Super) \
+#define U_OBJECT(Class, Super) \
 public: \
 	static const Api *classApi() \
 	{ \
-		OBJECT_CHECK(Class) \
+		U_OBJECT_CHECK(Class) \
 		static const ApiTable apiTable \
 		{ \
 			#Class, \
@@ -57,7 +57,7 @@ private:
 /*! This macro exposes class methods in Api.
 	\relates Object
 */
-#define EXPOSE(...) \
+#define U_EXPOSE(...) \
 public: \
 	static const std::pair<int, const MethodTable *> expose() \
 	{ \
@@ -72,7 +72,7 @@ private:
 /*! This macro exposes class properties in Api.
 	\relates Object
 */
-#define PROPERTIES(...) \
+#define U_PROPERTIES(...) \
 public: \
 	static const std::pair<int, const PropertyTable *> expose_props() \
 	{ \
