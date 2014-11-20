@@ -9,8 +9,8 @@ class Test : public Object
 {
 	OBJECT(Test, Object)
 	EXPOSE(Test, 
-		OVERLOAD(lol, Test, int, int, int),
-		OVERLOAD(lol, Test, float, float, float),
+		OVERLOAD(func, Test, int, int, int),
+		OVERLOAD(func, Test, float, float, float),
 		METHOD(null),
 		METHOD(test)
 	)
