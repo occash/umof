@@ -3,16 +3,19 @@ The uMOF library is meta system for C++.
 [![Build Status](https://drone.io/bitbucket.org/occash/umof/status.png)](https://drone.io/bitbucket.org/occash/umof/latest)
 
 ## Usage
-To use meta system the class should enherit from class Object. Use OBJECT macro to define metaclass specific api. 
+To use meta system the class should inherit from class Object. Use OBJECT macro to define metaclass specific api. 
 ```
 class Test : public Object
 {
-	OBJECT(Test, Object)
-	EXPOSE(Test, 
-		OVERLOAD(func, Test, int, int, int),
-		OVERLOAD(func, Test, float, float, float),
-		METHOD(null),
-		METHOD(test)
+	U_OBJECT(Test, Object)
+	U_EXPOSE(Test, 
+		U_OVERLOAD(func, Test, int, int, int),
+		U_OVERLOAD(func, Test, float, float, float),
+		U_METHOD(null),
+		U_METHOD(test)
+	)
+	U_PROPERTIES(
+		U_PROPERTY(val, Test::getVal, Test::setVal)
 	)
 
 public:
@@ -37,6 +40,20 @@ public:
 	{
 		std::cout << "test" << std::endl;
 	}
+	
+	int getVal() const
+	{
+		return _val;
+	}
+
+	void setVal(int v)
+	{
+		_val = v;
+	}
+
+private:
+	int _val;
+
 };
 ```
 Now you can use exposed api of the class.
