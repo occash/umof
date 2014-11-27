@@ -65,7 +65,7 @@ public: \
 		{ \
 			__VA_ARGS__ \
 		}; \
-		return { sizeof(methods) / sizeof(MethodTable *), methods }; \
+		return { sizeof(methods) / sizeof(MethodTable), methods }; \
 	} \
 private:
 
@@ -80,7 +80,7 @@ public: \
 		{ \
 			__VA_ARGS__ \
 		}; \
-		return { sizeof(props) / sizeof(PropertyTable *), props }; \
+		return { sizeof(props) / sizeof(PropertyTable), props }; \
 	} \
 private:
 
