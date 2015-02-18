@@ -42,8 +42,10 @@ public: \
 			Super::classApi(), \
 			expose_method<Class>::exec().second, \
 			expose_props_method<Class>::exec().second, \
+			expose_enums_method<Class>::exec().second, \
 			expose_method<Class>::exec().first, \
-			expose_props_method<Class>::exec().first \
+			expose_props_method<Class>::exec().first, \
+			expose_enums_method<Class>::exec().first, \
 		}; \
 		static const Api staticApi(&apiTable); \
 		return &staticApi; \
@@ -81,6 +83,21 @@ public: \
 			__VA_ARGS__ \
 		}; \
 		return { sizeof(props) / sizeof(PropertyTable), props }; \
+	} \
+private:
+
+/*! This macro exposes class enums in Api.
+	\relates Object
+*/
+#define U_ENUMERATORS(...) \
+public: \
+	static const std::pair<int, const EnumTable *> expose_enums() \
+	{ \
+		static const EnumTable enums[] \
+		{ \
+			__VA_ARGS__ \
+		}; \
+		return { sizeof(enums) / sizeof(EnumTable), enums }; \
 	} \
 private:
 
