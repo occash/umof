@@ -23,13 +23,40 @@ USA.
 #define ENUM_H
 
 #include "defines.h"
+#include "conststring.h"
 
-class Enumerator
+struct EnumeratorTable
 {
-	const char *name() const;
-	//StringList keys() const;
-	int value(const char *) const;
-	const char *key(int) const;
+	ConstString name;
+	const int value;
+};
+
+struct EnumTable
+{
+	ConstString name;
+	const int count;
+	const EnumeratorTable *table;
+};
+
+class UMOF_EXPORT Enum
+{
+public:
+	Enum(const EnumTable *table);
+
+	bool valid() const;
+
+	ConstString name() const;
+
+	int keyCount() const;
+	ConstString key(int index) const;
+	int value(int index) const;
+
+	int keyToValue(const char *key) const;
+	ConstString valueToKey(int value) const;
+
+private:
+	const EnumTable *_table;
+
 };
 
 #endif

@@ -20,3 +20,55 @@ USA.
 **********************************************************************/
 
 #include "enum.h"
+
+Enum::Enum(const EnumTable *table) :
+	_table(table)
+{
+}
+
+bool Enum::valid() const
+{
+	return (_table != nullptr);
+}
+
+ConstString Enum::name() const
+{
+	return _table->name;
+}
+
+int Enum::keyCount() const
+{
+	return _table->count;
+}
+
+ConstString Enum::key(int index) const
+{
+	return _table->table[index].name;
+}
+
+int Enum::value(int index) const
+{
+	return _table->table[index].value;
+}
+
+int Enum::keyToValue(const char *key) const
+{
+	for (int i = 0; i < _table->count; ++i)
+	{
+		if (_table->table[i].name == key)
+			return _table->table[i].value;
+	}
+
+	return -1;
+}
+
+ConstString Enum::valueToKey(int value) const
+{
+	for (int i = 0; i < _table->count; ++i)
+	{
+		if (_table->table[i].value == value)
+			return _table->table[i].name;
+	}
+
+	return "";
+}
