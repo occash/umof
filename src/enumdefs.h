@@ -19,44 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef ENUM_H
-#define ENUM_H
-
-#include "defines.h"
-#include "conststring.h"
-
-struct EnumeratorTable
-{
-	ConstString name;
-	const int value;
-};
-
-struct EnumTable
-{
-	ConstString name;
-	const int count;
-	const EnumeratorTable *table;
-};
-
-class UMOF_EXPORT Enumerator
-{
-public:
-	Enumerator(const EnumTable *table);
-
-	bool valid() const;
-
-	ConstString name() const;
-
-	int keyCount() const;
-	ConstString key(int index) const;
-	int value(int index) const;
-
-	int keyToValue(const char *key) const;
-	ConstString valueToKey(int value) const;
-
-private:
-	const EnumTable *_table;
-
-};
+#ifndef ENUMDEFS_H
+#define ENUMDEFS_H
 
 #endif

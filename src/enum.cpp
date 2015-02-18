@@ -21,37 +21,37 @@ USA.
 
 #include "enum.h"
 
-Enum::Enum(const EnumTable *table) :
+Enumerator::Enumerator(const EnumTable *table) :
 	_table(table)
 {
 }
 
-bool Enum::valid() const
+bool Enumerator::valid() const
 {
 	return (_table != nullptr);
 }
 
-ConstString Enum::name() const
+ConstString Enumerator::name() const
 {
 	return _table->name;
 }
 
-int Enum::keyCount() const
+int Enumerator::keyCount() const
 {
 	return _table->count;
 }
 
-ConstString Enum::key(int index) const
+ConstString Enumerator::key(int index) const
 {
 	return _table->table[index].name;
 }
 
-int Enum::value(int index) const
+int Enumerator::value(int index) const
 {
 	return _table->table[index].value;
 }
 
-int Enum::keyToValue(const char *key) const
+int Enumerator::keyToValue(const char *key) const
 {
 	for (int i = 0; i < _table->count; ++i)
 	{
@@ -62,7 +62,7 @@ int Enum::keyToValue(const char *key) const
 	return -1;
 }
 
-ConstString Enum::valueToKey(int value) const
+ConstString Enumerator::valueToKey(int value) const
 {
 	for (int i = 0; i < _table->count; ++i)
 	{
