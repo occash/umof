@@ -22,6 +22,19 @@ class Test : public Object
 	U_PROPERTIES(
 		U_PROPERTY(val, Test::getVal, Test::setVal)
 	)
+	U_ENUMERATORS(
+		U_ENUMERATE(TestEnum,
+			U_VALUE(Test, Value1),
+			U_VALUE(Test, Value2)
+		)
+	)
+
+public:
+	enum TestEnum
+	{
+		Value1,
+		Value2
+	};
 
 public:
 	int func(int a, int b)
