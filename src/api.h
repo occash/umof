@@ -26,6 +26,7 @@ USA.
 #include "conststring.h"
 #include "method.h"
 #include "property.h"
+#include "enum.h"
 
 class Api;
 
@@ -37,8 +38,10 @@ struct ApiTable
 	const Api *super;
 	const MethodTable *methods;
 	const PropertyTable *props;
+	const EnumTable *enums;
 	int methodCount;
 	int propCount;
+	int enumCount;
 };
 
 /*! \breif The Api class contains meta information about objects.
@@ -119,10 +122,10 @@ public:
 	*/
 	int propertyOffset() const;
 
-	//int indexOfEnumerator(const char *name) const; //find enum by name
-	//Enumerator enumerator(int index) const; //returns enum
-	//int enumeratorCount() const; //number of enums
-	//int enumeratorOffset() const; //enums offset
+	int indexOfEnumerator(const char *name) const; //find enum by name
+	Enumerator enumerator(int index) const; //returns enum
+	int enumeratorCount() const; //number of enums
+	int enumeratorOffset() const; //enums offset
 	
 	//static Object *create(ArgPack args) const; //create new instance of the class
 

@@ -144,6 +144,58 @@ int Api::propertyOffset() const
 	return offset;
 }
 
+int Api::indexOfEnumerator(const char *name) const
+{
+	const Api *s = this;
+
+	while (s)
+	{
+		for (int i = 0; i < s->_table->enumCount; ++i)
+			if (std::strcmp(s->_table->enums[i].name, name) == 0)
+				return i + enumeratorOffset();
+
+		s = s->_table->super;
+	}
+
+	return -1;
+}
+
+Enumerator Api::enumerator(int index) const
+{
+	int i = index - enumeratorOffset();
+	if (i < 0 && _table->super)
+		return _table->super->enumerator(index);
+
+	if (i >= 0 && i < _table->enumCount)
+		return Enumerator(_table->enums + index);
+
+	return Enumerator(nullptr);
+}
+
+int Api::enumeratorCount() const
+{
+	int count = _table->enumCount;
+	const Api *s = _table->super;
+	while (s)
+	{
+		count += s->_table->enumCount;
+		s = s->_table->super;
+	}
+	return count;
+}
+
+int Api::enumeratorOffset() const
+{
+	int offset = 0;
+	const Api *s = _table->super;
+	while (s)
+	{
+		offset += s->_table->enumCount;
+		s = s->_table->super;
+	}
+	return offset;
+}
+
 Any Api::invoke(Object *obj, const char *name, std::initializer_list<Any> args)
 {
 	const Api *api = obj->api();
