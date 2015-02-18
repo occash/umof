@@ -26,8 +26,8 @@ USA.
 #include <type_traits>
 
 //Bool template type
-typedef typename std::integral_constant<bool, true> True;
-typedef typename std::integral_constant<bool, false> False;
+typedef std::integral_constant<bool, true> True;
+typedef std::integral_constant<bool, false> False;
 
 //Remove all qualifiers
 template<typename T, typename Ptr>
