@@ -114,7 +114,7 @@ Property Api::property(int index) const
 	if (i < 0 && _table->super)
 		return _table->super->property(index);
 
-	if (i >= 0 && i < _table->methodCount)
+	if (i >= 0 && i < _table->propCount)
 		return Property(_table->props + index);
 
 	return Property(nullptr);

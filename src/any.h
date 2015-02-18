@@ -40,7 +40,7 @@ struct AnyHelper<T, True>
 
 	inline static void clone(const T **src, void **dest)
 	{
-		new (dest)T(*reinterpret_cast<T const*>(src));
+		new (dest)T(*reinterpret_cast<T const*>(*src));
 	}
 
 	inline static T *cast(void **object)
