@@ -29,6 +29,9 @@ USA.
 
 class Object;
 
+typedef Any(*ReadMem)(Object *);
+typedef void(*WriteMem)(Object *, const Any&);
+
 /* \breif Internal struct to store property meta information.
 */
 struct PropertyTable

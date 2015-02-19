@@ -31,6 +31,8 @@ USA.
 
 class Object;
 
+typedef Any(*InvokeMem)(Object *, int argc, const Any *);
+
 /* \breif Internal struct to store method meta information.
 */
 struct MethodTable
