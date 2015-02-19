@@ -3,6 +3,30 @@
 #include <iostream>
 #include <ctime>
 
+template<class T>
+struct ApiHolder
+{
+	static const Api *api()
+	{
+		static const ApiTable apiTable
+		{
+			"Test",
+			nullptr,
+			expose_method<T>::exec().second,
+			expose_props_method<T>::exec().second,
+			expose_enums_method<T>::exec().second,
+			expose_method<T>::exec().first,
+			expose_props_method<T>::exec().first,
+			expose_enums_method<T>::exec().first
+		};
+		static const Api staticApi(&apiTable);
+		return &staticApi;
+	}
+};
+
+#define U_DECLARE_API(Class) class Class ## Api : public ApiHolder<Class>
+#define U_API(Class) Class ## Api::api()
+
 void my_fun(int i)
 {
 	std::cout << "free function" << i << std::endl;
@@ -77,8 +101,31 @@ private:
 
 };
 
+U_DECLARE_API(Test)
+{
+	U_EXPOSE(
+		U_OVERLOAD(Test, Test::func, int(Test::*)(int, int)),
+		U_OVERLOAD(Test, Test::func, float(Test::*)(float, float)),
+		U_METHOD(Test::null),
+		U_METHOD(Test::print),
+		U_METHOD(Test::static_func),
+		U_METHOD(my_fun)
+	)
+	U_PROPERTIES(
+		U_PROPERTY(val, Test::getVal, Test::setVal)
+	)
+	U_ENUMERATORS(
+		U_ENUMERATE(TestEnum,
+			U_VALUE(Test, Value1),
+			U_VALUE(Test, Value2)
+		)
+	)
+};
+
 int main()
 {
+	int idx = U_API(Test)->indexOfMethod("func(int,int)");
+
 	Test t;
 
 	Method m = t.api()->method(t.api()->indexOfMethod("func(int,int)"));
