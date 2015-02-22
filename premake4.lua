@@ -1,23 +1,13 @@
 newoption
 {
     trigger = 'with-tests',
-    description = 'Build uMOF with unit tests',
-    value = 'bool',
-    allowed = { 
-        {'true', 'True'} ,
-        {'false', 'False'}
-    }
+    description = 'Build with unit tests',
 }
 
 newoption
 {
     trigger = 'with-benchmark',
-    description = 'Build uMOF with benchmars',
-    value = 'bool',
-    allowed = { 
-        {'true', 'True'} ,
-        {'false', 'False'}
-    }
+    description = 'Build with benchmars',
 }
 
 solution 'metasystem'
@@ -35,22 +25,24 @@ solution 'metasystem'
 			'src/**.cpp'
 		}
 		
+		defines { 'UMOF_LIBRARY' }
+		
 		configuration 'Debug'
 			targetdir 'bin/debug'
-			defines { '_DEBUG', 'UMOF_LIBRARY' }
+			defines { '_DEBUG' }
 			flags { 'Symbols' }
 			
 		configuration 'Release'
 			targetdir 'bin/release'
-			defines { 'NDEBUG', 'UMOF_LIBRARY' }
+			defines { 'NDEBUG' }
 			flags { 'Optimize' }
 			
 		configuration 'gmake'
 			buildoptions { '-std=c++11' }
 
-    if _OPTIONS['with-tests'] == 'true' then
+    if _OPTIONS['with-tests'] then
         project 'test'
-            targetname 'umof-test'
+            targetname 'umof-tests'
             language 'C++'
             kind 'ConsoleApp'
             
@@ -64,13 +56,13 @@ solution 'metasystem'
             includedirs { 'src' }
             
             configuration 'Debug'
-			targetdir 'bin/debug'
-			defines { '_DEBUG', 'UMOF_LIBRARY' }
-			flags { 'Symbols' }
+				targetdir 'bin/debug'
+				defines { '_DEBUG' }
+				flags { 'Symbols' }
 			
             configuration 'Release'
                 targetdir 'bin/release'
-                defines { 'NDEBUG', 'UMOF_LIBRARY' }
+                defines { 'NDEBUG' }
                 flags { 'Optimize' }
                 
             configuration 'gmake'
@@ -78,7 +70,7 @@ solution 'metasystem'
             
     end
     
-    if _OPTIONS['with-benchmark'] == 'true' then
+    if _OPTIONS['with-benchmark'] then
         project 'benchmark'
             targetname 'umof-benchmark'
             language 'C++'
@@ -86,21 +78,46 @@ solution 'metasystem'
             
             files
             {
-                'test/bench/**.h',
-                'test/bench/**.cpp'
+                'test/bench/bench_native.cpp',
+				'test/bench/bench_umof.cpp',
+				'test/bench/main.cpp'
             }
+			
+			if os.findlib('camp') then
+				printf('Camp found')
+				files { 'test/bench/bench_camp.cpp' }
+				links { 'camp' }
+			end
+			
+			if os.findlib('cpgf') then
+				printf('CPGF found')
+				files { 'test/bench/bench_cpgf.cpp' }
+				links { 'cpgf' }
+			end
+			
+			if os.findlib('bin/qt5core') then
+				printf('Qt found')
+				files 
+				{ 
+					'test/bench/qt_test.h',
+					'test/bench/bench_qt.cpp'
+				}
+				links { 'qt5core' }
+			end
             
             links { 'umof' }
             includedirs { 'src' }
             
             configuration 'Debug'
-			targetdir 'bin/debug'
-			defines { '_DEBUG', 'UMOF_LIBRARY' }
-			flags { 'Symbols' }
+				links { 'celerod' }
+				targetdir 'bin/debug'
+				defines { '_DEBUG' }
+				flags { 'Symbols' }
 			
             configuration 'Release'
+				links { 'celero' }
                 targetdir 'bin/release'
-                defines { 'NDEBUG', 'UMOF_LIBRARY' }
+                defines { 'NDEBUG' }
                 flags { 'Optimize' }
                 
             configuration 'gmake'

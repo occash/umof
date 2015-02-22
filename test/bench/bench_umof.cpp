@@ -1,9 +1,11 @@
+#include <celero/Celero.h>
+
 #include <object.h>
 
 #include <iostream>
 #include <ctime>
 
-template<class T>
+/*template<class T>
 struct ApiHolder
 {
 	static const Api *api()
@@ -25,9 +27,9 @@ struct ApiHolder
 };
 
 #define U_DECLARE_API(Class) class Class ## Api : public ApiHolder<Class>
-#define U_API(Class) Class ## Api::api()
+#define U_API(Class) Class ## Api::api()*/
 
-void my_fun(int i)
+static void my_fun(int i)
 {
 	std::cout << "free function" << i << std::endl;
 }
@@ -101,7 +103,7 @@ private:
 
 };
 
-U_DECLARE_API(Test)
+/*U_DECLARE_API(Test)
 {
 	U_EXPOSE(
 		U_OVERLOAD(Test, Test::func, int(Test::*)(int, int)),
@@ -120,28 +122,30 @@ U_DECLARE_API(Test)
 			U_VALUE(Test, Value2)
 		)
 	)
+};*/
+
+class UmofFixture : public celero::TestFixture
+{
+public:
+    UmofFixture() : m(nullptr) {}
+
+    virtual void setUp(int64_t experimentValue)
+    {
+        int idx = t.api()->indexOfMethod("func(int,int)");
+        m = t.api()->method(idx);
+    }
+
+    virtual void tearDown()
+    {
+    }
+
+public:
+    Test t;
+    Method m;
+
 };
 
-int main()
+BENCHMARK_F(FuncDefs, Umof, UmofFixture, 100, 10000)
 {
-	int idx = U_API(Test)->indexOfMethod("func(int,int)");
-
-	Test t;
-
-	Method m = t.api()->method(t.api()->indexOfMethod("func(int,int)"));
-	if (!m.valid())
-		return 1;
-
-	std::clock_t c_start = std::clock();
-	int result = 0;
-	for (int i = 0; i < 10000000; ++i)
-	{
-		result += any_cast<int>(m.invoke(&t, { i, i }));
-	}
-	std::clock_t c_end = std::clock();
-	std::cout << "uMOF CPU time used: "
-		<< 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC
-		<< " ms\n" << result << std::endl;
-
-	return 0;
+    celero::DoNotOptimizeAway(any_cast<int>(m.invoke(&t, { 1, 2 })));
 }
