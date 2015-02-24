@@ -3,7 +3,6 @@
 #include <object.h>
 
 #include <iostream>
-#include <ctime>
 
 /*template<class T>
 struct ApiHolder
@@ -34,24 +33,24 @@ static void my_fun(int i)
 	std::cout << "free function" << i << std::endl;
 }
 
-class Test : public Object
+class UTest : public Object
 {
-	U_OBJECT(Test, Object)
+    U_OBJECT(UTest, Object)
 	U_EXPOSE(
-		U_OVERLOAD(Test, Test::func, int(Test::*)(int, int)),
-		U_OVERLOAD(Test, Test::func, float(Test::*)(float, float)),
-		U_METHOD(Test::null),
-		U_METHOD(Test::print),
-		U_METHOD(Test::static_func),
+    U_OVERLOAD(UTest, UTest::func, int(UTest::*)(int, int)),
+    U_OVERLOAD(UTest, UTest::func, float(UTest::*)(float, float)),
+    U_METHOD(UTest::null),
+    U_METHOD(UTest::print),
+    U_METHOD(UTest::static_func),
 		U_METHOD(my_fun)
 	)
 	U_PROPERTIES(
-		U_PROPERTY(val, Test::getVal, Test::setVal)
+    U_PROPERTY(val, UTest::getVal, UTest::setVal)
 	)
 	U_ENUMERATORS(
 		U_ENUMERATE(TestEnum,
-			U_VALUE(Test, Value1),
-			U_VALUE(Test, Value2)
+        U_VALUE(UTest, Value1),
+        U_VALUE(UTest, Value2)
 		)
 	)
 
@@ -140,7 +139,7 @@ public:
     }
 
 public:
-    Test t;
+    UTest t;
     Method m;
 
 };
