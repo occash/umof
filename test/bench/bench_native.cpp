@@ -77,7 +77,7 @@ public:
     Test t;
 };
 
-BASELINE_F(FuncDefs, Native, NativeFixture, 100, 10000)
+BASELINE_F(FuncDefs, Native, NativeFixture, 100, 100000)
 {
     celero::DoNotOptimizeAway(t.func(1, 2));
 }

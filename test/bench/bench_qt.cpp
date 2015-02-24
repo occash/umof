@@ -24,7 +24,7 @@ public:
 
 };
 
-BENCHMARK_F(FuncDefs, Qt, QtFixture, 100, 10000)
+BENCHMARK_F(FuncDefs, Qt, QtFixture, 100, 100000)
 {
     int res;
     celero::DoNotOptimizeAway(m.invoke(&t, Q_RETURN_ARG(int, res), Q_ARG(int, 1), Q_ARG(int, 2)));

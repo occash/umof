@@ -144,7 +144,7 @@ public:
 
 };
 
-BENCHMARK_F(FuncDefs, Umof, UmofFixture, 100, 10000)
+BENCHMARK_F(FuncDefs, Umof, UmofFixture, 100, 100000)
 {
     celero::DoNotOptimizeAway(any_cast<int>(m.invoke(&t, { 1, 2 })));
 }
