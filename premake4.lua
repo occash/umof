@@ -96,12 +96,22 @@ solution 'metasystem'
 			end
 			
 			if os.findlib('bin/qt5core') then
-				printf('Qt found')
-				files 
-				{ 
+				qtRoot = os.findlib('bin/qt5core')
+				printf('Qt found at ' .. qtRoot)
+				
+				files
+				{
 					'test/bench/qt_test.h',
+					'test/bench/moc_qt_test.cpp',
 					'test/bench/bench_qt.cpp'
 				}
+				
+				includedirs
+				{
+					qtRoot .. '/include',
+					qtRoot .. '/include/QtCore'
+				}
+				libdirs { qtRoot .. '/lib' }
 				links { 'qt5core' }
 			end
             
