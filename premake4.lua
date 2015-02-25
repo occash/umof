@@ -16,6 +16,12 @@ newoption
     description = 'Build static library'
 }
 
+newoption
+{
+    trigger = 'docs',
+    description = 'Build library documentation'
+}
+
 solution 'metasystem'
 	configurations { 'Release', 'Debug' }
 	location 'build'
@@ -51,6 +57,11 @@ solution 'metasystem'
 			
 		configuration 'gmake'
 			buildoptions { '-std=c++11' }
+        
+        if _OPTIONS['docs'] then
+            postbuildcommands { 'doxygen ../doxyfile' }
+        end
+        
 
     if _OPTIONS['with-tests'] then
         project 'test'
