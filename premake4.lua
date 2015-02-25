@@ -10,6 +10,12 @@ newoption
     description = 'Build with benchmars',
 }
 
+newoption
+{
+    trigger = 'static',
+    description = 'Build static library'
+}
+
 solution 'metasystem'
 	configurations { 'Release', 'Debug' }
 	location 'build'
@@ -17,7 +23,13 @@ solution 'metasystem'
 	project 'umof'
 		targetname 'umof'
 		language 'C++'
-		kind 'SharedLib'
+        
+        if _OPTIONS['static'] then
+            kind 'StaticLib'
+            defines { 'UMOF_STATIC' }
+        else
+            kind 'SharedLib'
+        end
 		
 		files
 		{
