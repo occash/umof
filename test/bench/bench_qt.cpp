@@ -1,9 +1,21 @@
-#include "qt_test.h"
-
 #include <celero/Celero.h>
 
+#include <QObject>
 #include <QMetaObject>
 #include <QMetaMethod>
+
+class QtTest : public QObject
+{
+	Q_OBJECT
+
+public:
+	Q_INVOKABLE int func(int a, int b)
+	{
+		return a + b;
+	}
+};
+
+#include "bench_qt.moc"
 
 class QtFixture : public celero::TestFixture
 {
@@ -14,12 +26,8 @@ public:
         m = meta->method(meta->indexOfMethod("func(int,int)"));
     }
 
-    virtual void tearDown()
-    {
-    }
-
 public:
-    Test t;
+    QtTest t;
     QMetaMethod m;
 
 };
