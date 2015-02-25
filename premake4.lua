@@ -23,12 +23,13 @@ newoption
 }
 
 solution 'metasystem'
-	configurations { 'Release', 'Debug' }
-	location 'build'
-	
-	project 'umof'
-		targetname 'umof'
-		language 'C++'
+    configurations { 'Release', 'Debug' }
+    location 'build'
+    
+    project 'umof'
+        targetname 'umof'
+        targetdir 'lib'
+        language 'C++'
         
         if _OPTIONS['static'] then
             kind 'StaticLib'
@@ -36,36 +37,35 @@ solution 'metasystem'
         else
             kind 'SharedLib'
         end
-		
-		files
-		{
-			'src/**.h',
-			'src/**.cpp'
-		}
-		
-		defines { 'UMOF_LIBRARY' }
-		
-		configuration 'Debug'
-			targetdir 'bin/debug'
-			defines { '_DEBUG' }
-			flags { 'Symbols' }
-			
-		configuration 'Release'
-			targetdir 'bin/release'
-			defines { 'NDEBUG' }
-			flags { 'Optimize' }
-			
-		configuration 'gmake'
-			buildoptions { '-std=c++11' }
+        
+        files
+        {
+            'src/**.h',
+            'src/**.cpp'
+        }
+        
+        defines { 'UMOF_LIBRARY' }
         
         if _OPTIONS['docs'] then
             postbuildcommands { 'doxygen ../doxyfile' }
         end
         
+        configuration 'Debug'
+            targetsuffix 'd'
+            defines { '_DEBUG' }
+            flags { 'Symbols' }
+            
+        configuration 'Release'
+            defines { 'NDEBUG' }
+            flags { 'Optimize' }
+            
+        configuration 'gmake'
+            buildoptions { '-std=c++11' }
 
-    if _OPTIONS['with-tests'] then
+    if _OPTIONS['tests'] then
         project 'test'
             targetname 'umof-tests'
+            targetdir 'bin'
             language 'C++'
             kind 'ConsoleApp'
             
@@ -79,12 +79,11 @@ solution 'metasystem'
             includedirs { 'src' }
             
             configuration 'Debug'
-				targetdir 'bin/debug'
-				defines { '_DEBUG' }
-				flags { 'Symbols' }
-			
+                targetsuffix 'd'
+                defines { '_DEBUG' }
+                flags { 'Symbols' }
+            
             configuration 'Release'
-                targetdir 'bin/release'
                 defines { 'NDEBUG' }
                 flags { 'Optimize' }
                 
@@ -93,8 +92,9 @@ solution 'metasystem'
             
     end
     
-    if _OPTIONS['with-benchmark'] then
+    if _OPTIONS['benchmark'] then
         project 'benchmark'
+            targetdir 'bin'
             targetname 'umof-benchmark'
             language 'C++'
             kind 'ConsoleApp'
@@ -104,18 +104,19 @@ solution 'metasystem'
             includedirs { 'src' }
             
             configuration 'Debug'
-				links { 'celerod', 'campd', 'qt5cored' }
-				targetdir 'bin/debug'
-				defines { '_DEBUG' }
-				flags { 'Symbols' }
-			
+                links { 'celerod', 'campd', 'qt5cored' }
+                targetsuffix 'd'
+                defines { '_DEBUG' }
+                flags { 'Symbols' }
+            
             configuration 'Release'
-				links { 'celero', 'camp', 'qt5core' }
-                targetdir 'bin/release'
+                links { 'celero', 'camp', 'qt5core' }
                 defines { 'NDEBUG' }
                 flags { 'Optimize' }
                 
             configuration 'gmake'
                 buildoptions { '-std=c++11' }
     end
+    
+    
     
