@@ -69,21 +69,27 @@ solution 'metasystem'
             language 'C++'
             kind 'ConsoleApp'
             
+            if _OPTIONS['static'] then
+                defines { 'UMOF_STATIC' }
+            end
+            
             files
             {
                 'test/unit/**.h',
                 'test/unit/**.cpp'
             }
             
-            links { 'umof' }
+            libdirs { 'lib' }
             includedirs { 'src' }
             
             configuration 'Debug'
                 targetsuffix 'd'
+                links { 'umofd' }
                 defines { '_DEBUG' }
                 flags { 'Symbols' }
             
             configuration 'Release'
+                links { 'umof' }
                 defines { 'NDEBUG' }
                 flags { 'Optimize' }
                 
@@ -98,6 +104,10 @@ solution 'metasystem'
             targetname 'umof-benchmark'
             language 'C++'
             kind 'ConsoleApp'
+            
+            if _OPTIONS['static'] then
+                defines { 'UMOF_STATIC' }
+            end
             
             files { 'test/bench/**.cpp' }
             links { 'umof', 'cpgf' }
