@@ -1,9 +1,20 @@
-The uMOF library is meta system for C++.
+The uMOF library is a cross platform C++ meta system. It can be used for reflection and script binding. It's written in C++11 and require modern compiler.
 
+## Build
 [![Build Status](https://drone.io/bitbucket.org/occash/umof/status.png)](https://drone.io/bitbucket.org/occash/umof/latest)
+
+The library uses [premake4](http://industriousone.com/premake-quick-start) as the build system. To build uMOF, in command line navigate into uMOF folder, then:
+
+	premake4 action
+
+See premake4 documentation for full list of supported actions. The project files will be created in ```uMOF/build``` folder. After compiling the project, the library
+file will be in ```uMOF/lib```.
+
+To build static library use ```--static``` option.
 
 ## Usage
 To use meta system the class should inherit from class Object. Use OBJECT macro to define metaclass specific api. 
+
 ```
 class Test : public Object
 {
@@ -71,7 +82,9 @@ Any res = Api::invoke(&t, "func", {5.0f, "6.0"});
 
 ```
 
-## Benchmark results
+## Benchmark
+To build benchmark use ```--benchmark``` option.
+
 Configuration: Windows, Visual Studio 2013, Release x86
 
 Framework | Compile/Link time, ms | Executable size, KB | Call time spent*, ms
