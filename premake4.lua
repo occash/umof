@@ -1,12 +1,12 @@
 newoption
 {
-    trigger = 'with-tests',
+    trigger = 'tests',
     description = 'Build with unit tests',
 }
 
 newoption
 {
-    trigger = 'with-benchmark',
+    trigger = 'benchmark',
     description = 'Build with benchmars',
 }
 
