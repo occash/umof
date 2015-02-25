@@ -56,7 +56,7 @@ struct Converter
 
 	static bool canConvert(const Any &a)
 	{
-		return typeid(T) == a.type();
+		return Type::from<T>() == a.type();
 	}
 };
 

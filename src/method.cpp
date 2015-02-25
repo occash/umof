@@ -48,7 +48,7 @@ std::string Method::signature() const
 	for (int i = 0; i < _table->argc; ++i)
 	{
 		Type arg(_table->types[i + 1]);
-		sig += arg.id().name();
+		sig += arg.name();
 		sig += ',';
 	}
 	if (_table->argc > 0)

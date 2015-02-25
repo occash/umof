@@ -22,8 +22,21 @@ USA.
 #ifndef TYPE_TRAITS_H
 #define TYPE_TRAITS_H
 
+#include "defines.h"
+
 #include <typeinfo>
 #include <type_traits>
+
+#if defined(__GNUC__)
+#include <cxxabi.h>
+#include <cstdlib>
+struct memfree
+{
+    memfree(const char *n) : name(n) {}
+    ~memfree() { free((void*)name); }
+    const char *name;
+};
+#endif
 
 //Bool template type
 typedef std::integral_constant<bool, true> True;
@@ -51,7 +64,7 @@ struct Pointer<T, False>
 //Table with basic functions
 struct TypeTable
 {
-	std::type_info const&(*get_type)();
+	const char *(*get_name)();
 	int(*get_size)();
 	void(*static_new)(void**);
 	void(*construct)(void**);
@@ -72,9 +85,15 @@ struct TypeFuncs<True>
 	template<typename T>
 	struct type
 	{
-		static std::type_info const& get_type()
+        static const char *get_name()
 		{
-			return typeid(T);
+#if defined(__GNUC__)
+            static int status = -4;
+            static memfree mem(abi::__cxa_demangle(typeid(T).name(), 0, 0, &status));
+            return (status == 0) ? mem.name : typeid(T).name();
+#else
+			return typeid(T).name();
+#endif
 		}
 		static int get_size()
 		{
@@ -115,9 +134,15 @@ struct TypeFuncs<False>
 	template<typename T>
 	struct type
 	{
-		static std::type_info const& get_type()
+        static const char *get_name()
 		{
-			return typeid(T);
+#if defined(__GNUC__)
+            static int status = -4;
+            static memfree mem(abi::__cxa_demangle(typeid(T).name(), 0, 0, &status));
+            return (status == 0) ? mem.name : typeid(T).name();
+#else
+            return typeid(T).name();
+#endif
 		}
 		static int get_size()
 		{
@@ -163,7 +188,7 @@ struct TableCV
 	{
 		static TypeTable staticTable
 		{
-			TypeFuncs<is_small>::template type<T>::get_type,
+			TypeFuncs<is_small>::template type<T>::get_name,
 			TypeFuncs<is_small>::template type<T>::get_size,
 			TypeFuncs<is_small>::template type<T>::static_new,
 			TypeFuncs<is_small>::template type<T>::construct,

@@ -36,9 +36,9 @@ bool Type::valid() const
 	return (_table != nullptr);
 }
 
-std::type_info const& Type::id() const
+const char *Type::name() const
 {
-	return _table->get_type();
+	return _table->get_name();
 }
 
 int Type::size() const

@@ -24,6 +24,7 @@ USA.
 
 #include "defines.h"
 #include "type_traits.h"
+#include "type.h"
 #include <new>
 #include <stdexcept>
 
@@ -109,9 +110,7 @@ public:
 	*/
 	void reset();
 
-	/*! Get containing object type information.
-	*/
-	std::type_info const& type() const;
+    Type type() const;
 
 private:
 	template<typename T>

@@ -54,9 +54,9 @@ public:
 	*/
 	bool valid() const;
 
-	/*! Returns RTTI information
+	/*! Returns type name
 	*/
-	std::type_info const& id() const;
+	const char *name() const;
 
 	/*! Returns the size of type.
 	*/
