@@ -23,7 +23,6 @@ USA.
 #define OBJECT_H
 
 #include "objectdefs.h"
-#include "api.h"
 
 #define U_OBJECT_CHECK(Class) \
 	static_assert(std::is_base_of<Object, Class>::value, "Class " #Class " should inherit from Object");
@@ -53,51 +52,6 @@ public: \
 	virtual const Api *api() const \
 	{ \
 		return Class::classApi(); \
-	} \
-private:
-
-/*! This macro exposes class methods in Api.
-	\relates Object
-*/
-#define U_EXPOSE(...) \
-public: \
-	static const std::pair<int, const MethodTable *> expose() \
-	{ \
-		static const MethodTable methods[] \
-		{ \
-			__VA_ARGS__ \
-		}; \
-		return { sizeof(methods) / sizeof(MethodTable), methods }; \
-	} \
-private:
-
-/*! This macro exposes class properties in Api.
-	\relates Object
-*/
-#define U_PROPERTIES(...) \
-public: \
-	static const std::pair<int, const PropertyTable *> expose_props() \
-	{ \
-		static const PropertyTable props[] \
-		{ \
-			__VA_ARGS__ \
-		}; \
-		return { sizeof(props) / sizeof(PropertyTable), props }; \
-	} \
-private:
-
-/*! This macro exposes class enums in Api.
-	\relates Object
-*/
-#define U_ENUMERATORS(...) \
-public: \
-	static const std::pair<int, const EnumTable *> expose_enums() \
-	{ \
-		static const EnumTable enums[] \
-		{ \
-			__VA_ARGS__ \
-		}; \
-		return { sizeof(enums) / sizeof(EnumTable), enums }; \
 	} \
 private:
 

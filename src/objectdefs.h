@@ -29,6 +29,7 @@ USA.
 #include "propertydefs.h"
 #include "enum.h"
 #include "enumdefs.h"
+#include "api.h"
 
 #include <type_traits>
 #include <utility>
@@ -86,6 +87,54 @@ _61, _62, _63, N, ...) N
 		return table; \
 	}() \
 }
+
+/*! This macro exposes class methods in Api.
+\relates Object
+*/
+#define U_EXPOSE(...) \
+public: \
+	static const std::pair<int, const MethodTable *> expose() \
+		{ \
+		static const MethodTable methods[] \
+				{ \
+			__VA_ARGS__ \
+				}; \
+		return { sizeof(methods) / sizeof(MethodTable), methods }; \
+		} \
+private:
+
+/*! This macro exposes class properties in Api.
+\relates Object
+*/
+#define U_PROPERTIES(...) \
+public: \
+	static const std::pair<int, const PropertyTable *> expose_props() \
+		{ \
+		static const PropertyTable props[] \
+				{ \
+			__VA_ARGS__ \
+				}; \
+		return { sizeof(props) / sizeof(PropertyTable), props }; \
+		} \
+private:
+
+/*! This macro exposes class enums in Api.
+\relates Object
+*/
+#define U_ENUMERATORS(...) \
+public: \
+	static const std::pair<int, const EnumTable *> expose_enums() \
+		{ \
+		static const EnumTable enums[] \
+				{ \
+			__VA_ARGS__ \
+				}; \
+		return { sizeof(enums) / sizeof(EnumTable), enums }; \
+		} \
+private:
+
+#define U_DECLARE_API(Class) class Class ## Api : public ApiHolder<Class>
+#define U_API(Class) Class ## Api::api()
 
 template<typename T>
 struct expose_method
@@ -181,6 +230,27 @@ public:
 		return exec_impl(test<T>(0));
 	}
 	enum { exists = std::is_same<decltype(test<T>(0)), yes>::value };
+};
+
+template<typename T>
+struct ApiHolder
+{
+	static const Api *api()
+	{
+		static const ApiTable apiTable
+		{
+			"Test",
+			nullptr,
+			expose_method<T>::exec().second,
+			expose_props_method<T>::exec().second,
+			expose_enums_method<T>::exec().second,
+			expose_method<T>::exec().first,
+			expose_props_method<T>::exec().first,
+			expose_enums_method<T>::exec().first
+		};
+		static const Api staticApi(&apiTable);
+		return &staticApi;
+	}
 };
 
 #endif
