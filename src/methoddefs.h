@@ -33,11 +33,33 @@ namespace unpack
 	template<unsigned...> struct indices {};
 
 	template<unsigned N, unsigned... Is>
-	struct indices_gen : indices_gen < N - 1, N - 1, Is... > {};
+	struct indices_gen : indices_gen <N - 1, N - 1, Is...> {};
 
 	template<unsigned... Is>
-	struct indices_gen<0, Is...> : indices < Is... > {};
+	struct indices_gen<0, Is...> : indices <Is...> {};
 }
+
+//Get return type table
+template<typename T, typename Void>
+struct ReturnTable;
+
+template<typename T>
+struct ReturnTable<T, True>
+{
+    inline static TypeTable *get()
+    {
+        return nullptr;
+    }
+};
+
+template<typename T>
+struct ReturnTable<T, False>
+{
+    inline static TypeTable *get()
+    {
+        return Table<T>::get();
+    }
+};
 
 //Function to unpack args properly
 template<typename T>
@@ -45,6 +67,76 @@ inline static TypeTable *getTable()
 {
 	return Table<T>::get();
 }
+
+template<typename Return, typename... Args>
+struct ArgumentsBase
+{
+    typedef typename std::is_void<Return>::type IsVoid;
+
+    constexpr inline static int count()
+    {
+        return sizeof...(Args);
+    }
+
+    inline static const TypeTable **types()
+    {
+        static const TypeTable *staticTypes[] =
+        {
+            ReturnTable<Return, IsVoid>::get(),
+            getTable<Args>()...
+        };
+        return staticTypes;
+    }
+};
+
+template<typename Signature>
+struct MethodArguments
+{
+    static_assert(std::is_function<Signature>::value, "The argument should be a function pointer");
+
+    inline static int count();
+    inline static const TypeTable **types();
+};
+
+//Regular function
+template<typename Return, typename... Args>
+struct MethodArguments<Return(*)(Args...)> : ArgumentsBase<Return, Args...> {};
+
+//Function with vararg
+template<typename Return, typename... Args>
+struct MethodArguments<Return(*)(Args..., ...)> : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args..., ...)> : ArgumentsBase<Return, Args...> {};
+
+//Member function
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)> : ArgumentsBase < Return, Args... > {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)const> : ArgumentsBase < Return, Args... > {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)volatile> : ArgumentsBase < Return, Args... > {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)const volatile> : ArgumentsBase < Return, Args... > {};
+
+//Function with lvalue ref qualifier
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)&> : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)const&> : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)volatile&> : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)const volatile&> : ArgumentsBase<Return, Args...> {};
+
+//Function with rvalue ref qualifier
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...) && > : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)const&&> : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)volatile&&> : ArgumentsBase<Return, Args...> {};
+template<typename Return, typename Class, typename... Args>
+struct MethodArguments<Return(Class::*)(Args...)const volatile&&> : ArgumentsBase<Return, Args...> {};
 
 //Base template for function and methods invocation
 template<typename Signature>
