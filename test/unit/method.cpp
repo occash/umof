@@ -5,6 +5,7 @@
 #include <object.h>
 
 #include <iostream>
+#include <tuple>
 
 class MTest : public Object
 {
@@ -18,6 +19,9 @@ public:
 
 TEST_CASE("Method interface", "[method]")
 {
+    StackBase<double, int, float> stack;
+    int *iv = (int *)stack.pointer(1);
+
 	MethodTable table
 	{
 		ConstString("func1"),

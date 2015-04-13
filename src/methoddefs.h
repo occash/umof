@@ -110,13 +110,13 @@ struct MethodArguments<Return(Class::*)(Args..., ...)> : ArgumentsBase<Return, A
 
 //Member function
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)> : ArgumentsBase < Return, Args... > {};
+struct MethodArguments<Return(Class::*)(Args...)> : ArgumentsBase <Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const> : ArgumentsBase < Return, Args... > {};
+struct MethodArguments<Return(Class::*)(Args...)const> : ArgumentsBase <Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)volatile> : ArgumentsBase < Return, Args... > {};
+struct MethodArguments<Return(Class::*)(Args...)volatile> : ArgumentsBase <Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const volatile> : ArgumentsBase < Return, Args... > {};
+struct MethodArguments<Return(Class::*)(Args...)const volatile> : ArgumentsBase <Return, Args...> {};
 
 //Function with lvalue ref qualifier
 template<typename Return, typename Class, typename... Args>
@@ -130,13 +130,40 @@ struct MethodArguments<Return(Class::*)(Args...)const volatile&> : ArgumentsBase
 
 //Function with rvalue ref qualifier
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...) && > : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...) &&> : ArgumentsBase<Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
 struct MethodArguments<Return(Class::*)(Args...)const&&> : ArgumentsBase<Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
 struct MethodArguments<Return(Class::*)(Args...)volatile&&> : ArgumentsBase<Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
 struct MethodArguments<Return(Class::*)(Args...)const volatile&&> : ArgumentsBase<Return, Args...> {};
+
+template<typename Return, typename... Args>
+struct StackBase
+{
+    typedef std::tuple<Return, Args...> Block;
+
+    inline static void *data()
+    {
+        static std::tuple<Return, Args...> block;
+        return &block;
+    }
+
+    template<unsigned... Is>
+    inline static void *pointer(int index, unpack::indices<Is...>)
+    {
+        static void *table[] = {
+            (void *)&std::get<Is>(*reinterpret_cast<Block *>(data()))...
+        };
+
+        return table[index];
+    }
+
+    inline static void *pointer(int index)
+    {
+        return pointer(index, unpack::indices_gen<sizeof...(Args)>());
+    }
+};
 
 //Base template for function and methods invocation
 template<typename Signature>
