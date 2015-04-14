@@ -37,6 +37,18 @@ namespace unpack
 
 	template<unsigned... Is>
 	struct indices_gen<0, Is...> : indices <Is...> {};
+
+    template<unsigned N, typename T, typename... R>
+    struct type_at
+    {
+        using type = typename type_at<N - 1, R...>::type;
+    };
+
+    template<typename T, typename... R>
+    struct type_at<0, T, R...>
+    {
+        using type = T;
+    };
 }
 
 //Get return type table
@@ -68,15 +80,18 @@ inline static TypeTable *getTable()
 	return Table<T>::get();
 }
 
-template<typename Return, typename... Args>
+template<typename C, typename R, typename... Args>
 struct ArgumentsBase
 {
-    typedef typename std::is_void<Return>::type IsVoid;
+    template<unsigned Is>
+    using Type = typename unpack::type_at<Is, Args...>::type;
+    using Class = typename C;
+    using Return = typename R;
 
-    constexpr inline static int count()
-    {
-        return sizeof...(Args);
-    }
+    using IsFree = typename std::is_void<Class>::type;
+    using IsVoid = typename std::is_void<Return>::type;
+
+    constexpr static unsigned count = sizeof...(Args);
 
     inline static const TypeTable **types()
     {
@@ -94,76 +109,131 @@ struct MethodArguments
 {
     static_assert(std::is_function<Signature>::value, "The argument should be a function pointer");
 
-    inline static int count();
+    constexpr static unsigned count = 0;
+    constexpr static unsigned size = 0;
     inline static const TypeTable **types();
 };
 
 //Regular function
 template<typename Return, typename... Args>
-struct MethodArguments<Return(*)(Args...)> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(*)(Args...)> : ArgumentsBase<void, Return, Args...> {};
 
 //Function with vararg
 template<typename Return, typename... Args>
-struct MethodArguments<Return(*)(Args..., ...)> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(*)(Args..., ...)> : ArgumentsBase<void, Return, Args...> {};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args..., ...)> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args..., ...)> : ArgumentsBase<Class, Return, Args...>{};
 
 //Member function
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)> : ArgumentsBase <Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const> : ArgumentsBase <Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)const> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)volatile> : ArgumentsBase <Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)volatile> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const volatile> : ArgumentsBase <Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)const volatile> : ArgumentsBase<Class, Return, Args...>{};
 
 //Function with lvalue ref qualifier
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)&> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)const&> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)volatile&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)volatile&> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const volatile&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)const volatile&> : ArgumentsBase<Class, Return, Args...>{};
 
 //Function with rvalue ref qualifier
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...) &&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...) && > : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const&&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)const&&> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)volatile&&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)volatile&&> : ArgumentsBase<Class, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
-struct MethodArguments<Return(Class::*)(Args...)const volatile&&> : ArgumentsBase<Return, Args...> {};
+struct MethodArguments<Return(Class::*)(Args...)const volatile&&> : ArgumentsBase<Class, Return, Args...>{};
 
-template<typename Return, typename... Args>
-struct StackBase
+template<typename Class, typename Function, Function func>
+struct CallBase;
+
+template<typename Function, Function func>
+struct CallBase<True, Function, func>
 {
-    typedef std::tuple<Return, Args...> Block;
+    using Args = typename MethodArguments<Function>;
+    using Return = typename Args::Return;
 
-    inline static void *data()
+    template<typename R = Return, typename F, unsigned... Is>
+    inline static typename std::enable_if<!std::is_void<R>::value, void>::type
+        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
     {
-        static std::tuple<Return, Args...> block;
-        return &block;
+        *(Return*)ret = f(
+            *(typename Args::Type<Is> *)stack[Is]...
+        );
     }
 
-    template<unsigned... Is>
-    inline static void *pointer(int index, unpack::indices<Is...>)
+    template<typename R = Return, typename F, unsigned... Is>
+    inline static typename std::enable_if<std::is_void<R>::value, void>::type
+        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
     {
-        static void *table[] = {
-            (void *)&std::get<Is>(*reinterpret_cast<Block *>(data()))...
-        };
-
-        return table[index];
+        f(
+            *(typename Args::Type<Is> *)stack[Is]...
+        );
     }
 
-    inline static void *pointer(int index)
+    inline static void call(void *object, void *ret, void **stack)
     {
-        return pointer(index, unpack::indices_gen<sizeof...(Args)>());
+        call_impl(func, object, ret, stack, unpack::indices_gen<Args::count>());
     }
 };
+
+template<typename Function, Function func>
+struct CallBase<False, Function, func>
+{
+    using Args = typename MethodArguments<Function>;
+    using Return = typename Args::Return;
+    using Class = typename Args::Class;
+
+    template<typename R = Return, typename F, unsigned... Is>
+    inline static typename std::enable_if<!std::is_void<R>::value, void>::type
+        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+    {
+        *(Return*)ret = (static_cast<Class *>(object)->*f)(
+            *(typename Args::Type<Is> *)stack[Is]...
+        );
+    }
+
+    template<typename R = Return, typename F, unsigned... Is>
+    inline static typename std::enable_if<std::is_void<R>::value, void>::type
+        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+    {
+        (static_cast<Class *>(object)->*f)(
+            *(typename Args::Type<Is> *)stack[Is]...
+        );
+    }
+
+    inline static void call(void *object, void *ret, void **stack)
+    {
+        call_impl(func, object, ret, stack, unpack::indices_gen<Args::count>());
+    }
+};
+
+template<typename S, S s>
+struct MethodCall : public CallBase<typename MethodArguments<S>::IsFree, S, s> {};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Base template for function and methods invocation
 template<typename Signature>

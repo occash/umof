@@ -81,39 +81,39 @@ public:
 TEST_CASE("Method argument count", "[MethodProps]")
 {
     //C functions
-    REQUIRE(MethodArguments<decltype(&void_func_no_args)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::count() == 2);
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::count() == 2);
+    REQUIRE(MethodArguments<decltype(&void_func_no_args)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::count == 2);
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::count == 2);
 
     //Static methods
-    REQUIRE(MethodArguments<decltype(&Test::void_method_no_args)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::count() == 2);
-    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::count() == 2);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_no_args)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::count == 2);
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::count == 2);
 
     //Function with varargs
-    REQUIRE(MethodArguments<decltype(&func_with_vararg)>::count() == 1);
-    REQUIRE(MethodArguments<decltype(&Test::static_method_with_vararg)>::count() == 1);
-    REQUIRE(MethodArguments<decltype(&Test::method_with_vararg)>::count() == 1);
+    REQUIRE(MethodArguments<decltype(&func_with_vararg)>::count == 1);
+    REQUIRE(MethodArguments<decltype(&Test::static_method_with_vararg)>::count == 1);
+    REQUIRE(MethodArguments<decltype(&Test::method_with_vararg)>::count == 1);
 
     //Member functions
-    REQUIRE(MethodArguments<decltype(&Test::method)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_const)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_volatile)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_const_volatile)>::count() == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_const)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_volatile)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_const_volatile)>::count == 0);
 
     //Member functions lvalue ref
-    REQUIRE(MethodArguments<decltype(&Test::method_lvalue)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_lvalue_const)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_lvalue_volatile)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_lvalue_const_volatile)>::count() == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_lvalue)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_lvalue_const)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_lvalue_volatile)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_lvalue_const_volatile)>::count == 0);
 
     //Member functions rvalue ref
-    REQUIRE(MethodArguments<decltype(&Test::method_rvalue)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_rvalue_const)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_rvalue_volatile)>::count() == 0);
-    REQUIRE(MethodArguments<decltype(&Test::method_rvalue_const_volatile)>::count() == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_rvalue)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_rvalue_const)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_rvalue_volatile)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::method_rvalue_const_volatile)>::count == 0);
 
-    //REQUIRE(MethodArguments<float>::count() == 0);
+    //REQUIRE(MethodArguments<float>::count == 0);
 }
 
 TEST_CASE("Method argument types", "[MethodProps]")
