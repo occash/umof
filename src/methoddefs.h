@@ -38,8 +38,11 @@ namespace unpack
 	template<unsigned... Is>
 	struct indices_gen<0, Is...> : indices <Is...> {};
 
+    template<unsigned N, typename... R>
+    struct type_at;
+
     template<unsigned N, typename T, typename... R>
-    struct type_at
+    struct type_at<N, T, R...>
     {
         using type = typename type_at<N - 1, R...>::type;
     };
