@@ -28,47 +28,6 @@ USA.
 #include <new>
 #include <stdexcept>
 
-template<typename T, typename S>
-struct AnyHelper;
-
-//Type helper for small types, such as pointers
-template<typename T>
-struct AnyHelper<T, True>
-{
-	typedef typename std::is_pointer<T>::type is_pointer;
-	typedef typename std::decay<T>::type T_dec;
-	typedef typename Pointer<T_dec, is_pointer>::type T_no_cv;
-
-	inline static void clone(const T **src, void **dest)
-	{
-		new (dest)T(*reinterpret_cast<T const*>(*src));
-	}
-
-	inline static T *cast(void **object)
-	{
-		return const_cast<T*>(reinterpret_cast<T_no_cv*>(object));
-	}
-};
-
-//Type helper for bigger types
-template<typename T>
-struct AnyHelper<T, False>
-{
-	typedef typename std::is_pointer<T>::type is_pointer;
-	typedef typename std::decay<T>::type T_dec;
-	typedef typename Pointer<T_dec, is_pointer>::type T_no_cv;
-
-	inline static void clone(const T **src, void **dest)
-	{
-		*dest = new T(**src);
-	}
-
-	inline static T *cast(void **object)
-	{
-		return const_cast<T*>(reinterpret_cast<T_no_cv*>(*object));
-	}
-};
-
 /*! \breif The Any class holds the copy of any data type.
 */
 class UMOF_EXPORT Any
@@ -103,18 +62,21 @@ public:
 
 	/*! Destroys containing object and set new value.
 	*/
-	template<typename T>
-	void reset(T const& value);
+	/*template<typename T>
+	void reset(T const& value);*/
 
 	/*! Destroys containing object.
 	*/
 	void reset();
+    void reset(TypeTable *table);
 
     Type type() const;
+    void *object() const;
 
 private:
 	template<typename T>
 	friend T* any_cast(Any*);
+    friend class Method;
 
 	TypeTable* _table;
 	void* _object;
@@ -126,7 +88,7 @@ Any::Any(T const& x) :
 	_object(nullptr)
 {
 	const T *src = &x;
-	AnyHelper<T, typename Table<T>::is_small>::clone(&src, &_object);
+	Table<T>::clone(&src, &_object);
 }
 
 template<typename T, std::size_t N>
@@ -137,21 +99,21 @@ Any::Any(T(&x)[N]) :
 	new (&_object) T*(&x[0]);
 }
 
-template<typename T>
+/*template<typename T>
 void Any::reset(T const& x)
 {
 	if (_table)
 		_table->static_delete(&_object);
 	_table = Table<T>::get();
 	const T *src = &x;
-	AnyHelper<T, typename Table<T>::is_small>::clone(&src, &_object);
-}
+	Table<T>::clone(&src, &_object);
+}*/
 
 template <typename T>
 inline T* any_cast(Any* operand)
 {
 	if (operand && operand->_table == Table<T>::get())
-		return AnyHelper<T, typename Table<T>::is_small>::cast(&operand->_object);
+		return Table<T>::cast(&operand->_object);
 
 	return nullptr;
 }

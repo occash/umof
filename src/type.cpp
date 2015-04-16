@@ -31,6 +31,11 @@ bool Type::operator==(const Type& other)
 	return _table == other._table;
 }
 
+bool Type::operator!=(const Type& other)
+{
+    return _table != other._table;
+}
+
 bool Type::valid() const
 {
 	return (_table != nullptr);

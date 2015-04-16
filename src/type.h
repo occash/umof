@@ -48,6 +48,7 @@ public:
 		So int, int&, int&&, const int& are all the same types.
 	*/
 	bool operator==(const Type& other);
+    bool operator!=(const Type& other);
 
 	/*! Checks whether Type is valid object.
 		Call to invalid type will result in application crash.

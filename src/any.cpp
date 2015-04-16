@@ -71,7 +71,27 @@ void Any::reset()
 	}
 }
 
+void Any::reset(TypeTable *table)
+{
+    if (_table != nullptr)
+        _table->static_delete(&_object);
+
+    _table = table;
+    _table->static_new(&_object);
+}
+
 Type Any::type() const
 {
     return Type(_table);
+}
+
+void *Any::object() const
+{
+    if (!_table)
+        return nullptr;
+
+    if (_table->is_small)
+        return (void *)&_object;
+    else
+        return _object;
 }
