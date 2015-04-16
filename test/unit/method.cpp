@@ -10,25 +10,28 @@
 class MTest : public Object
 {
 public:
-	static double func1(int a, float b)
+	double func1(int a, float b)
 	{
 		return a + b;
 	}
 
 };
 
+struct table_func1
+{
+    using UC = MTest;
+};
+
 TEST_CASE("Method interface", "[method]")
 {
-    StackBase<double, int, float> stack;
-    int *iv = (int *)stack.pointer(1);
+    MethodTable table
+    {
+        ConstString("func1"),
+        MethodCall<decltype(&MTest::func1), &MTest::func1>::call,
+        MethodArguments<decltype(&MTest::func1)>::count,
+        MethodArguments<decltype(&MTest::func1)>::types()
+    };
 
-	MethodTable table
-	{
-		ConstString("func1"),
-		&Invoker<decltype(&MTest::func1)>::invoke <&MTest::func1>,
-		Invoker<decltype(&MTest::func1)>::argCount(),
-		Invoker<decltype(&MTest::func1)>::types()
-	};
 	Method method(&table);
 	MTest test;
 
@@ -39,5 +42,8 @@ TEST_CASE("Method interface", "[method]")
 	REQUIRE(method.parmaeterType(1) == Type(Table<float>::get()));
 	REQUIRE(method.returnType() == Type(Table<double>::get()));
 	REQUIRE(method.signature() == "func1(int,float)");
-	REQUIRE(any_cast<double>(method.invoke(&test, {1, 2.0f})) == 3.0);
+
+    double ret;
+    REQUIRE(method.invoke(&test, ret, { 1, 2.0f }));
+	REQUIRE(ret == 3.0);
 }

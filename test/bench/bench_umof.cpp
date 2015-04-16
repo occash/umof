@@ -39,22 +39,7 @@ public:
 
 BENCHMARK_F(FuncDefs, Umof, UmofFixture, 100, 100000)
 {
-    /*int i1 = 1;
-    int i2 = 2;
-
-    void *data[10] = { &i1, &i2 };
-
     int res;
-
-    int argc = MethodArguments<decltype(&UmofTest::func)>::count;
-    const TypeTable **types = MethodArguments<decltype(&UmofTest::func)>::types();
-
-    for (int i = 0; i < argc; ++i)
-        if (types[i] != Table<int>::get())
-            return;
-
-    MethodCall<decltype(&UmofTest::func), &UmofTest::func>::call(&t, &res, data);
-    celero::DoNotOptimizeAway(res);*/
-
-    celero::DoNotOptimizeAway(any_cast<int>(m.invoke(&t, { 1, 2 })));
+    m.invoke(&t, res, { 1, 2 });
+    celero::DoNotOptimizeAway(res);
 }

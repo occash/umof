@@ -132,107 +132,93 @@ TEST_CASE("Method argument types", "[MethodProps]")
 TEST_CASE("Free function defs, no params, no return", "[internal]")
 {
     //Check types
-	REQUIRE(Invoker<decltype(&void_func_no_args)>::argCount() == 0);
-	REQUIRE(Invoker<decltype(&void_func_no_args)>::types()[0] == 0);
+    REQUIRE(MethodArguments<decltype(&void_func_no_args)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&void_func_no_args)>::types()[0] == 0);
 
     //Check function call
-    REQUIRE_NOTHROW(Invoker<decltype(&void_func_no_args)>::template invoke<&void_func_no_args>(nullptr, 0, nullptr));
+    MethodCall<decltype(&void_func_no_args), &void_func_no_args>::call(nullptr, nullptr, nullptr);
     REQUIRE(func1Called);
-
-    //Wrong params check
-    REQUIRE_THROWS(Invoker<decltype(&void_func_no_args)>::template invoke<&void_func_no_args>(nullptr, 1, nullptr));
 }
 
 TEST_CASE("Free function defs, has params, no return", "[internal]")
 {
     //Check types
-    REQUIRE(Invoker<decltype(&void_func_with_args)>::argCount() == 2);
-    REQUIRE(Invoker<decltype(&void_func_with_args)>::types()[0] == 0);
-    REQUIRE(Invoker<decltype(&void_func_with_args)>::types()[1] == Table<int>::get());
-    REQUIRE(Invoker<decltype(&void_func_with_args)>::types()[2] == Table<float>::get());
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::count == 2);
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[0] == 0);
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[1] == Table<int>::get());
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[2] == Table<float>::get());
 
     //Check function call
-    Any params[] = { 1, 2.0f };
-    REQUIRE_NOTHROW(Invoker<decltype(&void_func_with_args)>::template invoke<&void_func_with_args>(nullptr, 2, params));
+    int arg1 = 1;
+    float arg2 = 2.0f;
+    void *params[] = { &arg1, &arg2 };
+    MethodCall<decltype(&void_func_with_args), &void_func_with_args>::call(nullptr, nullptr, params);
     REQUIRE(func2Called);
-
-    //Wrong params check
-    REQUIRE_THROWS(Invoker<decltype(&void_func_with_args)>::template invoke<&void_func_with_args>(nullptr, 1, nullptr));
-    REQUIRE_THROWS(Invoker<decltype(&void_func_with_args)>::template invoke<&void_func_with_args>(nullptr, 1, params));
 }
 
 TEST_CASE("Free function defs, has params, return", "[internal]")
 {
     //Check types
-    REQUIRE(Invoker<decltype(&return_func_with_args)>::argCount() == 2);
-    REQUIRE(Invoker<decltype(&return_func_with_args)>::types()[0] == Table<double>::get());
-    REQUIRE(Invoker<decltype(&return_func_with_args)>::types()[1] == Table<int>::get());
-    REQUIRE(Invoker<decltype(&return_func_with_args)>::types()[2] == Table<float>::get());
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::count == 2);
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[0] == Table<double>::get());
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[1] == Table<int>::get());
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[2] == Table<float>::get());
 
     //Check function call
-    Any params[] = { 1, 2.0f };
-    REQUIRE_NOTHROW(Invoker<decltype(&return_func_with_args)>::template invoke<&return_func_with_args>(nullptr, 2, params));
+    int arg1 = 1;
+    float arg2 = 2.0f;
+    double ret;
+    void *params[] = { &arg1, &arg2 };
+    MethodCall<decltype(&return_func_with_args), &return_func_with_args>::call(nullptr, &ret, params);
     REQUIRE(func3Called);
 
     //Check return value
-    Any res = Invoker<decltype(&return_func_with_args)>::template invoke<&return_func_with_args>(nullptr, 2, params);
-    REQUIRE(any_cast<double>(res) == 3.0);
-
-    //Wrong params check
-    REQUIRE_THROWS(Invoker<decltype(&return_func_with_args)>::template invoke<&return_func_with_args>(nullptr, 1, nullptr));
-    REQUIRE_THROWS(Invoker<decltype(&return_func_with_args)>::template invoke<&return_func_with_args>(nullptr, 1, params));
+    REQUIRE(ret == 3.0);
 }
 
 TEST_CASE("Static function defs, no params, no return", "[internal]")
 {
     //Check types
-    REQUIRE(Invoker<decltype(&Test::void_method_no_args)>::argCount() == 0);
-    REQUIRE(Invoker<decltype(&Test::void_method_no_args)>::types()[0] == 0);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_no_args)>::count == 0);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_no_args)>::types()[0] == 0);
 
     //Check function call
-    REQUIRE_NOTHROW(Invoker<decltype(&Test::void_method_no_args)>::template invoke<&Test::void_method_no_args>(nullptr, 0, nullptr));
+    MethodCall<decltype(&Test::void_method_no_args), &Test::void_method_no_args>::call(nullptr, nullptr, nullptr);
     REQUIRE(func1Called);
-
-    //Wrong params check
-    REQUIRE_THROWS(Invoker<decltype(&Test::void_method_no_args)>::template invoke<&Test::void_method_no_args>(nullptr, 1, nullptr));
 }
 
 TEST_CASE("Static function defs, has params, no return", "[internal]")
 {
     //Check types
-    REQUIRE(Invoker<decltype(&Test::void_method_with_args)>::argCount() == 2);
-    REQUIRE(Invoker<decltype(&Test::void_method_with_args)>::types()[0] == 0);
-    REQUIRE(Invoker<decltype(&Test::void_method_with_args)>::types()[1] == Table<int>::get());
-    REQUIRE(Invoker<decltype(&Test::void_method_with_args)>::types()[2] == Table<float>::get());
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::count == 2);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[0] == 0);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[1] == Table<int>::get());
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[2] == Table<float>::get());
 
     //Check function call
-    Any params[] = { 1, 2.0f };
-    REQUIRE_NOTHROW(Invoker<decltype(&Test::void_method_with_args)>::template invoke<&Test::void_method_with_args>(nullptr, 2, params));
+    int arg1 = 1;
+    float arg2 = 2.0f;
+    void *params[] = { &arg1, &arg2 };
+    MethodCall<decltype(&Test::void_method_with_args), &Test::void_method_with_args>::call(nullptr, nullptr, params);
     REQUIRE(func2Called);
-
-    //Wrong params check
-    REQUIRE_THROWS(Invoker<decltype(&Test::void_method_with_args)>::template invoke<&Test::void_method_with_args>(nullptr, 1, nullptr));
-    REQUIRE_THROWS(Invoker<decltype(&Test::void_method_with_args)>::template invoke<&Test::void_method_with_args>(nullptr, 1, params));
 }
 
 TEST_CASE("Static function defs, has params, return", "[internal]")
 {
     //Check types
-    REQUIRE(Invoker<decltype(&Test::return_method_with_args)>::argCount() == 2);
-    REQUIRE(Invoker<decltype(&Test::return_method_with_args)>::types()[0] == Table<double>::get());
-    REQUIRE(Invoker<decltype(&Test::return_method_with_args)>::types()[1] == Table<int>::get());
-    REQUIRE(Invoker<decltype(&Test::return_method_with_args)>::types()[2] == Table<float>::get());
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::count == 2);
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[0] == Table<double>::get());
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[1] == Table<int>::get());
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[2] == Table<float>::get());
 
     //Check function call
-    Any params[] = { 1, 2.0f };
-    REQUIRE_NOTHROW(Invoker<decltype(&Test::return_method_with_args)>::template invoke<&Test::return_method_with_args>(nullptr, 2, params));
-    REQUIRE(func3Called);
+    int arg1 = 1;
+    float arg2 = 2.0f;
+    double ret;
+    void *params[] = { &arg1, &arg2 };
+    MethodCall<decltype(&Test::return_method_with_args), &Test::return_method_with_args>::call(nullptr, &ret, params);
+    REQUIRE(staticFunc3Called);
 
     //Check return value
-    Any res = Invoker<decltype(&Test::return_method_with_args)>::template invoke<&Test::return_method_with_args>(nullptr, 2, params);
-    REQUIRE(any_cast<double>(res) == 3.0);
-
-    //Wrong params check
-    REQUIRE_THROWS(Invoker<decltype(&Test::return_method_with_args)>::template invoke<&Test::return_method_with_args>(nullptr, 1, nullptr));
-    REQUIRE_THROWS(Invoker<decltype(&Test::return_method_with_args)>::template invoke<&Test::return_method_with_args>(nullptr, 1, params));
+    REQUIRE(ret == 3.0);
 }
