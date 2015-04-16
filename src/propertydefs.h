@@ -23,60 +23,41 @@ USA.
 #define PROPERTYDEFS_H
 
 #include "type_traits.h"
-#include "any.h"
+#include "methoddefs.h"
 
-//Property read
-template<typename Signature, Signature S>
-struct Reader;
-
-template<typename T, typename Class, T(Class::*ReadFunc)()>
-struct Reader<T(Class::*)(), ReadFunc>
+template<typename T, typename Function, Function func>
+struct Reader
 {
-	inline static const TypeTable *type()
-	{
-		return Table<T>::get();
-	}
+    using Args = typename MethodArguments<Function>;
+    using Return = typename Args::Return;
+    using Class = typename Args::Class;
 
-	inline static Any read(Object *obj)
-	{
-		return (static_cast<Class *>(obj)->*ReadFunc)();
-	}
+    using ReturnType = typename Table<Return>::Type;
+    using Type = typename Table<T>::Type;
+
+    static_assert(Args::count == 0, "Reader method should not receive arguments");
+    static_assert(std::is_same<Type, ReturnType>::value, "Reader type is different");
+
+    inline static void read(void *obj, void *ret)
+    {
+        *(T*)ret = (static_cast<Class *>(obj)->*func)();
+    }
 };
 
-template<typename T, typename Class, T(Class::*ReadFunc)()const>
-struct Reader<T(Class::*)()const, ReadFunc>
+template<typename T, typename Function, Function func>
+struct Writer
 {
-	inline static const TypeTable *type()
-	{
-		return Table<T>::get();
-	}
+    using Args = typename MethodArguments<Function>;
+    using Class = typename Args::Class;
+    using Type = typename Table<T>::Type;
 
-	inline static Any read(Object *obj)
-	{
-		return (static_cast<Class *>(obj)->*ReadFunc)();
-	}
-};
+    static_assert(Args::count == 1, "Writer should have one argument");
+    //static_assert(std::is_same<typename Args::Type<0>, Type>::value, "Writer type is different");
 
-//Property write
-template<typename Signature, Signature S>
-struct Writer;
-
-template<typename T, typename Class, void(Class::*WriteFunc)(T)>
-struct Writer<void(Class::*)(T), WriteFunc>
-{
-	inline static void write(Object *obj, const Any& value)
-	{
-		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
-	}
-};
-
-template<typename T, typename Class, void(Class::*WriteFunc)(const T&)>
-struct Writer<void(Class::*)(const T&), WriteFunc>
-{
-	inline static void write(Object *obj, const Any& value)
-	{
-		return (static_cast<Class *>(obj)->*WriteFunc)(any_cast<T>(value));
-	}
+    inline static void write(void *obj, void *val)
+    {
+        (static_cast<Class *>(obj)->*func)(*(typename Args::Type<0> *)val);
+    }
 };
 
 #endif
