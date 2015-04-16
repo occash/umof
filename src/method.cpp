@@ -82,12 +82,31 @@ Type Method::parmaeterType(int index) const
 	return Type(_table->types[index + 1]);
 }
 
-Any Method::invoke(Object *obj, int argc, const Any *args) const
+void Method::invoke(void *obj, void *ret, void **args) const
 {
-	return _table->invoker(obj, argc, args);
+    _table->invoker(obj, ret, args);
 }
 
-Any Method::invoke(Object *obj, std::initializer_list<Any> args) const
+bool Method::invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const
 {
-	return _table->invoker(obj, args.size(), args.begin());
+    if (args.size() < _table->argc)
+        return false;
+
+    if (ret.type != _table->types[0])
+        return false;
+
+    void *raw_args[10] = { nullptr };
+
+    auto arg = args.begin();
+    int i = 0;
+    for (; i < _table->argc; ++arg, ++i) {
+        if (arg->type == _table->types[i + 1])
+            raw_args[i] = const_cast<void*>(arg->data);
+        else
+            return false;
+    }
+
+    _table->invoker(const_cast<void*>(obj.data), const_cast<void*>(ret.data), raw_args);
+
+    return true;
 }

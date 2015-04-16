@@ -29,9 +29,21 @@ USA.
 
 #include <string>
 
-class Object;
+using InvokeMem = void(*)(void *, void *, void **);
 
-typedef Any(*InvokeMem)(Object *, int argc, const Any *);
+struct Arg
+{
+    template<class T>
+    Arg(const T& data) :
+        data(static_cast<const void *>(&data)),
+        type(Table<T>::get()) {}
+
+    Arg(const void *data, const TypeTable *type) :
+        data(data), type(type) {}
+
+    const void *data;
+    const TypeTable *type;
+};
 
 /* \breif Internal struct to store method meta information.
 */
@@ -87,11 +99,11 @@ public:
 
 	/*! Invokes the method with given args.
 	*/
-	Any invoke(Object *obj, int argc, const Any *args) const;
+	void invoke(void *obj, void *ret, void **args) const;
 
 	/*! Invokes the method with given args.
 	*/
-	Any invoke(Object *obj, std::initializer_list<Any> args) const;
+    bool invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
 
 private:
 	const MethodTable *_table;

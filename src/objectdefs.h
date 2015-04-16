@@ -37,9 +37,9 @@ USA.
 #define U_METHOD(m) \
 { \
 	#m, \
-	(InvokeMem)&Invoker<decltype(&m)>::template invoke<&m>, \
-	Invoker<decltype(&m)>::argCount(), \
-	Invoker<decltype(&m)>::types() \
+	&MethodCall<decltype(&m), &m>::call, \
+	MethodArguments<decltype(&m)>::count, \
+	MethodArguments<decltype(&m)>::types() \
 }
 #define U_OVERLOAD(c, m, s) \
 { \
