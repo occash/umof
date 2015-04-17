@@ -49,6 +49,12 @@ namespace unpack
     {
         using type = T;
     };
+
+    template<unsigned N>
+    struct type_at<N>
+    {
+        using type = void;
+    };
 }
 
 //Get return type table
@@ -83,10 +89,9 @@ inline static TypeTable *getTable()
 template<typename C, typename R, typename... Args>
 struct ArgumentsBase
 {
-    template<unsigned Is>
-    using Type = typename unpack::type_at<Is, Args...>::type;
-    using Class = typename C;
-    using Return = typename R;
+    using Class = C;
+    using Return = R;
+    using SetArg = typename unpack::type_at<0, Args...>::type;
 
     using IsFree = typename std::is_void<Class>::type;
     using IsVoid = typename std::is_void<Return>::type;
@@ -101,6 +106,16 @@ struct ArgumentsBase
             getTable<Args>()...
         };
         return staticTypes;
+    }
+
+    //GCC bug workaround
+    //Template type aliase note recognized
+    //template<unsigned Is>
+    //using Type = typename unpack::type_at<Is, Args...>::type;
+    template<unsigned Is>
+    inline static typename unpack::type_at<Is, Args...>::type *type(void **stack)
+    {
+        return (typename unpack::type_at<Is, Args...>::type *)stack[Is];
     }
 };
 
@@ -160,7 +175,7 @@ struct CallBase;
 template<typename Function, Function func>
 struct CallBase<True, Function, func>
 {
-    using Args = typename MethodArguments<Function>;
+    using Args = MethodArguments<Function>;
     using Return = typename Args::Return;
 
     template<typename R = Return, typename F, unsigned... Is>
@@ -168,7 +183,7 @@ struct CallBase<True, Function, func>
         call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
     {
         *(Return*)ret = f(
-            *(typename Args::Type<Is> *)stack[Is]...
+            *Args::type<Is>(stack)...
         );
     }
 
@@ -177,7 +192,7 @@ struct CallBase<True, Function, func>
         call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
     {
         f(
-            *(typename Args::Type<Is> *)stack[Is]...
+            *Args::type<Is>(stack)...
         );
     }
 
@@ -190,7 +205,7 @@ struct CallBase<True, Function, func>
 template<typename Function, Function func>
 struct CallBase<False, Function, func>
 {
-    using Args = typename MethodArguments<Function>;
+    using Args = MethodArguments<Function>;
     using Return = typename Args::Return;
     using Class = typename Args::Class;
 
@@ -199,7 +214,7 @@ struct CallBase<False, Function, func>
         call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
     {
         *(Return*)ret = (static_cast<Class *>(object)->*f)(
-            *(typename Args::Type<Is> *)stack[Is]...
+            *Args::type<Is>(stack)...
         );
     }
 
@@ -208,7 +223,7 @@ struct CallBase<False, Function, func>
         call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
     {
         (static_cast<Class *>(object)->*f)(
-            *(typename Args::Type<Is> *)stack[Is]...
+            *Args::type<Is>(stack)...
         );
     }
 

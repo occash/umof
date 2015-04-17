@@ -216,14 +216,14 @@ struct Table
         return TableHelper<Type>::get();
     }
 
-    inline static void clone(const T **src, void **dest)
+    inline static void clone(const Decay **src, void **dest)
     {
         TableHelper<Type>::clone(src, dest);
     }
 
-    inline static T *cast(void **object)
+    inline static Decay *cast(void **object)
     {
-        return const_cast<T*>(TableHelper<Type>::cast(object));
+        return const_cast<Decay*>(TableHelper<Type>::cast(object));
     }
 };
 
