@@ -25,10 +25,23 @@ USA.
 #include "type_traits.h"
 #include "methoddefs.h"
 
-template<typename T, typename Function, Function func>
-struct Reader
+template<typename T, typename C>
+struct FieldBase
 {
-    using Args = typename MethodArguments<Function>;
+    using Type = T;
+    using Class = C;
+};
+
+template<typename T>
+struct Field;
+
+template<typename T, typename C>
+struct Field<T(C::*)> : public FieldBase<T, C> {};
+
+template<typename T, typename Method, Method method>
+struct MethodReader
+{
+    using Args = MethodArguments<Method>;
     using Return = typename Args::Return;
     using Class = typename Args::Class;
 
@@ -40,23 +53,71 @@ struct Reader
 
     inline static void read(void *obj, void *ret)
     {
-        *(T*)ret = (static_cast<Class *>(obj)->*func)();
+        *(T*)ret = (static_cast<Class *>(obj)->*method)();
     }
 };
 
-template<typename T, typename Function, Function func>
-struct Writer
+template<typename T, typename Method, Method method>
+struct MethodWriter
 {
-    using Args = typename MethodArguments<Function>;
+    using Args = MethodArguments<Method>;
     using Class = typename Args::Class;
     using Type = typename Table<T>::Type;
+    using SetType = typename Table<typename Args::SetArg>::Type;
 
     static_assert(Args::count == 1, "Writer should have one argument");
-    //static_assert(std::is_same<typename Args::Type<0>, Type>::value, "Writer type is different");
+    static_assert(std::is_same<SetType, Type>::value, "Writer type is different");
 
     inline static void write(void *obj, void *val)
     {
-        (static_cast<Class *>(obj)->*func)(*(typename Args::Type<0> *)val);
+        (static_cast<Class *>(obj)->*method)(*Args::type<0>(&val));
+    }
+};
+
+template<typename T, typename Member, Member field>
+struct FieldAccessor
+{
+    using MemberField = typename Field<Member>::Type;
+    using Class = typename Field<Member>::Class;
+    using FieldType = typename Table<MemberField>::Type;
+    using Type = typename Table<T>::Type;
+
+    static_assert(std::is_same<Type, FieldType>::value, "Field type is different");
+
+    inline static void read(void *obj, void *ret)
+    {
+        *(T*)ret = static_cast<Class *>(obj)->*field;
+    }
+
+    inline static void write(void *obj, void *ret)
+    {
+        static_cast<Class *>(obj)->*field = *(T*)ret;
+    }
+};
+
+template<typename T, typename Member, Member mem>
+struct PropertyAccessor
+{
+    using IsMethod = typename std::is_member_function_pointer<Member>::type;
+    using IsField = typename std::is_member_object_pointer<Member>::type;
+
+    using ReadMethod = MethodReader<T, Member, mem>;
+    using WriteMethod = MethodWriter<T, Member, mem>;
+    using MemberField = FieldAccessor<T, Member, mem>;
+
+    using Read = typename std::conditional<IsMethod::value, ReadMethod, MemberField>::type;
+    using Write = typename std::conditional<IsMethod::value, WriteMethod, MemberField>::type;
+
+    static_assert(!std::is_same<IsField, IsMethod>::value, "Property should be field or method");
+
+    inline static void read(void *obj, void *ret)
+    {
+        Read::read(obj, ret);
+    }
+
+    inline static void write(void *obj, void *ret)
+    {
+        Write::write(obj, ret);
     }
 };
 
