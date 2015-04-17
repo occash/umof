@@ -108,14 +108,44 @@ struct ArgumentsBase
         return staticTypes;
     }
 
-    //GCC bug workaround
-    //Template type aliase note recognized
-    //template<unsigned Is>
-    //using Type = typename unpack::type_at<Is, Args...>::type;
-    template<unsigned Is>
-    inline static typename unpack::type_at<Is, Args...>::type *type(void **stack)
+    template<typename RR = R, typename CC = C, typename F, unsigned... Is>
+    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+        -> typename std::enable_if<!std::is_void<RR>::value, 
+        typename std::enable_if<std::is_void<CC>::value>::type>::type
     {
-        return (typename unpack::type_at<Is, Args...>::type *)stack[Is];
+        *(Return*)ret = f(
+            *(Args *)stack[Is]...
+        );
+    }
+
+    template<typename RR = R, typename CC = C, typename F, unsigned... Is>
+    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+        -> typename std::enable_if<std::is_void<RR>::value,
+        typename std::enable_if<std::is_void<CC>::value>::type>::type
+    {
+        f(
+            *(Args *)stack[Is]...
+        );
+    }
+
+    template<typename RR = R, typename CC = C, typename F, unsigned... Is>
+    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+        -> typename std::enable_if < !std::is_void<RR>::value,
+        typename std::enable_if<!std::is_void<CC>::value>::type > ::type
+    {
+        *(Return*)ret = (static_cast<Class *>(object)->*f)(
+            *(Args *)stack[Is]...
+        );
+    }
+
+    template<typename RR = R, typename CC = C, typename F, unsigned... Is>
+    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+        -> typename std::enable_if < std::is_void<RR>::value,
+        typename std::enable_if<!std::is_void<CC>::value>::type > ::type
+    {
+        (static_cast<Class *>(object)->*f)(
+            *(Args *)stack[Is]...
+        );
     }
 };
 
@@ -169,71 +199,15 @@ struct MethodArguments<Return(Class::*)(Args...)volatile&&> : ArgumentsBase<Clas
 template<typename Return, typename Class, typename... Args>
 struct MethodArguments<Return(Class::*)(Args...)const volatile&&> : ArgumentsBase<Class, Return, Args...>{};
 
-template<typename Class, typename Function, Function func>
-struct CallBase;
-
 template<typename Function, Function func>
-struct CallBase<True, Function, func>
+struct MethodCall
 {
     using Args = MethodArguments<Function>;
-    using Return = typename Args::Return;
-
-    template<typename R = Return, typename F, unsigned... Is>
-    inline static typename std::enable_if<!std::is_void<R>::value, void>::type
-        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
-    {
-        *(Return*)ret = f(
-            *Args::type<Is>(stack)...
-        );
-    }
-
-    template<typename R = Return, typename F, unsigned... Is>
-    inline static typename std::enable_if<std::is_void<R>::value, void>::type
-        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
-    {
-        f(
-            *Args::type<Is>(stack)...
-        );
-    }
 
     inline static void call(void *object, void *ret, void **stack)
     {
-        call_impl(func, object, ret, stack, unpack::indices_gen<Args::count>());
+        Args::call(func, object, ret, stack, unpack::indices_gen<Args::count>());
     }
 };
-
-template<typename Function, Function func>
-struct CallBase<False, Function, func>
-{
-    using Args = MethodArguments<Function>;
-    using Return = typename Args::Return;
-    using Class = typename Args::Class;
-
-    template<typename R = Return, typename F, unsigned... Is>
-    inline static typename std::enable_if<!std::is_void<R>::value, void>::type
-        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
-    {
-        *(Return*)ret = (static_cast<Class *>(object)->*f)(
-            *Args::type<Is>(stack)...
-        );
-    }
-
-    template<typename R = Return, typename F, unsigned... Is>
-    inline static typename std::enable_if<std::is_void<R>::value, void>::type
-        call_impl(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
-    {
-        (static_cast<Class *>(object)->*f)(
-            *Args::type<Is>(stack)...
-        );
-    }
-
-    inline static void call(void *object, void *ret, void **stack)
-    {
-        call_impl(func, object, ret, stack, unpack::indices_gen<Args::count>());
-    }
-};
-
-template<typename S, S s>
-struct MethodCall : public CallBase<typename MethodArguments<S>::IsFree, S, s> {};
 
 #endif
