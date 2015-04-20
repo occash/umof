@@ -19,24 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include "object.h"
+#ifndef UMOF_DETAIL_ENUM_H
+#define UMOF_DETAIL_ENUM_H
 
-Object::Object()
-{
-}
-
-Object::~Object()
-{
-}
-
-const Api * Object::classApi()
-{
-	static const ApiTable objectTable{ "Object", nullptr, nullptr, nullptr, 0, 0 };
-	static const Api staticApi(&objectTable);
-	return &staticApi;
-}
-
-const Api * Object::api() const
-{
-	return Object::classApi();
-}
+#endif //UMOF_DETAIL_ENUM_H

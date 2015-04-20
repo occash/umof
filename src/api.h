@@ -19,30 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef API_H
-#define API_H
+#ifndef UMOF_API_H
+#define UMOF_API_H
 
-#include "defines.h"
-#include "conststring.h"
+#include "config.h"
 #include "method.h"
 #include "property.h"
 #include "enum.h"
-
-class Api;
-
-/*! \breif Internal struct to store class meta information.
-*/
-struct ApiTable
-{
-	ConstString name;
-	const Api *super;
-	const MethodTable *methods;
-	const PropertyTable *props;
-	const EnumTable *enums;
-	int methodCount;
-	int propCount;
-	int enumCount;
-};
+#include "detail/table.h"
+#include "detail/arg.h"
 
 /*! \breif The Api class contains meta information about objects.
 	An Api instance is created for every object with U_OBJECT macro
@@ -131,11 +116,11 @@ public:
 
 	/*! Invokes the method with the given name and args.
 	*/
-	static Any invoke(Object *obj, const char *name, std::initializer_list<Any> args);
+	static bool invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
 
 private:
 	const ApiTable *_table;
 
 };
 
-#endif
+#endif //UMOF_API_H

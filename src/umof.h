@@ -19,51 +19,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_PROPERTY_H
-#define UMOF_PROPERTY_H
+#ifndef UMOF_H
+#define UMOF_H
 
 #include "config.h"
+#include "api.h"
+#include "enum.h"
+#include "method.h"
+#include "property.h"
 #include "type.h"
-#include "detail/table.h"
-#include "detail/arg.h"
 
-/*! \breif The Method class provides meta information for property.
-*/
-class UMOF_EXPORT Property
-{
-public:
-	/*! \breif Constructs a Property with the given table.
-		Property constructor should never be used directly.
-		Please use PROPERTY() macros instead.
-	*/
-	Property(const PropertyTable *table);
+#include "detail/enum.h"
+#include "detail/method.h"
+#include "detail/property.h"
+#include "detail/type.h"
 
-	/*! Checks whether Property is valid object.
-		Call to invalid property will result in application crash.
-	*/
-	bool valid() const;
+#include "macros.h"
 
-	/*! Returns the name of the property.
-		\sa type()
-	*/
-	ConstString name() const;
-
-	/*! Returns the type of the property.
-		\sa name()
-	*/
-	Type type() const;
-
-	/*! Return the value of the property.
-	*/
-	void read(Arg obj, Arg ret) const;
-
-	/*! Sets the given value to the property.
-	*/
-	void write(Arg obj, Arg value) const;
-
-private:
-	const PropertyTable *_table;
-
-};
-
-#endif //UMOF_PROPERTY_H
+#endif //UMOF_H

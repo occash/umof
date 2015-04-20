@@ -1,8 +1,6 @@
 #include "../catch.hpp"
 
-#include <methoddefs.h>
-#include <method.h>
-#include <object.h>
+#include <umof.h>
 
 #include <iostream>
 #include <tuple>
@@ -28,6 +26,7 @@ TEST_CASE("Method interface", "[method]")
     {
         ConstString("func1"),
         MethodCall<decltype(&MTest::func1), &MTest::func1>::call,
+        &MethodCall<decltype(&MTest::func1), &MTest::func1>::call,
         MethodArguments<decltype(&MTest::func1)>::count,
         MethodArguments<decltype(&MTest::func1)>::types()
     };

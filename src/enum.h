@@ -19,24 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef ENUM_H
-#define ENUM_H
+#ifndef UMOF_ENUM_H
+#define UMOF_ENUM_H
 
-#include "defines.h"
-#include "conststring.h"
-
-struct EnumeratorTable
-{
-	ConstString name;
-	const int value;
-};
-
-struct EnumTable
-{
-	ConstString name;
-	const int count;
-	const EnumeratorTable *table;
-};
+#include "config.h"
+#include "detail/table.h"
 
 class UMOF_EXPORT Enumerator
 {
@@ -59,4 +46,4 @@ private:
 
 };
 
-#endif
+#endif //UMOF_ENUM_H

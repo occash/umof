@@ -19,11 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef PROPERTYDEFS_H
-#define PROPERTYDEFS_H
+#ifndef UMOF_DETAIL_PROPERTY_H
+#define UMOF_DETAIL_PROPERTY_H
 
-#include "type_traits.h"
-#include "methoddefs.h"
+#include "type.h"
+#include "method.h"
 
 template<typename T, typename C>
 struct FieldBase
@@ -51,9 +51,9 @@ struct MethodReader
     static_assert(Args::count == 0, "Reader method should not receive arguments");
     static_assert(std::is_same<Type, ReturnType>::value, "Reader type is different");
 
-    inline static void read(void *obj, void *ret)
+    inline static void read(const void *obj, const void *ret)
     {
-        *(T*)ret = (static_cast<Class *>(obj)->*method)();
+        *(T*)ret = (static_cast<Class *>(const_cast<void *>(obj))->*method)();
     }
 };
 
@@ -68,9 +68,9 @@ struct MethodWriter
     static_assert(Args::count == 1, "Writer should have one argument");
     static_assert(std::is_same<SetType, Type>::value, "Writer type is different");
 
-    inline static void write(void *obj, void *val)
+    inline static void write(const void *obj, const void *val)
     {
-        (static_cast<Class *>(obj)->*method)(*Args::type<0>(&val));
+        (static_cast<Class *>(const_cast<void *>(obj))->*method)(*Args::type<0>(&val));
     }
 };
 
@@ -84,14 +84,14 @@ struct FieldAccessor
 
     static_assert(std::is_same<Type, FieldType>::value, "Field type is different");
 
-    inline static void read(void *obj, void *ret)
+    inline static void read(const void *obj, const void *ret)
     {
-        *(T*)ret = static_cast<Class *>(obj)->*field;
+        *(T*)ret = static_cast<Class *>(const_cast<void *>(obj))->*field;
     }
 
-    inline static void write(void *obj, void *ret)
+    inline static void write(const void *obj, const void *ret)
     {
-        static_cast<Class *>(obj)->*field = *(T*)ret;
+        static_cast<Class *>(const_cast<void *>(obj))->*field = *(T*)ret;
     }
 };
 
@@ -110,15 +110,15 @@ struct PropertyAccessor
 
     static_assert(!std::is_same<IsField, IsMethod>::value, "Property should be field or method");
 
-    inline static void read(void *obj, void *ret)
+    inline static void read(const void *obj, const void *ret)
     {
         Read::read(obj, ret);
     }
 
-    inline static void write(void *obj, void *ret)
+    inline static void write(const void *obj, const void *ret)
     {
         Write::write(obj, ret);
     }
 };
 
-#endif
+#endif //UMOF_DETAIL_PROPERTY_H

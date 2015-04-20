@@ -19,59 +19,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef CONVERTERS_H
-#define CONVERTERS_H
+#ifndef UMOF_DETAIL_ARG_H
+#define UMOF_DETAIL_ARG_H
 
-#include "any.h"
+struct TypeTable;
 
-#include <sstream>
-
-template<class U, class Y>
-struct helper
+struct Arg
 {
-	inline static U convert(Any a)
-	{
-		return static_cast<U>(any_cast<Y>(a));
-	}
+    template<class T>
+    Arg(const T& data) :
+        data(static_cast<const void *>(&data)),
+        type(Table<T>::get()) {}
+
+    Arg(const void *data, const TypeTable *type) :
+        data(data), type(type) {}
+
+    const void *data;
+    const TypeTable *type;
 };
 
-template<class U>
-struct helper <U, const char *>
-{
-	inline static U convert(Any a)
-	{
-		U u;
-		std::istringstream(any_cast<const char *>(a)) >> u;
-		return u;
-	}
-};
-
-template<class T>
-struct Converter
-{
-	static Any convert(const Any &a)
-	{
-		return any_cast<T>(a);
-	}
-
-	static bool canConvert(const Any &a)
-	{
-		return Type::from<T>() == a.type();
-	}
-};
-
-template<>
-struct Converter<int>
-{
-	static Any convert(const Any &a);
-	static bool canConvert(const Any &a);
-};
-
-template<>
-struct Converter <float>
-{
-	static Any convert(const Any &a);
-	static bool canConvert(const Any &a);
-};
-
-#endif
+#endif //UMOF_DETAIL_ARG_H

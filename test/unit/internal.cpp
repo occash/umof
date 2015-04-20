@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "../catch.hpp"
 
-#include <methoddefs.h>
+#include <umof.h>
 
 #include <iostream>
 
@@ -151,7 +151,7 @@ TEST_CASE("Free function defs, has params, no return", "[internal]")
     //Check function call
     int arg1 = 1;
     float arg2 = 2.0f;
-    void *params[] = { &arg1, &arg2 };
+    const void *params[] = { &arg1, &arg2 };
     MethodCall<decltype(&void_func_with_args), &void_func_with_args>::call(nullptr, nullptr, params);
     REQUIRE(func2Called);
 }
@@ -168,7 +168,7 @@ TEST_CASE("Free function defs, has params, return", "[internal]")
     int arg1 = 1;
     float arg2 = 2.0f;
     double ret;
-    void *params[] = { &arg1, &arg2 };
+    const void *params[] = { &arg1, &arg2 };
     MethodCall<decltype(&return_func_with_args), &return_func_with_args>::call(nullptr, &ret, params);
     REQUIRE(func3Called);
 
@@ -198,7 +198,7 @@ TEST_CASE("Static function defs, has params, no return", "[internal]")
     //Check function call
     int arg1 = 1;
     float arg2 = 2.0f;
-    void *params[] = { &arg1, &arg2 };
+    const void *params[] = { &arg1, &arg2 };
     MethodCall<decltype(&Test::void_method_with_args), &Test::void_method_with_args>::call(nullptr, nullptr, params);
     REQUIRE(func2Called);
 }
@@ -215,7 +215,7 @@ TEST_CASE("Static function defs, has params, return", "[internal]")
     int arg1 = 1;
     float arg2 = 2.0f;
     double ret;
-    void *params[] = { &arg1, &arg2 };
+    const void *params[] = { &arg1, &arg2 };
     MethodCall<decltype(&Test::return_method_with_args), &Test::return_method_with_args>::call(nullptr, &ret, params);
     REQUIRE(staticFunc3Called);
 

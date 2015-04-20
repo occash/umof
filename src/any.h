@@ -19,12 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef ANY_H
-#define ANY_H
+#ifndef UMOF_ANY_H
+#define UMOF_ANY_H
 
-#include "defines.h"
-#include "type_traits.h"
+#include "config.h"
 #include "type.h"
+#include "detail/type.h"
+
 #include <new>
 #include <stdexcept>
 
@@ -158,4 +159,4 @@ inline T const& any_cast(Any const& operand)
 	return any_cast<nonref const&>(const_cast<Any&>(operand));
 }
 
-#endif
+#endif //UMOF_ANY_H

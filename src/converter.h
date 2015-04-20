@@ -19,36 +19,59 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include "property.h"
+#ifndef UMOF_CONVERTERS_H
+#define UMOF_CONVERTERS_H
 
-Property::Property(const PropertyTable *table) :
-	_table(table)
-{
-}
+#include "any.h"
 
-ConstString Property::name() const
-{
-	return _table->name;
-}
+#include <sstream>
 
-bool Property::valid() const
+template<class U, class Y>
+struct helper
 {
-	return (_table != nullptr);
-}
+	inline static U convert(Any a)
+	{
+		return static_cast<U>(any_cast<Y>(a));
+	}
+};
 
-Type Property::type() const
+template<class U>
+struct helper <U, const char *>
 {
-	return Type(_table->type);
-}
+	inline static U convert(Any a)
+	{
+		U u;
+		std::istringstream(any_cast<const char *>(a)) >> u;
+		return u;
+	}
+};
 
-void Property::read(Arg obj, Arg ret) const
+template<class T>
+struct Converter
 {
-    if (ret.type == _table->type)
-	    return _table->reader(obj.data, ret.data);
-}
+	static Any convert(const Any &a)
+	{
+		return any_cast<T>(a);
+	}
 
-void Property::write(Arg obj, Arg value) const
+	static bool canConvert(const Any &a)
+	{
+		return Type::from<T>() == a.type();
+	}
+};
+
+template<>
+struct Converter<int>
 {
-    if (value.type == _table->type)
-	    _table->writer(obj.data, value.data);
-}
+	static Any convert(const Any &a);
+	static bool canConvert(const Any &a);
+};
+
+template<>
+struct Converter <float>
+{
+	static Any convert(const Any &a);
+	static bool canConvert(const Any &a);
+};
+
+#endif //UMOF_CONVERTERS_H

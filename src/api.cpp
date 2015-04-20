@@ -20,7 +20,6 @@ USA.
 **********************************************************************/
 
 #include "api.h"
-#include "object.h"
 
 #include <cstring>
 
@@ -196,9 +195,10 @@ int Api::enumeratorOffset() const
 	return offset;
 }
 
-Any Api::invoke(Object *obj, const char *name, std::initializer_list<Any> args)
+bool Api::invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args)
 {
-	const Api *api = obj->api();
+    return false;
+	/*const Api *api = obj->api();
 
 	std::string sig(name);
 	sig += '(';
@@ -217,8 +217,7 @@ Any Api::invoke(Object *obj, const char *name, std::initializer_list<Any> args)
 		throw std::runtime_error("No such method");
 
 	Method m = api->method(index);
-	//return m.invoke(obj, args.size(), args.begin());
-    return Any();
+	return m.invoke(obj, args.size(), args.begin());*/
 
 	//TODO try to convert parameters 
 	/*Method func = api->method(sig.c_str());

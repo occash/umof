@@ -19,10 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef METHODDEFS_H
-#define METHODDEFS_H
+#ifndef UMOF_DETAIL_METHOD_H
+#define UMOF_DETAIL_METHOD_H
 
-#include "type_traits.h"
+#include "type.h"
 
 //Helper stuff
 namespace unpack
@@ -109,7 +109,7 @@ struct ArgumentsBase
     }
 
     template<typename RR = R, typename CC = C, typename F, unsigned... Is>
-    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+    inline static auto call(F f, const void *object, const void *ret, const void **stack, unpack::indices<Is...>)
         -> typename std::enable_if<!std::is_void<RR>::value, 
         typename std::enable_if<std::is_void<CC>::value>::type>::type
     {
@@ -119,7 +119,7 @@ struct ArgumentsBase
     }
 
     template<typename RR = R, typename CC = C, typename F, unsigned... Is>
-    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+    inline static auto call(F f, const void *object, const void *ret, const void **stack, unpack::indices<Is...>)
         -> typename std::enable_if<std::is_void<RR>::value,
         typename std::enable_if<std::is_void<CC>::value>::type>::type
     {
@@ -129,21 +129,21 @@ struct ArgumentsBase
     }
 
     template<typename RR = R, typename CC = C, typename F, unsigned... Is>
-    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+    inline static auto call(F f, const void *object, const void *ret, const void **stack, unpack::indices<Is...>)
         -> typename std::enable_if < !std::is_void<RR>::value,
         typename std::enable_if<!std::is_void<CC>::value>::type > ::type
     {
-        *(Return*)ret = (static_cast<Class *>(object)->*f)(
+        *(Return*)ret = (static_cast<Class *>(const_cast<void *>(object))->*f)(
             *(Args *)stack[Is]...
         );
     }
 
     template<typename RR = R, typename CC = C, typename F, unsigned... Is>
-    inline static auto call(F f, void *object, void *ret, void **stack, unpack::indices<Is...>)
+    inline static auto call(F f, const void *object, const void *ret, const void **stack, unpack::indices<Is...>)
         -> typename std::enable_if < std::is_void<RR>::value,
         typename std::enable_if<!std::is_void<CC>::value>::type > ::type
     {
-        (static_cast<Class *>(object)->*f)(
+        (static_cast<Class *>(const_cast<void *>(object))->*f)(
             *(Args *)stack[Is]...
         );
     }
@@ -165,7 +165,7 @@ struct MethodArguments<Return(*)(Args...)> : ArgumentsBase<void, Return, Args...
 
 //Function with vararg
 template<typename Return, typename... Args>
-struct MethodArguments<Return(*)(Args..., ...)> : ArgumentsBase<void, Return, Args...> {};
+struct MethodArguments<Return(*)(Args..., ...)> : ArgumentsBase<void, Return, Args...>{};
 template<typename Return, typename Class, typename... Args>
 struct MethodArguments<Return(Class::*)(Args..., ...)> : ArgumentsBase<Class, Return, Args...>{};
 
@@ -204,10 +204,10 @@ struct MethodCall
 {
     using Args = MethodArguments<Function>;
 
-    inline static void call(void *object, void *ret, void **stack)
+    inline static void call(const void *object, const void *ret, const void **stack)
     {
         Args::call(func, object, ret, stack, unpack::indices_gen<Args::count>());
     }
 };
 
-#endif
+#endif //UMOF_DETAIL_METHOD_H

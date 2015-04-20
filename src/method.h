@@ -22,38 +22,12 @@ USA.
 #ifndef METHOD_H
 #define METHOD_H
 
-#include "defines.h"
-#include "conststring.h"
-#include "any.h"
+#include "config.h"
 #include "type.h"
+#include "detail/table.h"
+#include "detail/arg.h"
 
 #include <string>
-
-using InvokeMem = void(*)(void *, void *, void **);
-
-struct Arg
-{
-    template<class T>
-    Arg(const T& data) :
-        data(static_cast<const void *>(&data)),
-        type(Table<T>::get()) {}
-
-    Arg(const void *data, const TypeTable *type) :
-        data(data), type(type) {}
-
-    const void *data;
-    const TypeTable *type;
-};
-
-/* \breif Internal struct to store method meta information.
-*/
-struct MethodTable
-{
-	ConstString name;
-	InvokeMem invoker;
-	int argc;
-	const TypeTable **types;
-};
 
 /*! \breif The Method class provides meta information for method.
 */
@@ -99,7 +73,7 @@ public:
 
 	/*! Invokes the method with given args.
 	*/
-	void invoke(void *obj, void *ret, void **args) const;
+	void invoke(const void *obj, const void *ret, const void **args) const;
 
 	/*! Invokes the method with given args.
 	*/
