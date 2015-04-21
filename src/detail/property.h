@@ -70,7 +70,7 @@ struct MethodWriter
 
     inline static void write(const void *obj, const void *val)
     {
-        (static_cast<Class *>(const_cast<void *>(obj))->*method)(*Args::type<0>(&val));
+        (static_cast<Class *>(const_cast<void *>(obj))->*method)(*(Args::SetArg *)val);
     }
 };
 
