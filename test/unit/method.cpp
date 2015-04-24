@@ -2,10 +2,7 @@
 
 #include <umof.h>
 
-#include <iostream>
-#include <tuple>
-
-class MTest : public Object
+class MTest
 {
 public:
 	double func1(int a, float b)
@@ -15,24 +12,16 @@ public:
 
 };
 
-struct table_func1
+U_DECLARE_API(MTest, METHODS);
+U_DECLARE_METHODS(MTest)
 {
-    using UC = MTest;
+    U_METHOD(func1)
 };
 
 TEST_CASE("Method interface", "[method]")
 {
-    MethodTable table
-    {
-        ConstString("func1"),
-        MethodCall<decltype(&MTest::func1), &MTest::func1>::call,
-        &MethodCall<decltype(&MTest::func1), &MTest::func1>::call,
-        MethodArguments<decltype(&MTest::func1)>::count,
-        MethodArguments<decltype(&MTest::func1)>::types()
-    };
-
-	Method method(&table);
-	MTest test;
+    const Api *api = U_API(MTest)::api();
+	Method method = api->method(0);
 
 	REQUIRE(method.valid());
 	REQUIRE(method.name() == "func1");
@@ -42,6 +31,7 @@ TEST_CASE("Method interface", "[method]")
 	REQUIRE(method.returnType() == Type(Table<double>::get()));
 	REQUIRE(method.signature() == "func1(int,float)");
 
+    MTest test;
     double ret;
     REQUIRE(method.invoke(&test, ret, { 1, 2.0f }));
 	REQUIRE(ret == 3.0);
