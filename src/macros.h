@@ -78,13 +78,13 @@ _61, _62, _63, N, ...) N
 
 #define UP_GET_MEMBERS_(_1,_2,_3, N,...) N
 #define UP_GET_MEMBERS(tuple) UP_GET_MEMBERS_ tuple
-#define UP_MEMBER_0
+#define UP_MEMBER_0()
 #define UP_MEMBER_1(var1) var1
 #define UP_MEMBER_2(var1,var2) var2 var1
 #define UP_MEMBER_3(var1,var2,var3) var1 var2 var3
 #define UP_MEMBERS(...) UP_GET_MEMBERS((__VA_ARGS__, \
-    UP_MEMBER_3(__VA_ARGS__), UP_MEMBER_2(__VA_ARGS__), \
-    UP_MEMBER_1(__VA_ARGS__), UP_MEMBER_0))
+    UP_MEMBER_3, UP_MEMBER_2, \
+    UP_MEMBER_1, UP_MEMBER_0))(__VA_ARGS__)
 
 #define METHODS \
     struct UMethods { static const MethodTable table[]; };
