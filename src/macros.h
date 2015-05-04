@@ -38,16 +38,16 @@ struct uHas ## F \
     using Yes = decltype(test<T>(0)); \
     template<typename Has = Yes> \
     static auto table() -> typename std::enable_if<Has::value, Type>::type \
-                { return T::F::table; } \
+    { return T::F::table; } \
     template<typename Has = Yes> \
     static auto table() -> typename std::enable_if<!Has::value, Type>::type \
-                { return nullptr; } \
+    { return nullptr; } \
     template<typename Has = Yes> \
     static auto size() -> typename std::enable_if<Has::value, int>::type \
-                { return sizeof(T::F::table) / sizeof(T::F::table[0]); } \
+    { return sizeof(T::F::table) / sizeof(T::F::table[0]); } \
     template<typename Has = Yes> \
     static auto size() -> typename std::enable_if<!Has::value, int>::type \
-                { return 0; } \
+    { return 0; } \
 };
 
 UP_DECLARE_HAS(UMethods, MethodTable *)
@@ -136,36 +136,50 @@ struct Holder<C> \
 #define U_DECLARE_ENUMS(C) \
     const EnumTable Holder<C>::UEnums::table[]
 
-#define U_METHOD(m) \
+#define U_METHOD(method) \
 { \
-	#m, \
-	&MethodCall<decltype(&UClass::m), &UClass::m>::call, \
-	MethodArguments<decltype(&UClass::m)>::count, \
-	MethodArguments<decltype(&UClass::m)>::types() \
+	#method, \
+	&MethodCall<decltype(&UClass::method), &UClass::method>::call, \
+	MethodArguments<decltype(&UClass::method)>::count, \
+	MethodArguments<decltype(&UClass::method)>::types() \
 }
 
-#define U_OVERLOAD(m, s) \
+#define U_OVERLOAD(method, signature) \
 { \
-	#m, \
-	&MethodCall<s, &UClass::m>::call, \
-	MethodArguments<s>::count, \
-	MethodArguments<s>::types() \
+	#method, \
+	&MethodCall<signature, &UClass::method>::call, \
+	MethodArguments<signature>::count, \
+	MethodArguments<signature>::types() \
 }
 
-#define U_FUNCTION(f) \
+#define U_FUNCTION(function) \
 { \
-    #f, \
-    &MethodCall<decltype(&f), &f>::call, \
-    MethodArguments<decltype(&f)>::count, \
-    MethodArguments<decltype(&f)>::types() \
+    #function, \
+    &MethodCall<decltype(&function), &function>::call, \
+    MethodArguments<decltype(&function)>::count, \
+    MethodArguments<decltype(&function)>::types() \
 }
 
-#define U_PROPERTY(t, n, r, w) \
+#define UP_NULL
+#define UP_PROPS_1(type, member) \
+    PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::read, \
+    PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::write
+#define UP_PROPS_2(type, getter, setter) \
+    &MethodReader<type, decltype(&UClass::getter), &UClass::getter>::read, \
+    &MethodWriter<type, decltype(&UClass::setter), &UClass::setter>::write
+#define UP_PROPS(type, ...) UP_GET_MEMBERS((__VA_ARGS__, \
+    UP_NULL, UP_PROPS_2, \
+    UP_PROPS_1, UP_NULL))(type, __VA_ARGS__)
+
+#define MEMBER(member) member
+#define READ(getter) getter
+#define WRITE(setter) setter
+
+#define U_PROPERTY(type, name, ...) \
 { \
-	#n, \
-	Table<t>::get(), \
-	&PropertyAccessor<t, decltype(&UClass::r), &UClass::r>::read, \
-	&PropertyAccessor<t, decltype(&UClass::w), &UClass::w>::write \
+	#name, \
+	Table<type>::get(), \
+	UP_PROPS(type, __VA_ARGS__) \
 }
 
 #define U_VALUE(E, V) { UP_STRINGIFY(V), E::V }
