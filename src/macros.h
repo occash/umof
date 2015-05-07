@@ -23,7 +23,7 @@ USA.
 #define UMOF_MACROS_H
 
 template<typename T>
-struct Holder
+struct UHolder
 {
     static_assert(std::is_same<T, T>::value, "Api is not declared");
 };
@@ -54,7 +54,7 @@ UP_DECLARE_HAS(UMethods, MethodTable *)
 UP_DECLARE_HAS(UProperties, PropertyTable *)
 UP_DECLARE_HAS(UEnums, EnumTable *)
 
-#define UP_HAS(F, T) uHas ## F<Holder<T>>
+#define UP_HAS(F, T) uHas ## F<UHolder<T>>
 
 #define UP_STRINGIFY(S) #S
 #define UP_NARG(...)  (UP_NARG_(__VA_ARGS__,UP_RSEQ_N()) - (sizeof(#__VA_ARGS__) == 1))
@@ -95,46 +95,48 @@ _61, _62, _63, N, ...) N
 
 #define U_DECLARE_API(C, ...) \
 template<> \
-struct Holder<C> \
+struct UHolder<C> \
 { \
     using UClass = C; \
     UP_MEMBERS(__VA_ARGS__) \
+    struct UApi { static const ApiTable table; }; \
     static const Api *api() \
     { \
-        static const ApiTable table { \
-            #C, \
-            nullptr, \
-            UP_HAS(UMethods, MTest)::table(), \
-            UP_HAS(UProperties, MTest)::table(), \
-            UP_HAS(UEnums, MTest)::table(), \
-            UP_HAS(UMethods, MTest)::size(), \
-            UP_HAS(UProperties, MTest)::size(), \
-            UP_HAS(UEnums, MTest)::size(), \
-        }; \
-        static const Api a(&table); \
+        static const Api a(&UApi::table); \
         return &a; \
     } \
-}
+}; \
+const ApiTable UHolder<C>::UApi::table \
+{ \
+    #C, \
+    nullptr, \
+    UP_HAS(UMethods, UClass)::table(), \
+    UP_HAS(UProperties, UClass)::table(), \
+    UP_HAS(UEnums, UClass)::table(), \
+    UP_HAS(UMethods, UClass)::size(), \
+    UP_HAS(UProperties, UClass)::size(), \
+    UP_HAS(UEnums, UClass)::size(), \
+};
 
-#define U_API(C) Holder<C>
+#define U_API(C) UHolder<C>::api()
 
 /*! This macro exposes class methods in Api.
 \relates Object
 */
 #define U_DECLARE_METHODS(C) \
-    const MethodTable Holder<C>::UMethods::table[]
+    const MethodTable UHolder<C>::UMethods::table[]
 
 /*! This macro exposes class properties in Api.
 \relates Object
 */
 #define U_DECLARE_PROPERTIES(C) \
-    const PropertyTable Holder<C>::UProperties::table[]
+    const PropertyTable UHolder<C>::UProperties::table[]
 
 /*! This macro exposes class enums in Api.
 \relates Object
 */
 #define U_DECLARE_ENUMS(C) \
-    const EnumTable Holder<C>::UEnums::table[]
+    const EnumTable UHolder<C>::UEnums::table[]
 
 #define U_METHOD(method) \
 { \
@@ -158,6 +160,14 @@ struct Holder<C> \
     &MethodCall<decltype(&function), &function>::call, \
     MethodArguments<decltype(&function)>::count, \
     MethodArguments<decltype(&function)>::types() \
+}
+
+#define U_CONSTRUCTOR(...) \
+{ \
+    UHolder<UClass>::UApi::table.name, \
+    &ConstructorCall<UClass, __VA_ARGS__>::call, \
+    MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::count, \
+    MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::types() \
 }
 
 #define UP_NULL

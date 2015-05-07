@@ -34,6 +34,8 @@ struct Arg
     Arg(const void *data, const TypeTable *type) :
         data(data), type(type) {}
 
+    Arg() : data(nullptr), type(nullptr) {}
+
     const void *data;
     const TypeTable *type;
 };

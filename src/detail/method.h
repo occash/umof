@@ -210,4 +210,24 @@ struct MethodCall
     }
 };
 
+template<typename Class, typename... Args>
+struct Constructor
+{
+    inline static Class *call(void *place, Args... args)
+    {
+        return new(place)Class(args...);
+    }
+};
+
+template<typename Class, typename... Args>
+struct ConstructorCall
+{
+    using Pack = MethodArguments<decltype(&Constructor<Class, Args...>::call)>;
+
+    inline static void call(const void *object, const void *ret, const void **stack)
+    {
+        Pack::call(&Constructor<Class, Args...>::call, object, ret, stack, unpack::indices_gen<Pack::count>());
+    }
+};
+
 #endif //UMOF_DETAIL_METHOD_H
