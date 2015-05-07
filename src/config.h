@@ -19,8 +19,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef UMOF_CONFIG_H
+#define UMOF_CONFIG_H
+
+#define UMOF_VERSION_STR "1.0"
+/*!
+UMOF_VERSION is (major << 16) + (minor << 8) + patch.
+*/
+#define UMOF_VERSION 0x10000
+/*!
+Can be used like #if (UMOF_VERSION >= UMOF_VERSION_CHECK(1, 0, 0))
+*/
+#define UMOF_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define PLATFORM_WINDOWS
@@ -70,4 +80,4 @@ USA.
 #define UMOF_EXPORT
 #endif
 
-#endif
+#endif //UMOF_CONFIG_H
