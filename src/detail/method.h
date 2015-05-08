@@ -130,8 +130,8 @@ struct ArgumentsBase
 
     template<typename RR = R, typename CC = C, typename F, unsigned... Is>
     inline static auto call(F f, const void *object, const void *ret, const void **stack, unpack::indices<Is...>)
-        -> typename std::enable_if < !std::is_void<RR>::value,
-        typename std::enable_if<!std::is_void<CC>::value>::type > ::type
+        -> typename std::enable_if<!std::is_void<RR>::value,
+        typename std::enable_if<!std::is_void<CC>::value>::type>::type
     {
         *(Return*)ret = (static_cast<Class *>(const_cast<void *>(object))->*f)(
             *(Args *)stack[Is]...
@@ -140,12 +140,30 @@ struct ArgumentsBase
 
     template<typename RR = R, typename CC = C, typename F, unsigned... Is>
     inline static auto call(F f, const void *object, const void *ret, const void **stack, unpack::indices<Is...>)
-        -> typename std::enable_if < std::is_void<RR>::value,
-        typename std::enable_if<!std::is_void<CC>::value>::type > ::type
+        -> typename std::enable_if<std::is_void<RR>::value,
+        typename std::enable_if<!std::is_void<CC>::value>::type>::type
     {
         (static_cast<Class *>(const_cast<void *>(object))->*f)(
             *(Args *)stack[Is]...
         );
+    }
+
+    template<typename RR = R, typename F, unsigned... Is>
+    inline static auto lambda(F f, const void *ret, const void **stack, unpack::indices<Is...>)
+        -> typename std::enable_if<!std::is_void<RR>::value> ::type
+    {
+        *(Return*)ret = f(
+            *(Args *)stack[Is]...
+            );
+    }
+
+    template<typename RR = R, typename F, unsigned... Is>
+    inline static auto lambda(F f, const void *ret, const void **stack, unpack::indices<Is...>)
+        -> typename std::enable_if<std::is_void<RR>::value> ::type
+    {
+        f(
+            *(Args *)stack[Is]...
+            );
     }
 };
 

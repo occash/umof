@@ -28,6 +28,7 @@ USA.
 #include "method.h"
 #include "property.h"
 #include "type.h"
+#include "event.h"
 
 #include "detail/enum.h"
 #include "detail/method.h"
