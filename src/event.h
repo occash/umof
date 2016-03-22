@@ -9,15 +9,14 @@ template<typename... Args>
 class Event
 {
     using Pack = ArgumentsBase<void, void, Args...>;
+
 public:
-    template<typename... Args>
     Event() {}
 
     template<typename Functor>
     bool connect(const Arg& object, Functor f);
     template<typename Functor>
     bool connect(Functor f);
-    template<>
     bool connect(const Arg& object, Method method)
     {
         if (method.returnType().valid())
