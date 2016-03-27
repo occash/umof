@@ -3,6 +3,7 @@
 
 #include <umof.h>
 
+#include <cstdarg>
 #include <iostream>
 
 bool func1Called = false;
