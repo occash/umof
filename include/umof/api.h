@@ -72,7 +72,7 @@ public:
 	/*! Returns the meta information for the method with the given index.
 		\sa property()
 	*/
-	Method method(int index) const;
+	Method method(unsigned int index) const;
 
 	/*! Returns the number of methods in class api,
 		including number of methods in each base class.
@@ -94,7 +94,7 @@ public:
 	/*! Returns the meta information for the property with the given index.
 		\sa method()
 	*/
-	Property property(int) const;
+	Property property(unsigned int) const;
 
 	/*! Returns the number of properties in class api,
 		including number of properties in each base class.
@@ -108,7 +108,7 @@ public:
 	int propertyOffset() const;
 
 	int indexOfEnumerator(const char *name) const; //find enum by name
-	Enumerator enumerator(int index) const; //returns enum
+	Enumerator enumerator(unsigned int index) const; //returns enum
 	int enumeratorCount() const; //number of enums
 	int enumeratorOffset() const; //enums offset
 	

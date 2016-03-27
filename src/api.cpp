@@ -45,7 +45,7 @@ int Api::indexOfMethod(const char *signature) const
 
 	while (s)
 	{
-		for (int i = 0; i < s->_table->methodCount; ++i)
+		for (unsigned int i = 0; i < s->_table->methodCount; ++i)
 			if (Method(_table->methods + i).signature() == signature)
 				return i + s->methodOffset();
 
@@ -55,9 +55,9 @@ int Api::indexOfMethod(const char *signature) const
 	return -1;
 }
 
-Method Api::method(int index) const
+Method Api::method(unsigned int index) const
 {
-	int i = index - methodOffset();
+	unsigned int i = index - methodOffset();
 	if (i < 0 && _table->super)
 		return _table->super->method(index);
 
@@ -97,7 +97,7 @@ int Api::indexOfProperty(const char *name) const
 
 	while (s)
 	{
-		for (int i = 0; i < s->_table->propCount; ++i)
+		for (unsigned int i = 0; i < s->_table->propCount; ++i)
 			if (std::strcmp(s->_table->props[i].name, name) == 0)
 				return i + propertyOffset();
 
@@ -107,9 +107,9 @@ int Api::indexOfProperty(const char *name) const
 	return -1;
 }
 
-Property Api::property(int index) const
+Property Api::property(unsigned int index) const
 {
-	int i = index - propertyOffset();
+	unsigned int i = index - propertyOffset();
 	if (i < 0 && _table->super)
 		return _table->super->property(index);
 
@@ -149,7 +149,7 @@ int Api::indexOfEnumerator(const char *name) const
 
 	while (s)
 	{
-		for (int i = 0; i < s->_table->enumCount; ++i)
+		for (unsigned int i = 0; i < s->_table->enumCount; ++i)
 			if (std::strcmp(s->_table->enums[i].name, name) == 0)
 				return i + enumeratorOffset();
 
@@ -159,9 +159,9 @@ int Api::indexOfEnumerator(const char *name) const
 	return -1;
 }
 
-Enumerator Api::enumerator(int index) const
+Enumerator Api::enumerator(unsigned int index) const
 {
-	int i = index - enumeratorOffset();
+	unsigned int i = index - enumeratorOffset();
 	if (i < 0 && _table->super)
 		return _table->super->enumerator(index);
 

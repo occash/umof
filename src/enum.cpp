@@ -53,7 +53,7 @@ int Enumerator::value(int index) const
 
 int Enumerator::keyToValue(const char *key) const
 {
-	for (int i = 0; i < _table->count; ++i)
+	for (unsigned int i = 0; i < _table->count; ++i)
 	{
 		if (_table->table[i].name == key)
 			return _table->table[i].value;
@@ -64,7 +64,7 @@ int Enumerator::keyToValue(const char *key) const
 
 ConstString Enumerator::valueToKey(int value) const
 {
-	for (int i = 0; i < _table->count; ++i)
+	for (unsigned int i = 0; i < _table->count; ++i)
 	{
 		if (_table->table[i].value == value)
 			return _table->table[i].name;

@@ -47,13 +47,13 @@ struct TypeTable
 struct EnumeratorTable
 {
     ConstString name;
-    const int value;
+    const unsigned int value;
 };
 
 struct EnumTable
 {
     ConstString name;
-    const int count;
+    const unsigned int count;
     const EnumeratorTable *table;
 };
 
@@ -63,7 +63,7 @@ struct MethodTable
 {
     ConstString name;
     InvokeMem invoker;
-    int argc;
+    const unsigned int argc;
     const TypeTable **types;
 };
 
@@ -86,9 +86,9 @@ struct ApiTable
     const MethodTable *methods;
     const PropertyTable *props;
     const EnumTable *enums;
-    int methodCount;
-    int propCount;
-    int enumCount;
+    const unsigned int methodCount;
+    const unsigned int propCount;
+    const unsigned int enumCount;
 };
 
 #endif

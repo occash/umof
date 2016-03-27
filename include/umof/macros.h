@@ -43,10 +43,10 @@ struct uHas ## F \
     static auto table() -> typename std::enable_if<!Has::value, Type>::type \
     { return nullptr; } \
     template<typename Has = Yes> \
-    static auto size() -> typename std::enable_if<Has::value, int>::type \
+    static auto size() -> typename std::enable_if<Has::value, unsigned int>::type \
     { return sizeof(T::F::table) / sizeof(T::F::table[0]); } \
     template<typename Has = Yes> \
-    static auto size() -> typename std::enable_if<!Has::value, int>::type \
+    static auto size() -> typename std::enable_if<!Has::value, unsigned int>::type \
     { return 0; } \
 };
 

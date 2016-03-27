@@ -45,7 +45,7 @@ std::string Method::signature() const
 		sig = sig.substr(pos + 1, sig.size() - pos);
 	sig += '(';
 
-	for (int i = 0; i < _table->argc; ++i)
+	for (unsigned int i = 0; i < _table->argc; ++i)
 	{
 		Type arg(_table->types[i + 1]);
 		sig += arg.name();
@@ -98,7 +98,7 @@ bool Method::invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const
     const void *raw_args[10] = { nullptr };
 
     auto arg = args.begin();
-    int i = 0;
+    unsigned int i = 0;
     for (; i < _table->argc; ++arg, ++i) {
         if (arg->type == _table->types[i + 1])
             raw_args[i] = arg->data;
