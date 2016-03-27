@@ -28,16 +28,16 @@ USA.
 #include "enum.h"
 #include "detail/table.h"
 
-/*! \breif The Api class contains meta information about objects.
-	An Api instance is created for every object with U_OBJECT macro
-	defined inside its declaration. The api is available as
-	Object::api() or Object::classApi().
-	This class is used for type introspection. It is useful for
-	scripting.
-	\sa Method, Property, Enumerator
-*/
 namespace umof
 {
+    /*! \breif The Api class contains meta information about objects.
+        An Api instance is created for every object with U_OBJECT macro
+        defined inside its declaration. The api is available as
+        Object::api() or Object::classApi().
+        This class is used for type introspection. It is useful for
+        scripting.
+        \sa Method, Property, Enumerator
+    */
     class UMOF_EXPORT Api
     {
     public:
