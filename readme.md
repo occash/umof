@@ -1,7 +1,7 @@
 The uMOF library is a cross platform C++ meta system. It can be used for reflection and script binding. It's written in C++11 and require modern compiler.
 
 ## Build
-[![Build Status](https://drone.io/bitbucket.org/occash/umof/status.png)](https://drone.io/bitbucket.org/occash/umof/latest)
+[![Build Status](https://semaphoreci.com/api/v1/occash/umof/branches/master/badge.svg)](https://semaphoreci.com/occash/umof)
 
 The library uses [premake4](http://industriousone.com/premake-quick-start) as the build system. To build uMOF, in command line navigate into uMOF folder, then:
 
