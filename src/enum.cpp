@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include "enum.h"
+#include <umof/enum.h>
 
 Enumerator::Enumerator(const EnumTable *table) :
 	_table(table)

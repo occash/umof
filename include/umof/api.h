@@ -22,12 +22,12 @@ USA.
 #ifndef UMOF_API_H
 #define UMOF_API_H
 
+#include "arg.h"
 #include "config.h"
 #include "method.h"
 #include "property.h"
 #include "enum.h"
 #include "detail/table.h"
-#include "detail/arg.h"
 
 /*! \breif The Api class contains meta information about objects.
 	An Api instance is created for every object with U_OBJECT macro

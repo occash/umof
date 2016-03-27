@@ -19,37 +19,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef CONSTSTRING_H
-#define CONSTSTRING_H
+#ifndef UMOF_H
+#define UMOF_H
 
-#include <cstddef>
-#include <stdexcept>
-#include <cstring>
+#include "umof/config.h"
+#include "umof/api.h"
+#include "umof/enum.h"
+#include "umof/method.h"
+#include "umof/property.h"
+#include "umof/type.h"
+#include "umof/event.h"
 
-/*! Compile-time string with known size.
-*/
-class ConstString
-{
-public:
-	//Workaround for GCC bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59879
-	constexpr ConstString(const char *a) :
-		_string(a), _size(std::strlen(a)) {}
-		
-	template<std::size_t N>
-	constexpr ConstString(const char(&a)[N]) :
-		_string(a), _size(N - 1) {}
+#include "umof/detail/enum.h"
+#include "umof/detail/method.h"
+#include "umof/detail/property.h"
+#include "umof/detail/type.h"
 
-	constexpr char operator[](std::size_t n) {
-		return n < _size ? _string[n] :
-			throw std::out_of_range("");
-	}
+#include "umof/macros.h"
 
-	constexpr operator const char *() const { return _string; }
-	constexpr std::size_t size() const { return _size; }
-
-private:
-	const char* const _string;
-	const std::size_t _size;
-};
-
-#endif
+#endif //UMOF_H

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include "property.h"
+#include <umof/property.h>
 
 Property::Property(const PropertyTable *table) :
 	_table(table)

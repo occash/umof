@@ -22,7 +22,7 @@ USA.
 #ifndef UMOF_DETAIL_TABLE_H
 #define UMOF_DETAIL_TABLE_H
 
-#include "conststring.h"
+#include "../conststring.h"
 
 using InvokeMem = void(*)(const void *, const void *, const void **);
 using ReadMem = void(*)(const void *, const void *);

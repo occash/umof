@@ -19,67 +19,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include <umof/type.h>
+#ifndef UMOF_ENUM_H
+#define UMOF_ENUM_H
 
-Type::Type(const TypeTable *table) : 
-	_table(table)
-{
-}
+#include "config.h"
+#include "detail/table.h"
 
-bool Type::operator==(const Type& other)
+class UMOF_EXPORT Enumerator
 {
-	return _table == other._table;
-}
+public:
+	Enumerator(const EnumTable *table);
 
-bool Type::operator!=(const Type& other)
-{
-    return _table != other._table;
-}
+	bool valid() const;
 
-bool Type::valid() const
-{
-	return (_table != nullptr);
-}
+	ConstString name() const;
 
-const char *Type::name() const
-{
-	return _table->get_name();
-}
+	int keyCount() const;
+	ConstString key(int index) const;
+	int value(int index) const;
 
-int Type::size() const
-{
-	return _table->get_size();
-}
+	int keyToValue(const char *key) const;
+	ConstString valueToKey(int value) const;
 
-void *Type::construct(void *where, void *const copy) const
-{
-	if (copy)
-	{
-		_table->clone(&copy, &where);
-		return where;
-	}
-	else
-	{
-		_table->construct(&where);
-		return where;
-	}
-}
+private:
+	const EnumTable *_table;
 
-void *Type::create(void *const copy) const
-{
-	void *where = nullptr;
-	_table->static_new(&where);
-	if (copy)
-		_table->clone(&copy, &where);
-	return where;
-}
+};
 
-void Type::destroy(void *data) const
-{
-	_table->static_delete(&data);
-}
-
-void Type::destruct(void *data) const
-{
-	_table->destruct(&data);
-}
+#endif //UMOF_ENUM_H

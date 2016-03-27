@@ -19,51 +19,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_PROPERTY_H
-#define UMOF_PROPERTY_H
+#ifndef CONSTSTRING_H
+#define CONSTSTRING_H
+
+#include <cstddef>
+#include <stdexcept>
+#include <cstring>
 
 #include "config.h"
-#include "type.h"
-#include "detail/table.h"
-#include "detail/arg.h"
 
-/*! \breif The Method class provides meta information for property.
+/*! Compile-time string with known size.
 */
-class UMOF_EXPORT Property
+class ConstString
 {
 public:
-	/*! \breif Constructs a Property with the given table.
-		Property constructor should never be used directly.
-		Please use PROPERTY() macros instead.
-	*/
-	Property(const PropertyTable *table);
+#if defined(__GNUC__)
+    //Workaround for GCC bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59879
+	constexpr ConstString(const char *a) :
+		_string(a), _size(std::strlen(a)) {}
+#endif
+		
+	template<std::size_t N>
+	constexpr ConstString(const char(&a)[N]) :
+		_string(a), _size(N - 1) {}
 
-	/*! Checks whether Property is valid object.
-		Call to invalid property will result in application crash.
-	*/
-	bool valid() const;
+	constexpr char operator[](std::size_t n) const {
+		return n < _size ? _string[n] :
+			throw std::out_of_range("");
+	}
 
-	/*! Returns the name of the property.
-		\sa type()
-	*/
-	ConstString name() const;
-
-	/*! Returns the type of the property.
-		\sa name()
-	*/
-	Type type() const;
-
-	/*! Return the value of the property.
-	*/
-	void read(Arg obj, Arg ret) const;
-
-	/*! Sets the given value to the property.
-	*/
-	void write(Arg obj, Arg value) const;
+	constexpr operator const char *() const { return _string; }
+	constexpr std::size_t size() const { return _size; }
 
 private:
-	const PropertyTable *_table;
-
+	const char* const _string;
+	const std::size_t _size;
 };
 
-#endif //UMOF_PROPERTY_H
+#endif

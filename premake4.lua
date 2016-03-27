@@ -40,10 +40,11 @@ solution 'metasystem'
         
         files
         {
-            'src/**.h',
+            'include/**.h',
             'src/**.cpp'
         }
         
+        includedirs { "include" }
         defines { 'UMOF_LIBRARY' }
         
         if _OPTIONS['docs'] then
@@ -80,7 +81,7 @@ solution 'metasystem'
             }
             
             libdirs { 'lib' }
-            includedirs { 'src' }
+            includedirs { 'include' }
             
             configuration 'Debug'
                 targetsuffix 'd'
@@ -111,7 +112,7 @@ solution 'metasystem'
             
             files { 'test/bench/**.cpp' }
             links { 'umof', 'cpgf' }
-            includedirs { 'src' }
+            includedirs { 'include' }
             
             configuration 'Debug'
                 links { 'celerod', 'campd', 'qt5cored' }

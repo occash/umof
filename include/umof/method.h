@@ -22,10 +22,10 @@ USA.
 #ifndef METHOD_H
 #define METHOD_H
 
+#include "arg.h"
 #include "config.h"
 #include "type.h"
 #include "detail/table.h"
-#include "detail/arg.h"
 
 #include <string>
 

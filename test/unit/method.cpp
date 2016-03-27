@@ -20,7 +20,7 @@ U_DECLARE_METHODS(MTest)
 
 TEST_CASE("Method interface", "[method]")
 {
-    const Api *api = U_API(MTest)::api();
+    const Api *api = U_API(MTest);
 	Method method = api->method(0);
 
 	REQUIRE(method.valid());
