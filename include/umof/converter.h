@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_CONVERTERS_H
-#define UMOF_CONVERTERS_H
+#pragma once
 
 #include "any.h"
 
@@ -73,5 +72,3 @@ struct Converter <float>
 	static Any convert(const Any &a);
 	static bool canConvert(const Any &a);
 };
-
-#endif //UMOF_CONVERTERS_H

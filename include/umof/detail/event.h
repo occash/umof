@@ -1,5 +1,4 @@
-#ifndef UMOF_DETAIL_EVENT_H
-#define UMOF_DETAIL_EVENT_H
+#pragma once
 
 #include <functional>
 
@@ -133,5 +132,3 @@ struct UAdaptor
         return AdaptorType::table(o);
     }
 };
-
-#endif //UMOF_DETAIL_EVENT_H

@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_DETAIL_PROPERTY_H
-#define UMOF_DETAIL_PROPERTY_H
+#pragma once
 
 #include "type.h"
 #include "method.h"
@@ -120,5 +119,3 @@ struct PropertyAccessor
         Write::write(obj, ret);
     }
 };
-
-#endif //UMOF_DETAIL_PROPERTY_H

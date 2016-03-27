@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_ANY_H
-#define UMOF_ANY_H
+#pragma once
 
 #include "config.h"
 #include "type.h"
@@ -158,5 +157,3 @@ inline T const& any_cast(Any const& operand)
 	typedef typename std::remove_reference<T>::type nonref;
 	return any_cast<nonref const&>(const_cast<Any&>(operand));
 }
-
-#endif //UMOF_ANY_H

@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_DETAIL_METHOD_H
-#define UMOF_DETAIL_METHOD_H
+#pragma once
 
 #include "type.h"
 
@@ -247,5 +246,3 @@ struct ConstructorCall
         Pack::call(&Constructor<Class, Args...>::call, object, ret, stack, unpack::indices_gen<Pack::count>());
     }
 };
-
-#endif //UMOF_DETAIL_METHOD_H

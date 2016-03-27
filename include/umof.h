@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_H
-#define UMOF_H
+#pragma once
 
 #include "umof/config.h"
 #include "umof/api.h"
@@ -36,5 +35,3 @@ USA.
 #include "umof/detail/type.h"
 
 #include "umof/macros.h"
-
-#endif //UMOF_H

@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_API_H
-#define UMOF_API_H
+#pragma once
 
 #include "arg.h"
 #include "config.h"
@@ -122,5 +121,3 @@ private:
 	const ApiTable *_table;
 
 };
-
-#endif //UMOF_API_H

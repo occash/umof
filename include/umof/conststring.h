@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef CONSTSTRING_H
-#define CONSTSTRING_H
+#pragma once
 
 #include <cstddef>
 #include <stdexcept>
@@ -55,5 +54,3 @@ private:
 	const char* const _string;
 	const std::size_t _size;
 };
-
-#endif

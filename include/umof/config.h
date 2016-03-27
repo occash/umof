@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_CONFIG_H
-#define UMOF_CONFIG_H
+#pragma once
 
 #define UMOF_VERSION_STR "1.0"
 /*!
@@ -79,5 +78,3 @@ Can be used like #if (UMOF_VERSION >= UMOF_VERSION_CHECK(1, 0, 0))
 #else
 #define UMOF_EXPORT
 #endif
-
-#endif //UMOF_CONFIG_H

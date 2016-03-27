@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_TYPE_H
-#define UMOF_TYPE_H
+#pragma once
 
 #include "config.h"
 #include "detail/type.h"
@@ -89,5 +88,3 @@ Type Type::from()
 {
 	return Table<T>::get();
 }
-
-#endif //UMOF_TYPE_H

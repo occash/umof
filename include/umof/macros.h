@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_MACROS_H
-#define UMOF_MACROS_H
+#pragma once
 
 template<typename T>
 struct UHolder
@@ -205,5 +204,3 @@ const ApiTable UHolder<C>::UApi::table \
 		return table; \
 	}() \
 }
-
-#endif //UMOF_MACROS_H

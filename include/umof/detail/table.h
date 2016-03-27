@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_DETAIL_TABLE_H
-#define UMOF_DETAIL_TABLE_H
+#pragma once
 
 #include "../conststring.h"
 
@@ -90,5 +89,3 @@ struct ApiTable
     const unsigned int propCount;
     const unsigned int enumCount;
 };
-
-#endif

@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_DETAIL_TYPE_H
-#define UMOF_DETAIL_TYPE_H
+#pragma once
 
 #include "table.h"
 
@@ -212,5 +211,3 @@ struct Table
         return const_cast<Decay*>(TableHelper<Type>::cast(object));
     }
 };
-
-#endif //UMOF_DETAIL_TYPE_H

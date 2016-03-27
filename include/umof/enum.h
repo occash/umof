@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_ENUM_H
-#define UMOF_ENUM_H
+#pragma once
 
 #include "config.h"
 #include "detail/table.h"
@@ -45,5 +44,3 @@ private:
 	const EnumTable *_table;
 
 };
-
-#endif //UMOF_ENUM_H

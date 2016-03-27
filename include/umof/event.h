@@ -1,5 +1,4 @@
-#ifndef UMOF_EVENT_H
-#define UMOF_EVENT_H
+#pragma once
 
 #include "detail/type.h"
 #include "detail/method.h"
@@ -67,5 +66,3 @@ bool Event<Args...>::connect(Functor f)
 {
     return connect(Arg(), Method(UAdaptor<Functor>::table(f)));
 }
-
-#endif //UMOF_EVENT_H

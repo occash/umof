@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#ifndef UMOF_PROPERTY_H
-#define UMOF_PROPERTY_H
+#pragma once
 
 #include "arg.h"
 #include "config.h"
@@ -65,5 +64,3 @@ private:
 	const PropertyTable *_table;
 
 };
-
-#endif //UMOF_PROPERTY_H
