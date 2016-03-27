@@ -21,54 +21,57 @@ USA.
 
 #include <umof/enum.h>
 
-Enumerator::Enumerator(const EnumTable *table) :
-	_table(table)
+namespace umof
 {
-}
+    Enumerator::Enumerator(const detail::EnumTable *table) :
+        _table(table)
+    {
+    }
 
-bool Enumerator::valid() const
-{
-	return (_table != nullptr);
-}
+    bool Enumerator::valid() const
+    {
+        return (_table != nullptr);
+    }
 
-ConstString Enumerator::name() const
-{
-	return _table->name;
-}
+    ConstString Enumerator::name() const
+    {
+        return _table->name;
+    }
 
-int Enumerator::keyCount() const
-{
-	return _table->count;
-}
+    int Enumerator::keyCount() const
+    {
+        return _table->count;
+    }
 
-ConstString Enumerator::key(int index) const
-{
-	return _table->table[index].name;
-}
+    ConstString Enumerator::key(int index) const
+    {
+        return _table->table[index].name;
+    }
 
-int Enumerator::value(int index) const
-{
-	return _table->table[index].value;
-}
+    int Enumerator::value(int index) const
+    {
+        return _table->table[index].value;
+    }
 
-int Enumerator::keyToValue(const char *key) const
-{
-	for (unsigned int i = 0; i < _table->count; ++i)
-	{
-		if (_table->table[i].name == key)
-			return _table->table[i].value;
-	}
+    int Enumerator::keyToValue(const char *key) const
+    {
+        for (unsigned int i = 0; i < _table->count; ++i)
+        {
+            if (_table->table[i].name == key)
+                return _table->table[i].value;
+        }
 
-	return -1;
-}
+        return -1;
+    }
 
-ConstString Enumerator::valueToKey(int value) const
-{
-	for (unsigned int i = 0; i < _table->count; ++i)
-	{
-		if (_table->table[i].value == value)
-			return _table->table[i].name;
-	}
+    ConstString Enumerator::valueToKey(int value) const
+    {
+        for (unsigned int i = 0; i < _table->count; ++i)
+        {
+            if (_table->table[i].value == value)
+                return _table->table[i].name;
+        }
 
-	return "";
+        return "";
+    }
 }

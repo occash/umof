@@ -28,57 +28,60 @@ USA.
 
 #include <string>
 
-/*! \breif The Method class provides meta information for method.
-*/
-class UMOF_EXPORT Method
+namespace umof
 {
-public:
-	/*! \breif Constructs a Method with the given table.
-		Method constructor should never be used directly.
-		Please use METHOD() or OVERLOAD() macros instead.
-	*/
-	Method(const MethodTable *table);
+    /*! \breif The Method class provides meta information for method.
+    */
+    class UMOF_EXPORT Method
+    {
+    public:
+        /*! \breif Constructs a Method with the given table.
+            Method constructor should never be used directly.
+            Please use METHOD() or OVERLOAD() macros instead.
+        */
+        Method(const detail::MethodTable *table);
 
-	/*! Checks whether Method is valid object.
-		Call to invalid method will result in application crash.
-	*/
-	bool valid() const;
+        /*! Checks whether Method is valid object.
+            Call to invalid method will result in application crash.
+        */
+        bool valid() const;
 
-	/*! Returns the name of the method.
-		\sa signature()
-	*/
-	ConstString name() const;
+        /*! Returns the name of the method.
+            \sa signature()
+        */
+        ConstString name() const;
 
-	/*! Returns the signature of the method.
-		The signature returned in normalized form. This means
-		there is no whitespace between parameters and parameter
-		names described as typeid().name().
-		\sa name()
-	*/
-	std::string signature() const;
+        /*! Returns the signature of the method.
+            The signature returned in normalized form. This means
+            there is no whitespace between parameters and parameter
+            names described as typeid().name().
+            \sa name()
+        */
+        std::string signature() const;
 
-	/*! Returns the return type of this method.
-	*/
-	Type returnType() const;
+        /*! Returns the return type of this method.
+        */
+        Type returnType() const;
 
-	/*! Returns the number of arguments.
-	*/
-	int parameterCount() const;
+        /*! Returns the number of arguments.
+        */
+        int parameterCount() const;
 
-	/*! Returns the type of the argument at given index.
-	*/
-	Type parmaeterType(int index) const;
-	//ConstString parameterName(int index) const; //Not supported
+        /*! Returns the type of the argument at given index.
+        */
+        Type parmaeterType(int index) const;
+        //ConstString parameterName(int index) const; //Not supported
 
-	/*! Invokes the method with given args.
-	*/
-	void invoke(const void *obj, const void *ret, const void **args) const;
+        /*! Invokes the method with given args.
+        */
+        void invoke(const void *obj, const void *ret, const void **args) const;
 
-	/*! Invokes the method with given args.
-	*/
-    bool invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
+        /*! Invokes the method with given args.
+        */
+        bool invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
 
-private:
-	const MethodTable *_table;
+    private:
+        const detail::MethodTable *_table;
 
-};
+    };
+}

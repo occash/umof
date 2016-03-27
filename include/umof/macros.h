@@ -49,9 +49,9 @@ struct uHas ## F \
     { return 0; } \
 };
 
-UP_DECLARE_HAS(UMethods, MethodTable *)
-UP_DECLARE_HAS(UProperties, PropertyTable *)
-UP_DECLARE_HAS(UEnums, EnumTable *)
+UP_DECLARE_HAS(UMethods, umof::detail::MethodTable *)
+UP_DECLARE_HAS(UProperties, umof::detail::PropertyTable *)
+UP_DECLARE_HAS(UEnums, umof::detail::EnumTable *)
 
 #define UP_HAS(F, T) uHas ## F<UHolder<T>>
 
@@ -86,11 +86,11 @@ _61, _62, _63, N, ...) N
     UP_MEMBER_1, UP_MEMBER_0))(__VA_ARGS__)
 
 #define METHODS \
-    struct UMethods { static const MethodTable table[]; };
+    struct UMethods { static const umof::detail::MethodTable table[]; };
 #define PROPS \
-    struct UProperties { static const PropertyTable table[]; };
+    struct UProperties { static const umof::detail::PropertyTable table[]; };
 #define ENUMS \
-    struct UEnums { static const EnumTable table[]; };
+    struct UEnums { static const umof::detail::EnumTable table[]; };
 
 #define U_DECLARE_API(C, ...) \
 template<> \
@@ -98,14 +98,14 @@ struct UHolder<C> \
 { \
     using UClass = C; \
     UP_MEMBERS(__VA_ARGS__) \
-    struct UApi { static const ApiTable table; }; \
-    static const Api *api() \
+    struct UApi { static const umof::detail::ApiTable table; }; \
+    static const umof::Api *api() \
     { \
-        static const Api a(&UApi::table); \
+        static const umof::Api a(&UApi::table); \
         return &a; \
     } \
 }; \
-const ApiTable UHolder<C>::UApi::table \
+const umof::detail::ApiTable UHolder<C>::UApi::table \
 { \
     #C, \
     nullptr, \
@@ -123,59 +123,59 @@ const ApiTable UHolder<C>::UApi::table \
 \relates Object
 */
 #define U_DECLARE_METHODS(C) \
-    const MethodTable UHolder<C>::UMethods::table[]
+    const umof::detail::MethodTable UHolder<C>::UMethods::table[]
 
 /*! This macro exposes class properties in Api.
 \relates Object
 */
 #define U_DECLARE_PROPERTIES(C) \
-    const PropertyTable UHolder<C>::UProperties::table[]
+    const umof::detail::PropertyTable UHolder<C>::UProperties::table[]
 
 /*! This macro exposes class enums in Api.
 \relates Object
 */
 #define U_DECLARE_ENUMS(C) \
-    const EnumTable UHolder<C>::UEnums::table[]
+    const umof::detail::EnumTable UHolder<C>::UEnums::table[]
 
 #define U_METHOD(method) \
 { \
 	#method, \
-	&MethodCall<decltype(&UClass::method), &UClass::method>::call, \
-	MethodArguments<decltype(&UClass::method)>::count, \
-	MethodArguments<decltype(&UClass::method)>::types() \
+	&umof::detail::MethodCall<decltype(&UClass::method), &UClass::method>::call, \
+	umof::detail::MethodArguments<decltype(&UClass::method)>::count, \
+	umof::detail::MethodArguments<decltype(&UClass::method)>::types() \
 }
 
 #define U_OVERLOAD(method, signature) \
 { \
 	#method, \
-	&MethodCall<signature, &UClass::method>::call, \
-	MethodArguments<signature>::count, \
-	MethodArguments<signature>::types() \
+	&umof::detail::MethodCall<signature, &UClass::method>::call, \
+	umof::detail::MethodArguments<signature>::count, \
+	umof::detail::MethodArguments<signature>::types() \
 }
 
 #define U_FUNCTION(function) \
 { \
     #function, \
-    &MethodCall<decltype(&function), &function>::call, \
-    MethodArguments<decltype(&function)>::count, \
-    MethodArguments<decltype(&function)>::types() \
+    &umof::detail::MethodCall<decltype(&function), &function>::call, \
+    umof::detail::MethodArguments<decltype(&function)>::count, \
+    umof::detail::MethodArguments<decltype(&function)>::types() \
 }
 
 #define U_CONSTRUCTOR(...) \
 { \
     UHolder<UClass>::UApi::table.name, \
-    &ConstructorCall<UClass, __VA_ARGS__>::call, \
-    MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::count, \
-    MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::types() \
+    &umof::detail::ConstructorCall<UClass, __VA_ARGS__>::call, \
+    umof::detail::MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::count, \
+    umof::detail::MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::types() \
 }
 
 #define UP_NULL
 #define UP_PROPS_1(type, member) \
-    PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::read, \
-    PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::write
+    umof::detail::PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::read, \
+    umof::detail::PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::write
 #define UP_PROPS_2(type, getter, setter) \
-    &MethodReader<type, decltype(&UClass::getter), &UClass::getter>::read, \
-    &MethodWriter<type, decltype(&UClass::setter), &UClass::setter>::write
+    &umof::detail::MethodReader<type, decltype(&UClass::getter), &UClass::getter>::read, \
+    &umof::detail::MethodWriter<type, decltype(&UClass::setter), &UClass::setter>::write
 #define UP_PROPS(type, ...) UP_GET_MEMBERS((__VA_ARGS__, \
     UP_NULL, UP_PROPS_2, \
     UP_PROPS_1, UP_NULL))(type, __VA_ARGS__)
@@ -187,7 +187,7 @@ const ApiTable UHolder<C>::UApi::table \
 #define U_PROPERTY(type, name, ...) \
 { \
 	#name, \
-	Table<type>::get(), \
+	umof::detail::Table<type>::get(), \
 	UP_PROPS(type, __VA_ARGS__) \
 }
 
@@ -197,7 +197,7 @@ const ApiTable UHolder<C>::UApi::table \
 { \
 	UP_STRINGIFY(E), UP_NARG(__VA_ARGS__), \
 	[](){ \
-		static const EnumeratorTable table[] \
+		static const umof::detail::EnumeratorTable table[] \
 		{ \
 			__VA_ARGS__ \
 		}; \

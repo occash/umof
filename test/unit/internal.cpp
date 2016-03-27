@@ -6,6 +6,8 @@
 #include <cstdarg>
 #include <iostream>
 
+using namespace umof::detail;
+
 bool func1Called = false;
 bool func2Called = false;
 bool func3Called = false;

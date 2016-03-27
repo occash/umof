@@ -21,36 +21,39 @@ USA.
 
 #include <umof/converter.h>
 
-Any Converter<int>::convert(const Any& a)
+namespace umof
 {
-	if (Type::from<float>() == a.type())
-		return helper<int, double>::convert(a);
-    else if (Type::from<const char *>() == a.type())
-		return helper<int, const char *>::convert(a);
+    Any Converter<int>::convert(const Any& a)
+    {
+        if (Type::from<float>() == a.type())
+            return detail::Converter<int, double>::convert(a);
+        else if (Type::from<const char *>() == a.type())
+            return detail::Converter<int, const char *>::convert(a);
 
-	return any_cast<int>(a);
-}
+        return any_cast<int>(a);
+    }
 
-bool Converter<int>::canConvert(const Any& a)
-{
-    return (Type::from<int>() == a.type()
-        || Type::from<float>() == a.type()
-        || Type::from<const char *>() == a.type());
-}
+    bool Converter<int>::canConvert(const Any& a)
+    {
+        return (Type::from<int>() == a.type()
+            || Type::from<float>() == a.type()
+            || Type::from<const char *>() == a.type());
+    }
 
-Any Converter<float>::convert(const Any& a)
-{
-    if (Type::from<int>() == a.type())
-		return Any(helper<float, int>::convert(a));
-    else if (Type::from<const char *>() == a.type())
-		return Any(helper<float, const char *>::convert(a));
+    Any Converter<float>::convert(const Any& a)
+    {
+        if (Type::from<int>() == a.type())
+            return Any(detail::Converter<float, int>::convert(a));
+        else if (Type::from<const char *>() == a.type())
+            return Any(detail::Converter<float, const char *>::convert(a));
 
-	return any_cast<float>(a);
-}
+        return any_cast<float>(a);
+    }
 
-bool Converter<float>::canConvert(const Any& a)
-{
-    return (Type::from<float>() == a.type()
-        || Type::from<int>() == a.type()
-        || Type::from<const char *>() == a.type());
+    bool Converter<float>::canConvert(const Any& a)
+    {
+        return (Type::from<float>() == a.type()
+            || Type::from<int>() == a.type()
+            || Type::from<const char *>() == a.type());
+    }
 }

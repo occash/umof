@@ -26,41 +26,44 @@ USA.
 #include "type.h"
 #include "detail/table.h"
 
-/*! \breif The Method class provides meta information for property.
-*/
-class UMOF_EXPORT Property
+namespace umof
 {
-public:
-	/*! \breif Constructs a Property with the given table.
-		Property constructor should never be used directly.
-		Please use PROPERTY() macros instead.
-	*/
-	Property(const PropertyTable *table);
+    /*! \breif The Method class provides meta information for property.
+    */
+    class UMOF_EXPORT Property
+    {
+    public:
+        /*! \breif Constructs a Property with the given table.
+            Property constructor should never be used directly.
+            Please use PROPERTY() macros instead.
+        */
+        Property(const detail::PropertyTable *table);
 
-	/*! Checks whether Property is valid object.
-		Call to invalid property will result in application crash.
-	*/
-	bool valid() const;
+        /*! Checks whether Property is valid object.
+            Call to invalid property will result in application crash.
+        */
+        bool valid() const;
 
-	/*! Returns the name of the property.
-		\sa type()
-	*/
-	ConstString name() const;
+        /*! Returns the name of the property.
+            \sa type()
+        */
+        ConstString name() const;
 
-	/*! Returns the type of the property.
-		\sa name()
-	*/
-	Type type() const;
+        /*! Returns the type of the property.
+            \sa name()
+        */
+        Type type() const;
 
-	/*! Return the value of the property.
-	*/
-	void read(Arg obj, Arg ret) const;
+        /*! Return the value of the property.
+        */
+        void read(Arg obj, Arg ret) const;
 
-	/*! Sets the given value to the property.
-	*/
-	void write(Arg obj, Arg value) const;
+        /*! Sets the given value to the property.
+        */
+        void write(Arg obj, Arg value) const;
 
-private:
-	const PropertyTable *_table;
+    private:
+        const detail::PropertyTable *_table;
 
-};
+    };
+}

@@ -21,20 +21,28 @@ USA.
 
 #pragma once
 
-struct TypeTable;
+#include "detail/type.h"
 
-struct Arg
+namespace umof
 {
-    template<class T>
-    Arg(const T& data) :
-        data(static_cast<const void *>(&data)),
-        type(Table<T>::get()) {}
+    namespace detail
+    {
+        struct TypeTable;
+    }
 
-    Arg(const void *data, const TypeTable *type) :
-        data(data), type(type) {}
+    struct Arg
+    {
+        template<class T>
+        Arg(const T& data) :
+            data(static_cast<const void *>(&data)),
+            type(detail::Table<T>::get()) {}
 
-    Arg() : data(nullptr), type(nullptr) {}
+        Arg(const void *data, const detail::TypeTable *type) :
+            data(data), type(type) {}
 
-    const void *data;
-    const TypeTable *type;
-};
+        Arg() : data(nullptr), type(nullptr) {}
+
+        const void *data;
+        const detail::TypeTable *type;
+    };
+}

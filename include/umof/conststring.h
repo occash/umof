@@ -29,28 +29,31 @@ USA.
 
 /*! Compile-time string with known size.
 */
-class ConstString
+namespace umof
 {
-public:
+    class ConstString
+    {
+    public:
 #if defined(__GNUC__)
-    //Workaround for GCC bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59879
-	constexpr ConstString(const char *a) :
-		_string(a), _size(std::strlen(a)) {}
+        //Workaround for GCC bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59879
+        constexpr ConstString(const char *a) :
+            _string(a), _size(std::strlen(a)) {}
 #endif
-		
-	template<std::size_t N>
-	constexpr ConstString(const char(&a)[N]) :
-		_string(a), _size(N - 1) {}
 
-	constexpr char operator[](std::size_t n) const {
-		return n < _size ? _string[n] :
-			throw std::out_of_range("");
-	}
+        template<std::size_t N>
+        constexpr ConstString(const char(&a)[N]) :
+            _string(a), _size(N - 1) {}
 
-	constexpr operator const char *() const { return _string; }
-	constexpr std::size_t size() const { return _size; }
+        constexpr char operator[](std::size_t n) const {
+            return n < _size ? _string[n] :
+                throw std::out_of_range("");
+        }
 
-private:
-	const char* const _string;
-	const std::size_t _size;
-};
+        constexpr operator const char *() const { return _string; }
+        constexpr std::size_t size() const { return _size; }
+
+    private:
+        const char* const _string;
+        const std::size_t _size;
+    };
+}

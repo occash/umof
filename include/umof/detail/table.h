@@ -23,69 +23,75 @@ USA.
 
 #include "../conststring.h"
 
-using InvokeMem = void(*)(const void *, const void *, const void **);
-using ReadMem = void(*)(const void *, const void *);
-using WriteMem = void(*)(const void *, const void *);
-
-class Api;
-
-//Table with basic functions
-struct TypeTable
+namespace umof
 {
-    bool is_small;
-    const char *(*get_name)();
-    int(*get_size)();
-    void(*static_new)(void**);
-    void(*construct)(void**);
-    void(*static_delete)(void**);
-    void(*destruct)(void**);
-    void(*clone)(void* const*, void**);
-    void(*move)(void* const*, void**);
-};
+    class Api;
 
-struct EnumeratorTable
-{
-    ConstString name;
-    const unsigned int value;
-};
+    namespace detail
+    {
+        using InvokeMem = void(*)(const void *, const void *, const void **);
+        using ReadMem = void(*)(const void *, const void *);
+        using WriteMem = void(*)(const void *, const void *);
 
-struct EnumTable
-{
-    ConstString name;
-    const unsigned int count;
-    const EnumeratorTable *table;
-};
+        //Table with basic functions
+        struct TypeTable
+        {
+            bool is_small;
+            const char *(*get_name)();
+            int(*get_size)();
+            void(*static_new)(void**);
+            void(*construct)(void**);
+            void(*static_delete)(void**);
+            void(*destruct)(void**);
+            void(*clone)(void* const*, void**);
+            void(*move)(void* const*, void**);
+        };
 
-/* \breif Internal struct to store method meta information.
-*/
-struct MethodTable
-{
-    ConstString name;
-    InvokeMem invoker;
-    const unsigned int argc;
-    const TypeTable **types;
-};
+        struct EnumeratorTable
+        {
+            ConstString name;
+            const unsigned int value;
+        };
 
-/* \breif Internal struct to store property meta information.
-*/
-struct PropertyTable
-{
-    ConstString name;
-    const TypeTable *type;
-    ReadMem reader;
-    WriteMem writer;
-};
+        struct EnumTable
+        {
+            ConstString name;
+            const unsigned int count;
+            const EnumeratorTable *table;
+        };
 
-/*! \breif Internal struct to store class meta information.
-*/
-struct ApiTable
-{
-    ConstString name;
-    const Api *super;
-    const MethodTable *methods;
-    const PropertyTable *props;
-    const EnumTable *enums;
-    const unsigned int methodCount;
-    const unsigned int propCount;
-    const unsigned int enumCount;
-};
+        /* \breif Internal struct to store method meta information.
+        */
+        struct MethodTable
+        {
+            ConstString name;
+            InvokeMem invoker;
+            const unsigned int argc;
+            const TypeTable **types;
+        };
+
+        /* \breif Internal struct to store property meta information.
+        */
+        struct PropertyTable
+        {
+            ConstString name;
+            const TypeTable *type;
+            ReadMem reader;
+            WriteMem writer;
+        };
+
+        /*! \breif Internal struct to store class meta information.
+        */
+        struct ApiTable
+        {
+            ConstString name;
+            const Api *super;
+            const MethodTable *methods;
+            const PropertyTable *props;
+            const EnumTable *enums;
+            const unsigned int methodCount;
+            const unsigned int propCount;
+            const unsigned int enumCount;
+        };
+    }
+}

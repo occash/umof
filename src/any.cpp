@@ -21,77 +21,80 @@ USA.
 
 #include <umof/any.h>
 
-Any::Any() :
-	_table(nullptr),
-	_object(nullptr)
+namespace umof
 {
-}
+    Any::Any() :
+        _table(nullptr),
+        _object(nullptr)
+    {
+    }
 
-Any::Any(Any const& x) :
-	_table(nullptr),
-	_object(nullptr)
-{
-	if (x._table != nullptr)
-	{
-		x._table->clone(&x._object, &_object);
-		_table = x._table;
-	}
-	else
-		reset();
-}
+    Any::Any(Any const& x) :
+        _table(nullptr),
+        _object(nullptr)
+    {
+        if (x._table != nullptr)
+        {
+            x._table->clone(&x._object, &_object);
+            _table = x._table;
+        }
+        else
+            reset();
+    }
 
-Any::Any(Any &&x) :
-	_table(nullptr),
-	_object(nullptr)
-{
-	if (x._table != nullptr)
-	{
-		x._table->clone(&x._object, &_object);
-		_table = x._table;
-		x._table = nullptr;
-		x._object = nullptr;
-	}
-	else
-		reset();
-}
+    Any::Any(Any &&x) :
+        _table(nullptr),
+        _object(nullptr)
+    {
+        if (x._table != nullptr)
+        {
+            x._table->clone(&x._object, &_object);
+            _table = x._table;
+            x._table = nullptr;
+            x._object = nullptr;
+        }
+        else
+            reset();
+    }
 
-Any::~Any()
-{
-	if (_table)
-		_table->static_delete(&_object);
-}
+    Any::~Any()
+    {
+        if (_table)
+            _table->static_delete(&_object);
+    }
 
-void Any::reset()
-{
-	if (_table != nullptr)
-	{
-		_table->static_delete(&_object);
-		_table = nullptr;
-		_object = nullptr;
-	}
-}
+    void Any::reset()
+    {
+        if (_table != nullptr)
+        {
+            _table->static_delete(&_object);
+            _table = nullptr;
+            _object = nullptr;
+        }
+    }
 
-void Any::reset(TypeTable *table)
-{
-    if (_table != nullptr)
-        _table->static_delete(&_object);
+    void Any::reset(detail::TypeTable *table)
+    {
+        if (_table != nullptr)
+            _table->static_delete(&_object);
 
-    _table = table;
-    _table->static_new(&_object);
-}
+        _table = table;
+        _table->static_new(&_object);
+    }
 
-Type Any::type() const
-{
-    return Type(_table);
-}
+    Type Any::type() const
+    {
+        return Type(_table);
+    }
 
-void *Any::object() const
-{
-    if (!_table)
-        return nullptr;
+    void *Any::object() const
+    {
+        if (!_table)
+            return nullptr;
 
-    if (_table->is_small)
-        return (void *)&_object;
-    else
-        return _object;
+        if (_table->is_small)
+            return (void *)&_object;
+        else
+            return _object;
+    }
 }

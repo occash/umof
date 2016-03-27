@@ -22,53 +22,35 @@ USA.
 #pragma once
 
 #include "any.h"
+#include "detail/converter.h"
 
-#include <sstream>
-
-template<class U, class Y>
-struct helper
+namespace umof
 {
-	inline static U convert(Any a)
-	{
-		return static_cast<U>(any_cast<Y>(a));
-	}
-};
+    template<class T>
+    struct Converter
+    {
+        static Any convert(const Any &a)
+        {
+            return any_cast<T>(a);
+        }
 
-template<class U>
-struct helper <U, const char *>
-{
-	inline static U convert(Any a)
-	{
-		U u;
-		std::istringstream(any_cast<const char *>(a)) >> u;
-		return u;
-	}
-};
+        static bool canConvert(const Any &a)
+        {
+            return Type::from<T>() == a.type();
+        }
+    };
 
-template<class T>
-struct Converter
-{
-	static Any convert(const Any &a)
-	{
-		return any_cast<T>(a);
-	}
+    template<>
+    struct Converter<int>
+    {
+        static Any convert(const Any &a);
+        static bool canConvert(const Any &a);
+    };
 
-	static bool canConvert(const Any &a)
-	{
-		return Type::from<T>() == a.type();
-	}
-};
-
-template<>
-struct Converter<int>
-{
-	static Any convert(const Any &a);
-	static bool canConvert(const Any &a);
-};
-
-template<>
-struct Converter <float>
-{
-	static Any convert(const Any &a);
-	static bool canConvert(const Any &a);
-};
+    template<>
+    struct Converter <float>
+    {
+        static Any convert(const Any &a);
+        static bool canConvert(const Any &a);
+    };
+}

@@ -41,173 +41,179 @@ struct memfree
 typedef std::true_type True;
 typedef std::false_type False;
 
-//Basic function implementation
-template<typename T, typename Small>
-struct TypeFuncs;
-
-//Basic functions for small type
-template<typename T>
-struct TypeFuncs<T, True>
+namespace umof
 {
-    static const char *get_name()
+    namespace detail
     {
-#if defined(__GNUC__)
-        static int status = -4;
-        static memfree mem(abi::__cxa_demangle(typeid(T).name(), 0, 0, &status));
-        return (status == 0) ? mem.name : typeid(T).name();
-#else
-        return typeid(T).name();
-#endif
-    }
-    static int get_size()
-    {
-        return sizeof(T);
-    }
-    static void static_new(void** dest)
-    {
-        new (*dest) T();
-    }
-    static void construct(void** dest)
-    {
-        new (*dest) T();
-    }
-    static void static_delete(void** x)
-    {
-        reinterpret_cast<T*>(x)->~T();
-    }
-    static void destruct(void** x)
-    {
-        reinterpret_cast<T*>(x)->~T();
-    }
-    static void clone(void* const* src, void** dest)
-    {
-        new (dest)T(*reinterpret_cast<T const*>(src));
-    }
-    static void move(void* const* src, void** dest)
-    {
-        *reinterpret_cast<T*>(dest) =
-            *reinterpret_cast<T const*>(src);
-    }
-};
+        //Basic function implementation
+        template<typename T, typename Small>
+        struct TypeFuncs;
 
-//Basic functions for larger type
-template<typename T>
-struct TypeFuncs<T, False>
-{
-    static const char *get_name()
-	{
-#if defined(__GNUC__)
-        static int status = -4;
-        static memfree mem(abi::__cxa_demangle(typeid(T).name(), 0, 0, &status));
-        return (status == 0) ? mem.name : typeid(T).name();
-#else
-        return typeid(T).name();
-#endif
-	}
-	static int get_size()
-	{
-		return sizeof(T);
-	}
-	static void static_new(void** dest)
-	{
-		*dest = new T();
-	}
-	static void construct(void** dest)
-	{
-		new (*dest) T();
-	}
-	static void static_delete(void** x)
-	{
-		// destruct and free memory
-		delete (*reinterpret_cast<T**>(x));
-	}
-	static void destruct(void** x)
-	{
-		// destruct only, we'll reuse memory
-		(*reinterpret_cast<T**>(x))->~T();
-	}
-	static void clone(void* const* src, void** dest)
-	{
-		*dest = new T(**reinterpret_cast<T* const*>(src));
-	}
-	static void move(void* const* src, void** dest)
-	{
-		**reinterpret_cast<T**>(dest) =
-			**reinterpret_cast<T* const*>(src);
-	}
-};
-
-template<typename Type>
-struct TableHelper
-{
-    using Small = typename std::integral_constant<bool, (sizeof(Type) <= sizeof(void*))>;
-
-    inline static TypeTable *get()
-    {
-        static TypeTable staticTable
+        //Basic functions for small type
+        template<typename T>
+        struct TypeFuncs<T, True>
         {
-            Small::value,
-            TypeFuncs<Type, Small>::get_name,
-            TypeFuncs<Type, Small>::get_size,
-            TypeFuncs<Type, Small>::static_new,
-            TypeFuncs<Type, Small>::construct,
-            TypeFuncs<Type, Small>::static_delete,
-            TypeFuncs<Type, Small>::destruct,
-            TypeFuncs<Type, Small>::clone,
-            TypeFuncs<Type, Small>::move
+            static const char *get_name()
+            {
+#if defined(__GNUC__)
+                static int status = -4;
+                static memfree mem(abi::__cxa_demangle(typeid(T).name(), 0, 0, &status));
+                return (status == 0) ? mem.name : typeid(T).name();
+#else
+                return typeid(T).name();
+#endif
+            }
+            static int get_size()
+            {
+                return sizeof(T);
+            }
+            static void static_new(void** dest)
+            {
+                new (*dest) T();
+            }
+            static void construct(void** dest)
+            {
+                new (*dest) T();
+            }
+            static void static_delete(void** x)
+            {
+                reinterpret_cast<T*>(x)->~T();
+            }
+            static void destruct(void** x)
+            {
+                reinterpret_cast<T*>(x)->~T();
+            }
+            static void clone(void* const* src, void** dest)
+            {
+                new (dest)T(*reinterpret_cast<T const*>(src));
+            }
+            static void move(void* const* src, void** dest)
+            {
+                *reinterpret_cast<T*>(dest) =
+                    *reinterpret_cast<T const*>(src);
+            }
         };
-        return &staticTable;
-    }
 
-    template<typename S = Small>
-    inline static typename std::enable_if<S::value, void>::type clone(const Type **src, void **dest)
-    {
-        new (dest)Type(*reinterpret_cast<Type const*>(*src));
-    }
+        //Basic functions for larger type
+        template<typename T>
+        struct TypeFuncs<T, False>
+        {
+            static const char *get_name()
+            {
+#if defined(__GNUC__)
+                static int status = -4;
+                static memfree mem(abi::__cxa_demangle(typeid(T).name(), 0, 0, &status));
+                return (status == 0) ? mem.name : typeid(T).name();
+#else
+                return typeid(T).name();
+#endif
+            }
+            static int get_size()
+            {
+                return sizeof(T);
+            }
+            static void static_new(void** dest)
+            {
+                *dest = new T();
+            }
+            static void construct(void** dest)
+            {
+                new (*dest) T();
+            }
+            static void static_delete(void** x)
+            {
+                // destruct and free memory
+                delete (*reinterpret_cast<T**>(x));
+            }
+            static void destruct(void** x)
+            {
+                // destruct only, we'll reuse memory
+                (*reinterpret_cast<T**>(x))->~T();
+            }
+            static void clone(void* const* src, void** dest)
+            {
+                *dest = new T(**reinterpret_cast<T* const*>(src));
+            }
+            static void move(void* const* src, void** dest)
+            {
+                **reinterpret_cast<T**>(dest) =
+                    **reinterpret_cast<T* const*>(src);
+            }
+        };
 
-    template<typename S = Small>
-    inline static typename std::enable_if<!S::value, void>::type clone(const Type **src, void **dest)
-    {
-        *dest = new Type(**src);
-    }
+        template<typename Type>
+        struct TableHelper
+        {
+            using Small = typename std::integral_constant<bool, (sizeof(Type) <= sizeof(void*))>;
 
-    template<typename S = Small>
-    inline static typename std::enable_if<S::value, Type*>::type cast(void **object)
-    {
-        return reinterpret_cast<Type*>(object);
-    }
+            inline static TypeTable *get()
+            {
+                static TypeTable staticTable
+                {
+                    Small::value,
+                    TypeFuncs<Type, Small>::get_name,
+                    TypeFuncs<Type, Small>::get_size,
+                    TypeFuncs<Type, Small>::static_new,
+                    TypeFuncs<Type, Small>::construct,
+                    TypeFuncs<Type, Small>::static_delete,
+                    TypeFuncs<Type, Small>::destruct,
+                    TypeFuncs<Type, Small>::clone,
+                    TypeFuncs<Type, Small>::move
+                };
+                return &staticTable;
+            }
 
-    template<typename S = Small>
-    inline static typename std::enable_if<!S::value, Type*>::type cast(void **object)
-    {
-        return reinterpret_cast<Type*>(*object);
-    }
-};
+            template<typename S = Small>
+            inline static typename std::enable_if<S::value, void>::type clone(const Type **src, void **dest)
+            {
+                new (dest)Type(*reinterpret_cast<Type const*>(*src));
+            }
 
-//Get the table for type
-template<typename T>
-struct Table
-{
-    using Decay = typename std::decay<T>::type;
-    using Pointer = typename std::is_pointer<T>::type;
-    using DecayPointer = typename std::add_pointer<
-                         typename std::decay<
-                         typename std::remove_pointer<Decay>
-                         ::type>::type>::type;
-    using Type = typename std::conditional<Pointer::value, DecayPointer, Decay>::type;
+            template<typename S = Small>
+            inline static typename std::enable_if<!S::value, void>::type clone(const Type **src, void **dest)
+            {
+                *dest = new Type(**src);
+            }
 
-    inline static TypeTable *get()
-    {
-        return TableHelper<Type>::get();
-    }
+            template<typename S = Small>
+            inline static typename std::enable_if<S::value, Type*>::type cast(void **object)
+            {
+                return reinterpret_cast<Type*>(object);
+            }
 
-    inline static void clone(const Decay **src, void **dest)
-    {
-        TableHelper<Type>::clone(src, dest);
-    }
+            template<typename S = Small>
+            inline static typename std::enable_if<!S::value, Type*>::type cast(void **object)
+            {
+                return reinterpret_cast<Type*>(*object);
+            }
+        };
 
-    inline static Decay *cast(void **object)
-    {
-        return const_cast<Decay*>(TableHelper<Type>::cast(object));
+        //Get the table for type
+        template<typename T>
+        struct Table
+        {
+            using Decay = typename std::decay<T>::type;
+            using Pointer = typename std::is_pointer<T>::type;
+            using DecayPointer = typename std::add_pointer<
+                typename std::decay<
+                typename std::remove_pointer<Decay>
+                ::type>::type>::type;
+            using Type = typename std::conditional<Pointer::value, DecayPointer, Decay>::type;
+
+            inline static TypeTable *get()
+            {
+                return TableHelper<Type>::get();
+            }
+
+            inline static void clone(const Decay **src, void **dest)
+            {
+                TableHelper<Type>::clone(src, dest);
+            }
+
+            inline static Decay *cast(void **object)
+            {
+                return const_cast<Decay*>(TableHelper<Type>::cast(object));
+            }
+        };
     }
-};
+}

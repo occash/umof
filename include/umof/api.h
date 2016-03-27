@@ -36,88 +36,91 @@ USA.
 	scripting.
 	\sa Method, Property, Enumerator
 */
-class UMOF_EXPORT Api
+namespace umof
 {
-public:
-	/*! \breif Constructs an Api with the given table.
-		Api constructor should never be used directly. 
-		Please use U_OBJECT() macro instead.
-	*/
-	Api(const ApiTable *table);
+    class UMOF_EXPORT Api
+    {
+    public:
+        /*! \breif Constructs an Api with the given table.
+            Api constructor should never be used directly.
+            Please use U_OBJECT() macro instead.
+        */
+        Api(const detail::ApiTable *table);
 
-	/*! Returns the class name
-		\sa super()
-	*/
-	ConstString name() const;
+        /*! Returns the class name
+            \sa super()
+        */
+        ConstString name() const;
 
-	/*! Returns the Api of the superclass, 
-		or nullptr if there is no such object.
-		\warning Only single inheritance is supported in current release.
-		\sa name()
-	*/
-	const Api *super() const;
+        /*! Returns the Api of the superclass,
+            or nullptr if there is no such object.
+            \warning Only single inheritance is supported in current release.
+            \sa name()
+        */
+        const Api *super() const;
 
-	//Any data(const char *) const; //Additional data connected to class
-	//int indexOfConstructor(const char *) const; //Find index of constructor
-	//Method constructor(const char *) const; //Find constructor by index
+        //Any data(const char *) const; //Additional data connected to class
+        //int indexOfConstructor(const char *) const; //Find index of constructor
+        //Method constructor(const char *) const; //Find constructor by index
 
-	/*! Finds the method with given signature
-		and returns its index, otherwise returns -1.
-		Signature should be normalized.
-		\sa indexOfProperty()
-	*/
-	int indexOfMethod(const char *) const;
-	
-	/*! Returns the meta information for the method with the given index.
-		\sa property()
-	*/
-	Method method(unsigned int index) const;
+        /*! Finds the method with given signature
+            and returns its index, otherwise returns -1.
+            Signature should be normalized.
+            \sa indexOfProperty()
+        */
+        int indexOfMethod(const char *) const;
 
-	/*! Returns the number of methods in class api,
-		including number of methods in each base class.
-		\sa propertyCount()
-	*/
-	int methodCount() const;
+        /*! Returns the meta information for the method with the given index.
+            \sa property()
+        */
+        Method method(unsigned int index) const;
 
-	/*! Returns the index of class api's first method.
-		\sa propertyOffset()
-	*/
-	int methodOffset() const;
+        /*! Returns the number of methods in class api,
+            including number of methods in each base class.
+            \sa propertyCount()
+        */
+        int methodCount() const;
 
-	/*! Finds the property with given name
-		and returns its index, otherwise returns -1.
-		\sa indexOfMethod()
-	*/
-	int indexOfProperty(const char *name) const;
+        /*! Returns the index of class api's first method.
+            \sa propertyOffset()
+        */
+        int methodOffset() const;
 
-	/*! Returns the meta information for the property with the given index.
-		\sa method()
-	*/
-	Property property(unsigned int) const;
+        /*! Finds the property with given name
+            and returns its index, otherwise returns -1.
+            \sa indexOfMethod()
+        */
+        int indexOfProperty(const char *name) const;
 
-	/*! Returns the number of properties in class api,
-		including number of properties in each base class.
-		\sa methodCount()
-	*/
-	int propertyCount() const;
+        /*! Returns the meta information for the property with the given index.
+            \sa method()
+        */
+        Property property(unsigned int) const;
 
-	/*! Returns the index of class api's first property.
-		\sa methodOffset()
-	*/
-	int propertyOffset() const;
+        /*! Returns the number of properties in class api,
+            including number of properties in each base class.
+            \sa methodCount()
+        */
+        int propertyCount() const;
 
-	int indexOfEnumerator(const char *name) const; //find enum by name
-	Enumerator enumerator(unsigned int index) const; //returns enum
-	int enumeratorCount() const; //number of enums
-	int enumeratorOffset() const; //enums offset
-	
-	//static Object *create(ArgPack args) const; //create new instance of the class
+        /*! Returns the index of class api's first property.
+            \sa methodOffset()
+        */
+        int propertyOffset() const;
 
-	/*! Invokes the method with the given name and args.
-	*/
-	static bool invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
+        int indexOfEnumerator(const char *name) const; //find enum by name
+        Enumerator enumerator(unsigned int index) const; //returns enum
+        int enumeratorCount() const; //number of enums
+        int enumeratorOffset() const; //enums offset
 
-private:
-	const ApiTable *_table;
+        //static Object *create(ArgPack args) const; //create new instance of the class
 
-};
+        /*! Invokes the method with the given name and args.
+        */
+        static bool invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
+
+    private:
+        const detail::ApiTable *_table;
+
+    };
+}

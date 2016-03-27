@@ -21,34 +21,37 @@ USA.
 
 #include <umof/property.h>
 
-Property::Property(const PropertyTable *table) :
-	_table(table)
+namespace umof
 {
-}
+    Property::Property(const detail::PropertyTable *table) :
+        _table(table)
+    {
+    }
 
-ConstString Property::name() const
-{
-	return _table->name;
-}
+    ConstString Property::name() const
+    {
+        return _table->name;
+    }
 
-bool Property::valid() const
-{
-	return (_table != nullptr);
-}
+    bool Property::valid() const
+    {
+        return (_table != nullptr);
+    }
 
-Type Property::type() const
-{
-	return Type(_table->type);
-}
+    Type Property::type() const
+    {
+        return Type(_table->type);
+    }
 
-void Property::read(Arg obj, Arg ret) const
-{
-    if (ret.type == _table->type)
-	    return _table->reader(obj.data, ret.data);
-}
+    void Property::read(Arg obj, Arg ret) const
+    {
+        if (ret.type == _table->type)
+            return _table->reader(obj.data, ret.data);
+    }
 
-void Property::write(Arg obj, Arg value) const
-{
-    if (value.type == _table->type)
-	    _table->writer(obj.data, value.data);
+    void Property::write(Arg obj, Arg value) const
+    {
+        if (value.type == _table->type)
+            _table->writer(obj.data, value.data);
+    }
 }

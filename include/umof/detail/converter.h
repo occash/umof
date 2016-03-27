@@ -21,29 +21,30 @@ USA.
 
 #pragma once
 
-#include "config.h"
-#include "detail/table.h"
+#include <sstream>
 
 namespace umof
 {
-    class UMOF_EXPORT Enumerator
+    namespace detail
     {
-    public:
-        Enumerator(const detail::EnumTable *table);
+        template<class U, class Y>
+        struct Converter
+        {
+            inline static U convert(Any a)
+            {
+                return static_cast<U>(any_cast<Y>(a));
+            }
+        };
 
-        bool valid() const;
-
-        ConstString name() const;
-
-        int keyCount() const;
-        ConstString key(int index) const;
-        int value(int index) const;
-
-        int keyToValue(const char *key) const;
-        ConstString valueToKey(int value) const;
-
-    private:
-        const detail::EnumTable *_table;
-
-    };
+        template<class U>
+        struct Converter <U, const char *>
+        {
+            inline static U convert(Any a)
+            {
+                U u;
+                std::istringstream(any_cast<const char *>(a)) >> u;
+                return u;
+            }
+        };
+    }
 }

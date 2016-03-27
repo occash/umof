@@ -21,65 +21,68 @@ USA.
 
 #include <umof/type.h>
 
-Type::Type(const TypeTable *table) : 
-	_table(table)
+namespace umof
 {
-}
+    Type::Type(const detail::TypeTable *table) :
+        _table(table)
+    {
+    }
 
-bool Type::operator==(const Type& other)
-{
-	return _table == other._table;
-}
+    bool Type::operator==(const Type& other)
+    {
+        return _table == other._table;
+    }
 
-bool Type::operator!=(const Type& other)
-{
-    return _table != other._table;
-}
+    bool Type::operator!=(const Type& other)
+    {
+        return _table != other._table;
+    }
 
-bool Type::valid() const
-{
-	return (_table != nullptr);
-}
+    bool Type::valid() const
+    {
+        return (_table != nullptr);
+    }
 
-const char *Type::name() const
-{
-	return _table->get_name();
-}
+    const char *Type::name() const
+    {
+        return _table->get_name();
+    }
 
-int Type::size() const
-{
-	return _table->get_size();
-}
+    int Type::size() const
+    {
+        return _table->get_size();
+    }
 
-void *Type::construct(void *where, void *const copy) const
-{
-	if (copy)
-	{
-		_table->clone(&copy, &where);
-		return where;
-	}
-	else
-	{
-		_table->construct(&where);
-		return where;
-	}
-}
+    void *Type::construct(void *where, void *const copy) const
+    {
+        if (copy)
+        {
+            _table->clone(&copy, &where);
+            return where;
+        }
+        else
+        {
+            _table->construct(&where);
+            return where;
+        }
+    }
 
-void *Type::create(void *const copy) const
-{
-	void *where = nullptr;
-	_table->static_new(&where);
-	if (copy)
-		_table->clone(&copy, &where);
-	return where;
-}
+    void *Type::create(void *const copy) const
+    {
+        void *where = nullptr;
+        _table->static_new(&where);
+        if (copy)
+            _table->clone(&copy, &where);
+        return where;
+    }
 
-void Type::destroy(void *data) const
-{
-	_table->static_delete(&data);
-}
+    void Type::destroy(void *data) const
+    {
+        _table->static_delete(&data);
+    }
 
-void Type::destruct(void *data) const
-{
-	_table->destruct(&data);
+    void Type::destruct(void *data) const
+    {
+        _table->destruct(&data);
+    }
 }

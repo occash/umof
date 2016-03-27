@@ -2,6 +2,8 @@
 
 #include <umof.h>
 
+using namespace umof;
+
 class MTest
 {
 public:
@@ -13,6 +15,7 @@ public:
 };
 
 U_DECLARE_API(MTest, METHODS);
+
 U_DECLARE_METHODS(MTest)
 {
     U_METHOD(func1)
@@ -26,9 +29,9 @@ TEST_CASE("Method interface", "[method]")
 	REQUIRE(method.valid());
 	REQUIRE(method.name() == "func1");
 	REQUIRE(method.parameterCount() == 2);
-	REQUIRE(method.parmaeterType(0) == Type(Table<int>::get()));
-	REQUIRE(method.parmaeterType(1) == Type(Table<float>::get()));
-	REQUIRE(method.returnType() == Type(Table<double>::get()));
+	REQUIRE(method.parmaeterType(0) == Type(detail::Table<int>::get()));
+	REQUIRE(method.parmaeterType(1) == Type(detail::Table<float>::get()));
+	REQUIRE(method.returnType() == Type(detail::Table<double>::get()));
 	REQUIRE(method.signature() == "func1(int,float)");
 
     MTest test;
