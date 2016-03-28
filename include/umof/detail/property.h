@@ -48,8 +48,8 @@ namespace umof
             using Return = typename Args::Return;
             using Class = typename Args::Class;
 
-            using ReturnType = typename Table<Return>::Type;
-            using Type = typename Table<T>::Type;
+            using ReturnType = typename Type<Return>::Storage;
+            using Type = typename Type<T>::Storage;
 
             static_assert(Args::count == 0, "Reader method should not receive arguments");
             static_assert(std::is_same<Type, ReturnType>::value, "Reader type is different");
@@ -65,8 +65,8 @@ namespace umof
         {
             using Args = MethodArguments<Method>;
             using Class = typename Args::Class;
-            using Type = typename Table<T>::Type;
-            using SetType = typename Table<typename Args::SetArg>::Type;
+            using SetType = typename Type<typename Args::SetArg>::Storage;
+            using Type = typename Type<T>::Storage;
 
             static_assert(Args::count == 1, "Writer should have one argument");
             static_assert(std::is_same<SetType, Type>::value, "Writer type is different");
@@ -82,8 +82,8 @@ namespace umof
         {
             using MemberField = typename Field<Member>::Type;
             using Class = typename Field<Member>::Class;
-            using FieldType = typename Table<MemberField>::Type;
-            using Type = typename Table<T>::Type;
+            using FieldType = typename Type<MemberField>::Storage;
+            using Type = typename Type<T>::Storage;
 
             static_assert(std::is_same<Type, FieldType>::value, "Field type is different");
 

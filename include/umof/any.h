@@ -86,16 +86,16 @@ namespace umof
 
     template<typename T>
     Any::Any(T const& x) :
-        _table(detail::Table<T>::get()),
+        _table(detail::Type<T>::table()),
         _object(nullptr)
     {
         const T *src = &x;
-        detail::Table<T>::clone(&src, &_object);
+        detail::Type<T>::clone(&src, &_object);
     }
 
     template<typename T, std::size_t N>
     Any::Any(T(&x)[N]) :
-        _table(detail::Table<T*>::get()),
+        _table(detail::Type<T*>::table()),
         _object(nullptr)
     {
         new (&_object) T*(&x[0]);
@@ -114,8 +114,8 @@ namespace umof
     template <typename T>
     inline T* any_cast(Any* operand)
     {
-        if (operand && operand->_table == detail::Table<T>::get())
-            return detail::Table<T>::cast(&operand->_object);
+        if (operand && operand->_table == detail::Type<T>::table())
+            return detail::Type<T>::cast(&operand->_object);
 
         return nullptr;
     }

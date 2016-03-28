@@ -78,7 +78,7 @@ namespace umof
         {
             inline static TypeTable *get()
             {
-                return Table<T>::get();
+                return Type<T>::table();
             }
         };
 
@@ -86,7 +86,7 @@ namespace umof
         template<typename T>
         inline static TypeTable *getTable()
         {
-            return Table<T>::get();
+            return Type<T>::table();
         }
 
         template<typename C, typename R, typename... Args>

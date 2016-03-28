@@ -88,6 +88,6 @@ namespace umof
     template<class T>
     Type Type::from()
     {
-        return detail::Table<T>::get();
+        return detail::Type<T>::table();
     }
 }

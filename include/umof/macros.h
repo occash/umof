@@ -187,7 +187,7 @@ const umof::detail::ApiTable UHolder<C>::UApi::table \
 #define U_PROPERTY(type, name, ...) \
 { \
 	#name, \
-	umof::detail::Table<type>::get(), \
+	umof::detail::Type<type>::table(), \
 	UP_PROPS(type, __VA_ARGS__) \
 }
 

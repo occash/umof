@@ -142,11 +142,11 @@ namespace umof
         };
 
         template<typename Type>
-        struct TableHelper
+        struct TypeHelper
         {
             using Small = typename std::integral_constant<bool, (sizeof(Type) <= sizeof(void*))>;
 
-            inline static TypeTable *get()
+            inline static TypeTable *table()
             {
                 static TypeTable staticTable
                 {
@@ -190,29 +190,29 @@ namespace umof
 
         //Get the table for type
         template<typename T>
-        struct Table
+        struct Type
         {
+			using IsPointer = typename std::is_pointer<T>::type;
             using Decay = typename std::decay<T>::type;
-            using Pointer = typename std::is_pointer<T>::type;
-            using DecayPointer = typename std::add_pointer<
+            using PointerDecay = typename std::add_pointer<
                 typename std::decay<
                 typename std::remove_pointer<Decay>
                 ::type>::type>::type;
-            using Type = typename std::conditional<Pointer::value, DecayPointer, Decay>::type;
+            using Storage = typename std::conditional<IsPointer::value, PointerDecay, Decay>::type;
 
-            inline static TypeTable *get()
+            inline static TypeTable *table()
             {
-                return TableHelper<Type>::get();
+                return TypeHelper<Storage>::table();
             }
 
             inline static void clone(const Decay **src, void **dest)
             {
-                TableHelper<Type>::clone(src, dest);
+                TypeHelper<Storage>::clone(src, dest);
             }
 
             inline static Decay *cast(void **object)
             {
-                return const_cast<Decay*>(TableHelper<Type>::cast(object));
+                return const_cast<Decay*>(TypeHelper<Storage>::cast(object));
             }
         };
     }
