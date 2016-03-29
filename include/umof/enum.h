@@ -42,6 +42,10 @@ namespace umof
         int keyToValue(const char *key) const;
         ConstString valueToKey(int value) const;
 
+    public:
+        template<typename T>
+        struct Holder;
+
     private:
         const detail::EnumTable *_table;
 

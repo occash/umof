@@ -30,6 +30,16 @@ namespace umof
     {
     }
 
+    Api::Api(const char *name) :
+        _table(nullptr)
+    {
+    }
+
+    Api::Api(const std::string & name) :
+        _table(nullptr)
+    {
+    }
+
     ConstString Api::name() const
     {
         return _table->name;

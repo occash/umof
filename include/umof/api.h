@@ -41,11 +41,16 @@ namespace umof
     class UMOF_EXPORT Api
     {
     public:
-        /*! \breif Constructs an Api with the given table.
-            Api constructor should never be used directly.
-            Please use U_OBJECT() macro instead.
+        /*! \breif Constructs an Api with the given name.
         */
-        Api(const detail::ApiTable *table);
+        Api(const char *name);
+        /*! \breif Constructs an Api with the given name.
+        */
+        Api(const std::string& name);
+        /*! \breif Constructs an Api for the given class.
+        */
+        template<typename T>
+        static const Api from();
 
         /*! Returns the class name
             \sa super()
@@ -119,8 +124,27 @@ namespace umof
         */
         static bool invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
 
+    public:
+        template<typename T>
+        struct Holder
+        {
+            static_assert(sizeof(T) == -1, "Api is not declared");
+        };
+
+    private:
+        template<typename T>
+        friend struct Holder;
+
+        Api(const detail::ApiTable *table);
+
     private:
         const detail::ApiTable *_table;
 
     };
+
+    template<typename T>
+    const Api Api::from()
+    {
+        return{ &Holder<T>::table };
+    }
 }

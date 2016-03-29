@@ -80,6 +80,10 @@ namespace umof
         */
         bool invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
 
+    public:
+        template<typename T>
+        struct Holder;
+
     private:
         const detail::MethodTable *_table;
 

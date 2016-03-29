@@ -21,39 +21,38 @@ USA.
 
 #pragma once
 
-template<typename T>
-struct UHolder
+template<typename T, typename F, typename Yes>
+struct Members
 {
-    static_assert(std::is_same<T, T>::value, "Api is not declared");
+    template<typename Has = Yes>
+    static auto table() -> typename std::enable_if<Has::value, F>::type
+    {
+        return T::table;
+    }
+    template<typename Has = Yes>
+    static auto table() -> typename std::enable_if<!Has::value, F>::type
+    {
+        return nullptr;
+    }
+    template<typename Has = Yes>
+    static auto size() -> typename std::enable_if<Has::value, unsigned int>::type
+    {
+        return sizeof(T::table) / sizeof(T::table[0]);
+    }
+    template<typename Has = Yes>
+    static auto size() -> typename std::enable_if<!Has::value, unsigned int>::type
+    {
+        return 0;
+    }
 };
 
-#define UP_DECLARE_HAS(F, FT) \
-template<typename T> \
-struct uHas ## F \
-{ \
-    template<class C> static std::true_type test(typename C::F *); \
-    template<class C> static std::false_type test(...); \
-    using Type = const FT; \
-    using Yes = decltype(test<T>(0)); \
-    template<typename Has = Yes> \
-    static auto table() -> typename std::enable_if<Has::value, Type>::type \
-    { return T::F::table; } \
-    template<typename Has = Yes> \
-    static auto table() -> typename std::enable_if<!Has::value, Type>::type \
-    { return nullptr; } \
-    template<typename Has = Yes> \
-    static auto size() -> typename std::enable_if<Has::value, unsigned int>::type \
-    { return sizeof(T::F::table) / sizeof(T::F::table[0]); } \
-    template<typename Has = Yes> \
-    static auto size() -> typename std::enable_if<!Has::value, unsigned int>::type \
-    { return 0; } \
+template<typename T>
+struct Has
+{
+    template<class C> static std::true_type test(decltype(C::table));
+    template<class C> static std::false_type test(...);
+    using Table = decltype(test<T>(0));
 };
-
-UP_DECLARE_HAS(UMethods, umof::detail::MethodTable *)
-UP_DECLARE_HAS(UProperties, umof::detail::PropertyTable *)
-UP_DECLARE_HAS(UEnums, umof::detail::EnumTable *)
-
-#define UP_HAS(F, T) uHas ## F<UHolder<T>>
 
 #define UP_STRINGIFY(S) #S
 #define UP_NARG(...)  (UP_NARG_(__VA_ARGS__,UP_RSEQ_N()) - (sizeof(#__VA_ARGS__) == 1))
@@ -75,67 +74,47 @@ _61, _62, _63, N, ...) N
 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, \
 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 
-#define UP_GET_MEMBERS_(_1,_2,_3, N,...) N
-#define UP_GET_MEMBERS(tuple) UP_GET_MEMBERS_ tuple
-#define UP_MEMBER_0()
-#define UP_MEMBER_1(var1) var1
-#define UP_MEMBER_2(var1,var2) var2 var1
-#define UP_MEMBER_3(var1,var2,var3) var1 var2 var3
-#define UP_MEMBERS(...) UP_GET_MEMBERS((__VA_ARGS__, \
-    UP_MEMBER_3, UP_MEMBER_2, \
-    UP_MEMBER_1, UP_MEMBER_0))(__VA_ARGS__)
-
-#define METHODS \
-    struct UMethods { static const umof::detail::MethodTable table[]; };
-#define PROPS \
-    struct UProperties { static const umof::detail::PropertyTable table[]; };
-#define ENUMS \
-    struct UEnums { static const umof::detail::EnumTable table[]; };
-
-#define U_DECLARE_API(C, ...) \
+#define U_DECLARE(Member, Class) \
 template<> \
-struct UHolder<C> \
+struct umof::Member::Holder<Class> \
 { \
-    using UClass = C; \
-    UP_MEMBERS(__VA_ARGS__) \
-    struct UApi { static const umof::detail::ApiTable table; }; \
-    static const umof::Api *api() \
-    { \
-        static const umof::Api a(&UApi::table); \
-        return &a; \
-    } \
+    using UClass = Class; \
+    static const umof::detail::Member ## Table table[]; \
 }; \
-const umof::detail::ApiTable UHolder<C>::UApi::table \
+const umof::detail::Member ## Table umof::Member::Holder<Class>::table[]
+
+#define U_DECALRE_METHODS(Class) U_DECLARE(Method, Class)
+#define U_DECALRE_PROPERTIES(Class) U_DECLARE(Property, Class)
+#define U_DECALRE_ENUMS(Class) \
+template<> \
+struct umof::Enumerator::Holder<Class> \
 { \
-    #C, \
-    nullptr, \
-    UP_HAS(UMethods, UClass)::table(), \
-    UP_HAS(UProperties, UClass)::table(), \
-    UP_HAS(UEnums, UClass)::table(), \
-    UP_HAS(UMethods, UClass)::size(), \
-    UP_HAS(UProperties, UClass)::size(), \
-    UP_HAS(UEnums, UClass)::size(), \
-};
+    using UClass = Class; \
+    static const umof::detail::EnumTable table[]; \
+}; \
+const umof::detail::EnumTable umof::Enumerator::Holder<Class>::table[]
 
-#define U_API(C) UHolder<C>::api()
-
-/*! This macro exposes class methods in Api.
-\relates Object
-*/
-#define U_DECLARE_METHODS(C) \
-    const umof::detail::MethodTable UHolder<C>::UMethods::table[]
-
-/*! This macro exposes class properties in Api.
-\relates Object
-*/
-#define U_DECLARE_PROPERTIES(C) \
-    const umof::detail::PropertyTable UHolder<C>::UProperties::table[]
-
-/*! This macro exposes class enums in Api.
-\relates Object
-*/
-#define U_DECLARE_ENUMS(C) \
-    const umof::detail::EnumTable UHolder<C>::UEnums::table[]
+#define U_DECLARE_API(Class) \
+namespace umof \
+{ \
+    template<> \
+    struct Api::Holder<Class> \
+    { \
+        using UClass = Class; \
+        static const detail::ApiTable table; \
+    }; \
+    const detail::ApiTable Api::Holder<MTest>::table \
+    { \
+        #Class, \
+        nullptr, \
+        Members<Method::Holder<Class>, const detail::MethodTable *, Has<Method::Holder<Class>>::Table>::table(), \
+        Members<Property::Holder<Class>, const detail::PropertyTable *, Has<Property::Holder<Class>>::Table>::table(), \
+        Members<Enumerator::Holder<Class>, const detail::EnumTable *, Has<Enumerator::Holder<Class>>::Table>::table(), \
+        Members<Method::Holder<Class>, const detail::MethodTable *, Has<Method::Holder<Class>>::Table>::size(), \
+        Members<Property::Holder<Class>, const detail::PropertyTable *, Has<Property::Holder<Class>>::Table>::size(), \
+        Members<Enumerator::Holder<Class>, const detail::EnumTable *, Has<Enumerator::Holder<Class>>::Table>::size(), \
+    }; \
+}
 
 #define U_METHOD(method) \
 { \
@@ -163,7 +142,7 @@ const umof::detail::ApiTable UHolder<C>::UApi::table \
 
 #define U_CONSTRUCTOR(...) \
 { \
-    UHolder<UClass>::UApi::table.name, \
+    umof::Api::Holder<UClass>::UApi::table.name, \
     &umof::detail::ConstructorCall<UClass, __VA_ARGS__>::call, \
     umof::detail::MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::count, \
     umof::detail::MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::types() \

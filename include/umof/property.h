@@ -62,6 +62,10 @@ namespace umof
         */
         void write(Arg obj, Arg value) const;
 
+    public:
+        template<typename T>
+        struct Holder;
+
     private:
         const detail::PropertyTable *_table;
 
