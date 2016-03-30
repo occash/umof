@@ -75,24 +75,20 @@ _61, _62, _63, N, ...) N
 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 
 #define U_DECLARE(Member, Class) \
-template<> \
-struct umof::Member::Holder<Class> \
+namespace umof \
 { \
-    using UClass = Class; \
-    static const umof::detail::Member ## Table table[]; \
-}; \
+    template<> \
+    struct Member::Holder<Class> \
+    { \
+        using UClass = Class; \
+        static const detail::Member ## Table table[]; \
+    }; \
+} \
 const umof::detail::Member ## Table umof::Member::Holder<Class>::table[]
 
 #define U_DECALRE_METHODS(Class) U_DECLARE(Method, Class)
 #define U_DECALRE_PROPERTIES(Class) U_DECLARE(Property, Class)
-#define U_DECALRE_ENUMS(Class) \
-template<> \
-struct umof::Enumerator::Holder<Class> \
-{ \
-    using UClass = Class; \
-    static const umof::detail::EnumTable table[]; \
-}; \
-const umof::detail::EnumTable umof::Enumerator::Holder<Class>::table[]
+#define U_DECALRE_ENUMS(Class) U_DECLARE(Enum, Class)
 
 #define U_DECLARE_API(Class) \
 namespace umof \

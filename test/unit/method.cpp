@@ -1,24 +1,7 @@
 #include "../catch.hpp"
-
-#include <umof.h>
+#include "test.h"
 
 using namespace umof;
-
-class MTest
-{
-public:
-    double func1(int a, float b)
-    {
-        return a + b;
-    }
-
-};
-
-U_DECALRE_METHODS(MTest)
-{
-    U_METHOD(func1)
-};
-U_DECLARE_API(MTest)
 
 TEST_CASE("Method interface", "[method]")
 {
