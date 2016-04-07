@@ -86,7 +86,7 @@ namespace umof
 
             inline static void set(const void *obj, const void *val)
             {
-                (static_cast<Class *>(const_cast<void *>(obj))->*method)(*(typename Storage *)val);
+                (static_cast<Class *>(const_cast<void *>(obj))->*method)(*(Storage *)val);
             }
         };
 
@@ -100,8 +100,8 @@ namespace umof
 
             struct Get
             {
-                using ReadMethod = typename Getter<Member, member>;
-                using MemberField = typename Accessor<Member, member>;
+                using ReadMethod = Getter<Member, member>;
+                using MemberField = Accessor<Member, member>;
                 using Read = typename std::conditional<IsMethod::value, ReadMethod, MemberField>::type;
                 using Storage = typename Read::Storage;
 
@@ -118,8 +118,8 @@ namespace umof
 
             struct Set
             {
-                using WriteMethod = typename Setter<Member, member>;
-                using MemberField = typename Accessor<Member, member>;
+                using WriteMethod = Setter<Member, member>;
+                using MemberField = Accessor<Member, member>;
                 using Write = typename std::conditional<IsMethod::value, WriteMethod, MemberField>::type;
                 using Storage = typename Write::Storage;
 

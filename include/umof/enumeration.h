@@ -44,10 +44,7 @@ namespace umof
 
     public:
         template<typename T>
-        struct Holder
-        {
-            static_assert(sizeof(T) == -1, "Enumerations are not declared");
-        };
+        struct Holder;
 
     private:
         template<typename T>
