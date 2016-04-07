@@ -35,7 +35,7 @@ namespace umof
         template<class T>
         Arg(const T& data) :
             data(static_cast<const void *>(&data)),
-            type(detail::Type<T>::table()) {}
+            type(&detail::Type<T>::table) {}
 
         Arg(const void *data, const detail::TypeTable *type) :
             data(data), type(type) {}

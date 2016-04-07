@@ -11,9 +11,9 @@ TEST_CASE("Method interface", "[method]")
     REQUIRE(method.valid());
     REQUIRE(method.name() == "func1");
     REQUIRE(method.parameterCount() == 2);
-    REQUIRE(method.parmaeterType(0) == Type(detail::Type<int>::table()));
-    REQUIRE(method.parmaeterType(1) == Type(detail::Type<float>::table()));
-    REQUIRE(method.returnType() == Type(detail::Type<double>::table()));
+    REQUIRE(method.parmaeterType(0) == Type::from<int>());
+    REQUIRE(method.parmaeterType(1) == Type::from<float>());
+    REQUIRE(method.returnType() == Type::from<double>());
     REQUIRE(method.signature() == "func1(int,float)");
 
     MTest test;

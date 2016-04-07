@@ -31,7 +31,7 @@ namespace umof
         template<typename T, typename C>
         struct FieldBase
         {
-            using Type = T;
+            using Storage = T;
             using Class = C;
         };
 
@@ -41,87 +41,98 @@ namespace umof
         template<typename T, typename C>
         struct Field<T(C::*)> : public FieldBase<T, C> {};
 
-        template<typename T, typename Method, Method method>
-        struct MethodReader
+        template<typename Member, Member field>
+        struct Accessor
+        {
+            using Class = typename Field<Member>::Class;
+            using Field = typename Field<Member>::Storage;
+            using Storage = typename Type<Field>::Storage;
+
+            inline static void get(const void *obj, const void *ret)
+            {
+                *(Storage*)ret = static_cast<Class *>(const_cast<void *>(obj))->*field;
+            }
+
+            inline static void set(const void *obj, const void *ret)
+            {
+                static_cast<Class *>(const_cast<void *>(obj))->*field = *(Storage*)ret;
+            }
+        };
+
+        template<typename Method, Method method>
+        struct Getter
         {
             using Args = MethodArguments<Method>;
             using Return = typename Args::Return;
             using Class = typename Args::Class;
+            using Storage = typename Type<Return>::Storage;
 
-            using ReturnType = typename Type<Return>::Storage;
-            using Type = typename Type<T>::Storage;
+            static_assert(Args::count == 0, "Getter method should not receive arguments");
 
-            static_assert(Args::count == 0, "Reader method should not receive arguments");
-            static_assert(std::is_same<Type, ReturnType>::value, "Reader type is different");
-
-            inline static void read(const void *obj, const void *ret)
+            inline static void get(const void *obj, const void *ret)
             {
-                *(T*)ret = (static_cast<Class *>(const_cast<void *>(obj))->*method)();
+                *(Storage*)ret = (static_cast<Class *>(const_cast<void *>(obj))->*method)();
             }
         };
 
-        template<typename T, typename Method, Method method>
-        struct MethodWriter
+        template<typename Method, Method method>
+        struct Setter
         {
             using Args = MethodArguments<Method>;
             using Class = typename Args::Class;
-            using SetType = typename Type<typename Args::SetArg>::Storage;
-            using Type = typename Type<T>::Storage;
+            using Storage = typename Args::SetArg;
 
-            static_assert(Args::count == 1, "Writer should have one argument");
-            static_assert(std::is_same<SetType, Type>::value, "Writer type is different");
+            static_assert(Args::count == 1, "Setter method should have one argument");
 
-            inline static void write(const void *obj, const void *val)
+            inline static void set(const void *obj, const void *val)
             {
-                (static_cast<Class *>(const_cast<void *>(obj))->*method)(*(typename Args::SetArg *)val);
+                (static_cast<Class *>(const_cast<void *>(obj))->*method)(*(typename Storage *)val);
             }
         };
 
-        template<typename T, typename Member, Member field>
-        struct FieldAccessor
-        {
-            using MemberField = typename Field<Member>::Type;
-            using Class = typename Field<Member>::Class;
-            using FieldType = typename Type<MemberField>::Storage;
-            using Type = typename Type<T>::Storage;
-
-            static_assert(std::is_same<Type, FieldType>::value, "Field type is different");
-
-            inline static void read(const void *obj, const void *ret)
-            {
-                *(T*)ret = static_cast<Class *>(const_cast<void *>(obj))->*field;
-            }
-
-            inline static void write(const void *obj, const void *ret)
-            {
-                static_cast<Class *>(const_cast<void *>(obj))->*field = *(T*)ret;
-            }
-        };
-
-        template<typename T, typename Member, Member mem>
-        struct PropertyAccessor
+        template<typename Member, Member member>
+        struct Property
         {
             using IsMethod = typename std::is_member_function_pointer<Member>::type;
             using IsField = typename std::is_member_object_pointer<Member>::type;
 
-            using ReadMethod = MethodReader<T, Member, mem>;
-            using WriteMethod = MethodWriter<T, Member, mem>;
-            using MemberField = FieldAccessor<T, Member, mem>;
-
-            using Read = typename std::conditional<IsMethod::value, ReadMethod, MemberField>::type;
-            using Write = typename std::conditional<IsMethod::value, WriteMethod, MemberField>::type;
-
             static_assert(!std::is_same<IsField, IsMethod>::value, "Property should be field or method");
 
-            inline static void read(const void *obj, const void *ret)
+            struct Get
             {
-                Read::read(obj, ret);
-            }
+                using ReadMethod = typename Getter<Member, member>;
+                using MemberField = typename Accessor<Member, member>;
+                using Read = typename std::conditional<IsMethod::value, ReadMethod, MemberField>::type;
+                using Storage = typename Read::Storage;
 
-            inline static void write(const void *obj, const void *ret)
+                inline static const TypeTable *type()
+                {
+                    return &Type<Storage>::table;
+                }
+
+                inline static void get(const void *obj, const void *ret)
+                {
+                    Read::get(obj, ret);
+                }
+            };
+
+            struct Set
             {
-                Write::write(obj, ret);
-            }
+                using WriteMethod = typename Setter<Member, member>;
+                using MemberField = typename Accessor<Member, member>;
+                using Write = typename std::conditional<IsMethod::value, WriteMethod, MemberField>::type;
+                using Storage = typename Write::Storage;
+
+                inline static const TypeTable *type()
+                {
+                    return Type<Storage>::table();
+                }
+
+                inline static void set(const void *obj, const void *ret)
+                {
+                    Write::set(obj, ret);
+                }
+            };
         };
     }
 }

@@ -26,11 +26,11 @@ USA.
 
 namespace umof
 {
-    class UMOF_EXPORT Enumerator
+    class Api;
+
+    class UMOF_EXPORT Enumeration
     {
     public:
-        Enumerator(const detail::EnumTable *table);
-
         bool valid() const;
 
         ConstString name() const;
@@ -44,10 +44,20 @@ namespace umof
 
     public:
         template<typename T>
-        struct Holder;
+        struct Holder
+        {
+            static_assert(sizeof(T) == -1, "Enumerations are not declared");
+        };
 
     private:
-        const detail::EnumTable *_table;
+        template<typename T>
+        friend struct Holder;
+        friend class Api;
+
+        Enumeration(const detail::EnumerationTable *table);
+
+    private:
+        const detail::EnumerationTable *_table;
 
     };
 }

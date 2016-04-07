@@ -23,12 +23,13 @@ USA.
 
 #include "umof/config.h"
 #include "umof/api.h"
-#include "umof/enum.h"
 #include "umof/method.h"
 #include "umof/property.h"
+#include "umof/enumeration.h"
 #include "umof/type.h"
 #include "umof/event.h"
 
+#include "umof/detail/api.h"
 #include "umof/detail/enum.h"
 #include "umof/detail/method.h"
 #include "umof/detail/property.h"

@@ -21,39 +21,6 @@ USA.
 
 #pragma once
 
-template<typename T, typename F, typename Yes>
-struct Members
-{
-    template<typename Has = Yes>
-    static auto table() -> typename std::enable_if<Has::value, F>::type
-    {
-        return T::table;
-    }
-    template<typename Has = Yes>
-    static auto table() -> typename std::enable_if<!Has::value, F>::type
-    {
-        return nullptr;
-    }
-    template<typename Has = Yes>
-    static auto size() -> typename std::enable_if<Has::value, unsigned int>::type
-    {
-        return sizeof(T::table) / sizeof(T::table[0]);
-    }
-    template<typename Has = Yes>
-    static auto size() -> typename std::enable_if<!Has::value, unsigned int>::type
-    {
-        return 0;
-    }
-};
-
-template<typename T>
-struct Has
-{
-    template<class C> static std::true_type test(decltype(C::table));
-    template<class C> static std::false_type test(...);
-    using Table = decltype(test<T>(0));
-};
-
 #define UP_STRINGIFY(S) #S
 #define UP_NARG(...)  (UP_NARG_(__VA_ARGS__,UP_RSEQ_N()) - (sizeof(#__VA_ARGS__) == 1))
 #define UP_NARG_(...)  UP_ARG_N(__VA_ARGS__)  
@@ -88,7 +55,7 @@ const umof::detail::Member ## Table umof::Member::Holder<Class>::table[]
 
 #define U_DECALRE_METHODS(Class) U_DECLARE(Method, Class)
 #define U_DECALRE_PROPERTIES(Class) U_DECLARE(Property, Class)
-#define U_DECALRE_ENUMS(Class) U_DECLARE(Enum, Class)
+#define U_DECALRE_ENUMERATIONS(Class) U_DECLARE(Enumeration, Class)
 
 #define U_DECLARE_API(Class) \
 namespace umof \
@@ -103,12 +70,12 @@ namespace umof \
     { \
         #Class, \
         nullptr, \
-        Members<Method::Holder<Class>, const detail::MethodTable *, Has<Method::Holder<Class>>::Table>::table(), \
-        Members<Property::Holder<Class>, const detail::PropertyTable *, Has<Property::Holder<Class>>::Table>::table(), \
-        Members<Enumerator::Holder<Class>, const detail::EnumTable *, Has<Enumerator::Holder<Class>>::Table>::table(), \
-        Members<Method::Holder<Class>, const detail::MethodTable *, Has<Method::Holder<Class>>::Table>::size(), \
-        Members<Property::Holder<Class>, const detail::PropertyTable *, Has<Property::Holder<Class>>::Table>::size(), \
-        Members<Enumerator::Holder<Class>, const detail::EnumTable *, Has<Enumerator::Holder<Class>>::Table>::size(), \
+        detail::Members<Method::Holder<Class>, const detail::MethodTable *, detail::Has<Method::Holder<Class>>::Table>::table(), \
+        detail::Members<Property::Holder<Class>, const detail::PropertyTable *, detail::Has<Property::Holder<Class>>::Table>::table(), \
+        detail::Members<Enumeration::Holder<Class>, const detail::EnumerationTable *, detail::Has<Enumeration::Holder<Class>>::Table>::table(), \
+        detail::Members<Method::Holder<Class>, const detail::MethodTable *, detail::Has<Method::Holder<Class>>::Table>::size(), \
+        detail::Members<Property::Holder<Class>, const detail::PropertyTable *, detail::Has<Property::Holder<Class>>::Table>::size(), \
+        detail::Members<Enumeration::Holder<Class>, const detail::EnumerationTable *, detail::Has<Enumeration::Holder<Class>>::Table>::size(), \
     }; \
 }
 
@@ -144,26 +111,20 @@ namespace umof \
     umof::detail::MethodArguments<decltype(&Constructor<UClass, __VA_ARGS__>::call)>::types() \
 }
 
-#define UP_NULL
-#define UP_PROPS_1(type, member) \
-    umof::detail::PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::read, \
-    umof::detail::PropertyAccessor<type, decltype(&UClass::member), &UClass::member>::write
-#define UP_PROPS_2(type, getter, setter) \
-    &umof::detail::MethodReader<type, decltype(&UClass::getter), &UClass::getter>::read, \
-    &umof::detail::MethodWriter<type, decltype(&UClass::setter), &UClass::setter>::write
-#define UP_PROPS(type, ...) UP_GET_MEMBERS((__VA_ARGS__, \
-    UP_NULL, UP_PROPS_2, \
-    UP_PROPS_1, UP_NULL))(type, __VA_ARGS__)
+#define MEMBER(member) \
+    umof::detail::Property<decltype(&UClass::member), &UClass::member>::Get::type(), \
+    &umof::detail::Property<decltype(&UClass::member), &UClass::member>::Get::get, \
+    &umof::detail::Property<decltype(&UClass::member), &UClass::member>::Set::set
+#define READ(member) \
+    umof::detail::Property<decltype(&UClass::member), &UClass::member>::Get::type(), \
+    &umof::detail::Property<decltype(&UClass::member), &UClass::member>::Get::get
+#define WRITE(member) \
+    &umof::detail::Property<decltype(&UClass::member), &UClass::member>::Set::set
 
-#define MEMBER(member) member
-#define READ(getter) getter
-#define WRITE(setter) setter
-
-#define U_PROPERTY(type, name, ...) \
+#define U_PROPERTY(name, ...) \
 { \
 	#name, \
-	umof::detail::Type<type>::table(), \
-	UP_PROPS(type, __VA_ARGS__) \
+	__VA_ARGS__ \
 }
 
 #define U_VALUE(E, V) { UP_STRINGIFY(V), E::V }

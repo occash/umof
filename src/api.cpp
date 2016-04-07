@@ -171,16 +171,16 @@ namespace umof
         return -1;
     }
 
-    Enumerator Api::enumerator(unsigned int index) const
+    Enumeration Api::enumerator(unsigned int index) const
     {
         unsigned int i = index - enumeratorOffset();
         if (i < 0 && _table->super)
             return _table->super->enumerator(index);
 
         if (i >= 0 && i < _table->enumCount)
-            return Enumerator(_table->enums + index);
+            return Enumeration(_table->enums + index);
 
-        return Enumerator(nullptr);
+        return Enumeration(nullptr);
     }
 
     int Api::enumeratorCount() const

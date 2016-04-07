@@ -80,13 +80,13 @@ namespace umof
         friend T* any_cast(Any*);
         friend class Method;
 
-        detail::TypeTable* _table;
+        const detail::TypeTable* _table;
         void* _object;
     };
 
     template<typename T>
     Any::Any(T const& x) :
-        _table(detail::Type<T>::table()),
+        _table(&detail::Type<T>::table),
         _object(nullptr)
     {
         const T *src = &x;
@@ -114,7 +114,7 @@ namespace umof
     template <typename T>
     inline T* any_cast(Any* operand)
     {
-        if (operand && operand->_table == detail::Type<T>::table())
+        if (operand && operand->_table == &detail::Type<T>::table)
             return detail::Type<T>::cast(&operand->_object);
 
         return nullptr;

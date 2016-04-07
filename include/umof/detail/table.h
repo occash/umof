@@ -29,22 +29,30 @@ namespace umof
 
     namespace detail
     {
-        using InvokeMem = void(*)(const void *, const void *, const void **);
-        using ReadMem = void(*)(const void *, const void *);
-        using WriteMem = void(*)(const void *, const void *);
+        using CallMember = void(*)(const void *, const void *, const void **);
+        using GetMember = void(*)(const void *, const void *);
+        using SetMember = void(*)(const void *, const void *);
+
+        using Name = const char *(*)();
+        using Create = void(*)(void**);
+        using Construct = void(*)(void**);
+        using Destroy = void(*)(void**);
+        using Destruct = void(*)(void**);
+        using Clone = void(*)(void* const*, void**);
+        using Move = void(*)(void* const*, void**);
 
         //Table with basic functions
         struct TypeTable
         {
+            Name name;
+            Create create;
+            Construct construct;
+            Destroy destroy;
+            Destruct destruct;
+            Clone clone;
+            Move move;
+            unsigned int size;
             bool is_small;
-            const char *(*get_name)();
-            int(*get_size)();
-            void(*static_new)(void**);
-            void(*construct)(void**);
-            void(*static_delete)(void**);
-            void(*destruct)(void**);
-            void(*clone)(void* const*, void**);
-            void(*move)(void* const*, void**);
         };
 
         struct EnumeratorTable
@@ -53,7 +61,7 @@ namespace umof
             const unsigned int value;
         };
 
-        struct EnumTable
+        struct EnumerationTable
         {
             ConstString name;
             const unsigned int count;
@@ -65,7 +73,7 @@ namespace umof
         struct MethodTable
         {
             ConstString name;
-            InvokeMem invoker;
+            CallMember invoker;
             const unsigned int argc;
             const TypeTable **types;
         };
@@ -76,8 +84,8 @@ namespace umof
         {
             ConstString name;
             const TypeTable *type;
-            ReadMem reader;
-            WriteMem writer;
+            GetMember reader;
+            SetMember writer;
         };
 
         /*! \breif Internal struct to store class meta information.
@@ -88,7 +96,7 @@ namespace umof
             const Api *super;
             const MethodTable *methods;
             const PropertyTable *props;
-            const EnumTable *enums;
+            const EnumerationTable *enums;
             const unsigned int methodCount;
             const unsigned int propCount;
             const unsigned int enumCount;

@@ -124,12 +124,12 @@ TEST_CASE("Method argument types", "[MethodProps]")
     REQUIRE(MethodArguments<decltype(&void_func_no_args)>::types()[0] == 0);
 
     REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[0] == 0);
-    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[1] == Type<int>::table());
-    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[2] == Type<float>::table());
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[1] == &Type<int>::table);
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[2] == &Type<float>::table);
 
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[0] == Type<double>::table());
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[1] == Type<int>::table());
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[2] == Type<float>::table());
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[0] == &Type<double>::table);
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[1] == &Type<int>::table);
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[2] == &Type<float>::table);
 }
 
 TEST_CASE("Free function defs, no params, no return", "[internal]")
@@ -148,8 +148,8 @@ TEST_CASE("Free function defs, has params, no return", "[internal]")
     //Check types
     //REQUIRE(MethodArguments<decltype(&void_func_with_args)>::count == 2);
     REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[0] == 0);
-    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[1] == Type<int>::table());
-    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[2] == Type<float>::table());
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[1] == &Type<int>::table);
+    REQUIRE(MethodArguments<decltype(&void_func_with_args)>::types()[2] == &Type<float>::table);
 
     //Check function call
     int arg1 = 1;
@@ -163,9 +163,9 @@ TEST_CASE("Free function defs, has params, return", "[internal]")
 {
     //Check types
     //REQUIRE(MethodArguments<decltype(&return_func_with_args)>::count == 2);
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[0] == Type<double>::table());
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[1] == Type<int>::table());
-    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[2] == Type<float>::table());
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[0] == &Type<double>::table);
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[1] == &Type<int>::table);
+    REQUIRE(MethodArguments<decltype(&return_func_with_args)>::types()[2] == &Type<float>::table);
 
     //Check function call
     int arg1 = 1;
@@ -195,8 +195,8 @@ TEST_CASE("Static function defs, has params, no return", "[internal]")
     //Check types
     //REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::count == 2);
     REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[0] == 0);
-    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[1] == Type<int>::table());
-    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[2] == Type<float>::table());
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[1] == &Type<int>::table);
+    REQUIRE(MethodArguments<decltype(&Test::void_method_with_args)>::types()[2] == &Type<float>::table);
 
     //Check function call
     int arg1 = 1;
@@ -210,9 +210,9 @@ TEST_CASE("Static function defs, has params, return", "[internal]")
 {
     //Check types
     //REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::count == 2);
-    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[0] == Type<double>::table());
-    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[1] == Type<int>::table());
-    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[2] == Type<float>::table());
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[0] == &Type<double>::table);
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[1] == &Type<int>::table);
+    REQUIRE(MethodArguments<decltype(&Test::return_method_with_args)>::types()[2] == &Type<float>::table);
 
     //Check function call
     int arg1 = 1;

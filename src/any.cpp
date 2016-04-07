@@ -60,14 +60,14 @@ namespace umof
     Any::~Any()
     {
         if (_table)
-            _table->static_delete(&_object);
+            _table->destroy(&_object);
     }
 
     void Any::reset()
     {
         if (_table != nullptr)
         {
-            _table->static_delete(&_object);
+            _table->destroy(&_object);
             _table = nullptr;
             _object = nullptr;
         }
@@ -76,10 +76,10 @@ namespace umof
     void Any::reset(detail::TypeTable *table)
     {
         if (_table != nullptr)
-            _table->static_delete(&_object);
+            _table->destroy(&_object);
 
         _table = table;
-        _table->static_new(&_object);
+        _table->create(&_object);
     }
 
     Type Any::type() const

@@ -53,7 +53,7 @@ namespace umof
         template<typename T>
         struct TypeFuncs<T, True>
         {
-            static const char *get_name()
+            static const char *name()
             {
 #if defined(__GNUC__)
                 static int status = -4;
@@ -63,11 +63,7 @@ namespace umof
                 return typeid(T).name();
 #endif
             }
-            static int get_size()
-            {
-                return sizeof(T);
-            }
-            static void static_new(void** dest)
+            static void create(void** dest)
             {
                 new (*dest) T();
             }
@@ -75,7 +71,7 @@ namespace umof
             {
                 new (*dest) T();
             }
-            static void static_delete(void** x)
+            static void destroy(void** x)
             {
                 reinterpret_cast<T*>(x)->~T();
             }
@@ -98,7 +94,7 @@ namespace umof
         template<typename T>
         struct TypeFuncs<T, False>
         {
-            static const char *get_name()
+            static const char *name()
             {
 #if defined(__GNUC__)
                 static int status = -4;
@@ -108,11 +104,7 @@ namespace umof
                 return typeid(T).name();
 #endif
             }
-            static int get_size()
-            {
-                return sizeof(T);
-            }
-            static void static_new(void** dest)
+            static void create(void** dest)
             {
                 *dest = new T();
             }
@@ -120,7 +112,7 @@ namespace umof
             {
                 new (*dest) T();
             }
-            static void static_delete(void** x)
+            static void destroy(void** x)
             {
                 // destruct and free memory
                 delete (*reinterpret_cast<T**>(x));
@@ -141,79 +133,57 @@ namespace umof
             }
         };
 
-        template<typename Type>
-        struct TypeHelper
-        {
-            using Small = typename std::integral_constant<bool, (sizeof(Type) <= sizeof(void*))>;
-
-            inline static TypeTable *table()
-            {
-                static TypeTable staticTable
-                {
-                    Small::value,
-                    TypeFuncs<Type, Small>::get_name,
-                    TypeFuncs<Type, Small>::get_size,
-                    TypeFuncs<Type, Small>::static_new,
-                    TypeFuncs<Type, Small>::construct,
-                    TypeFuncs<Type, Small>::static_delete,
-                    TypeFuncs<Type, Small>::destruct,
-                    TypeFuncs<Type, Small>::clone,
-                    TypeFuncs<Type, Small>::move
-                };
-                return &staticTable;
-            }
-
-            template<typename S = Small>
-            inline static typename std::enable_if<S::value, void>::type clone(const Type **src, void **dest)
-            {
-                new (dest)Type(*reinterpret_cast<Type const*>(*src));
-            }
-
-            template<typename S = Small>
-            inline static typename std::enable_if<!S::value, void>::type clone(const Type **src, void **dest)
-            {
-                *dest = new Type(**src);
-            }
-
-            template<typename S = Small>
-            inline static typename std::enable_if<S::value, Type*>::type cast(void **object)
-            {
-                return reinterpret_cast<Type*>(object);
-            }
-
-            template<typename S = Small>
-            inline static typename std::enable_if<!S::value, Type*>::type cast(void **object)
-            {
-                return reinterpret_cast<Type*>(*object);
-            }
-        };
-
-        //Get the table for type
         template<typename T>
         struct Type
         {
-			using IsPointer = typename std::is_pointer<T>::type;
+            using IsPointer = typename std::is_pointer<T>::type;
             using Decay = typename std::decay<T>::type;
             using PointerDecay = typename std::add_pointer<
                 typename std::decay<
                 typename std::remove_pointer<Decay>
                 ::type>::type>::type;
             using Storage = typename std::conditional<IsPointer::value, PointerDecay, Decay>::type;
+            using Small = typename std::integral_constant<bool, (sizeof(Storage) <= sizeof(void*))>;
 
-            inline static TypeTable *table()
+            static const TypeTable table;
+
+            template<typename S = Small>
+            inline static typename std::enable_if<S::value, void>::type clone(const Decay **src, void **dest)
             {
-                return TypeHelper<Storage>::table();
+                new (dest)Storage(*reinterpret_cast<Storage const*>(*src));
             }
 
-            inline static void clone(const Decay **src, void **dest)
+            template<typename S = Small>
+            inline static typename std::enable_if<!S::value, void>::type clone(const Decay **src, void **dest)
             {
-                TypeHelper<Storage>::clone(src, dest);
+                *dest = new Storage(**src);
             }
 
-            inline static Decay *cast(void **object)
+            template<typename S = Small>
+            inline static typename std::enable_if<S::value, Decay*>::type cast(void **object)
             {
-                return const_cast<Decay*>(TypeHelper<Storage>::cast(object));
+                return const_cast<Decay*>(reinterpret_cast<Storage*>(object));
             }
+
+            template<typename S = Small>
+            inline static typename std::enable_if<!S::value, Decay*>::type cast(void **object)
+            {
+                return const_cast<Decay*>(reinterpret_cast<Storage*>(*object));
+            }
+        };
+
+        template<typename T>
+        const TypeTable Type<T>::table = 
+        {
+            TypeFuncs<Storage, Small>::name,
+            TypeFuncs<Storage, Small>::create,
+            TypeFuncs<Storage, Small>::construct,
+            TypeFuncs<Storage, Small>::destroy,
+            TypeFuncs<Storage, Small>::destruct,
+            TypeFuncs<Storage, Small>::clone,
+            TypeFuncs<Storage, Small>::move,
+            sizeof(Storage),
+            Small::value
         };
     }
 }

@@ -19,70 +19,59 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 USA.
 **********************************************************************/
 
-#include <umof/type.h>
+#include <umof/enumeration.h>
 
 namespace umof
 {
-    Type::Type(const detail::TypeTable *table) :
+    Enumeration::Enumeration(const detail::EnumerationTable *table) :
         _table(table)
     {
     }
 
-    bool Type::operator==(const Type& other)
-    {
-        return _table == other._table;
-    }
-
-    bool Type::operator!=(const Type& other)
-    {
-        return _table != other._table;
-    }
-
-    bool Type::valid() const
+    bool Enumeration::valid() const
     {
         return (_table != nullptr);
     }
 
-    const char *Type::name() const
+    ConstString Enumeration::name() const
     {
-        return _table->name();
+        return _table->name;
     }
 
-    int Type::size() const
+    int Enumeration::keyCount() const
     {
-        return _table->size;
+        return _table->count;
     }
 
-    void *Type::construct(void *where, void *const copy) const
+    ConstString Enumeration::key(int index) const
     {
-        if (copy)
+        return _table->table[index].name;
+    }
+
+    int Enumeration::value(int index) const
+    {
+        return _table->table[index].value;
+    }
+
+    int Enumeration::keyToValue(const char *key) const
+    {
+        for (unsigned int i = 0; i < _table->count; ++i)
         {
-            _table->clone(&copy, &where);
-            return where;
+            if (_table->table[i].name == key)
+                return _table->table[i].value;
         }
-        else
+
+        return -1;
+    }
+
+    ConstString Enumeration::valueToKey(int value) const
+    {
+        for (unsigned int i = 0; i < _table->count; ++i)
         {
-            _table->construct(&where);
-            return where;
+            if (_table->table[i].value == value)
+                return _table->table[i].name;
         }
-    }
 
-    void *Type::create(void *const copy) const
-    {
-        void *where = nullptr;
-        _table->create(&where);
-        if (copy)
-            _table->clone(&copy, &where);
-        return where;
-    }
-
-    void Type::destroy(void *data) const
-    {
-        _table->destroy(&data);
-    }
-
-    void Type::destruct(void *data) const
-    {
-        _table->destruct(&data);
+        return "";
     }
 }

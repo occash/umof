@@ -25,7 +25,7 @@ USA.
 #include "config.h"
 #include "method.h"
 #include "property.h"
-#include "enum.h"
+#include "enumeration.h"
 #include "detail/table.h"
 
 namespace umof
@@ -114,7 +114,7 @@ namespace umof
         int propertyOffset() const;
 
         int indexOfEnumerator(const char *name) const; //find enum by name
-        Enumerator enumerator(unsigned int index) const; //returns enum
+        Enumeration enumerator(unsigned int index) const; //returns enum
         int enumeratorCount() const; //number of enums
         int enumeratorOffset() const; //enums offset
 

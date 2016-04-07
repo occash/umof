@@ -26,17 +26,15 @@ USA.
 
 namespace umof
 {
+    class Any;
+    class Method;
+    class Property;
+
     /* \breif The Type class manages types.
     */
     class UMOF_EXPORT Type
     {
     public:
-        /*! Constructs the meta type with the given table.
-            Type constructor should never be used directly.
-            Please use from() function instead.
-        */
-        Type(const detail::TypeTable *table);
-
         /*! Construct the meta information for the given type T.
         */
         template<class T>
@@ -81,6 +79,13 @@ namespace umof
         void destroy(void *data) const;
 
     private:
+        friend class Any;
+        friend class Method;
+        friend class Property;
+
+        Type(const detail::TypeTable *table);
+
+    private:
         const detail::TypeTable *_table;
 
     };
@@ -88,6 +93,6 @@ namespace umof
     template<class T>
     Type Type::from()
     {
-        return detail::Type<T>::table();
+        return{ &detail::Type<T>::table };
     }
 }

@@ -76,17 +76,17 @@ namespace umof
         template<typename T>
         struct ReturnTable<T, False>
         {
-            inline static TypeTable *get()
+            inline static const TypeTable *get()
             {
-                return Type<T>::table();
+                return &Type<T>::table;
             }
         };
 
         //Function to unpack args properly
         template<typename T>
-        inline static TypeTable *getTable()
+        inline static const TypeTable *getTable()
         {
-            return Type<T>::table();
+            return &Type<T>::table;
         }
 
         template<typename C, typename R, typename... Args>

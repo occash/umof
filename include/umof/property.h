@@ -28,17 +28,13 @@ USA.
 
 namespace umof
 {
+    class Api;
+
     /*! \breif The Method class provides meta information for property.
     */
     class UMOF_EXPORT Property
     {
     public:
-        /*! \breif Constructs a Property with the given table.
-            Property constructor should never be used directly.
-            Please use PROPERTY() macros instead.
-        */
-        Property(const detail::PropertyTable *table);
-
         /*! Checks whether Property is valid object.
             Call to invalid property will result in application crash.
         */
@@ -64,7 +60,17 @@ namespace umof
 
     public:
         template<typename T>
-        struct Holder;
+        struct Holder
+        {
+            static_assert(sizeof(T) == -1, "Properties are not declared");
+        };
+
+    private:
+        template<typename T>
+        friend struct Holder;
+        friend class Api;
+
+        Property(const detail::PropertyTable *table);
 
     private:
         const detail::PropertyTable *_table;

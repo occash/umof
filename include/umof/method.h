@@ -30,17 +30,13 @@ USA.
 
 namespace umof
 {
+    class Api;
+
     /*! \breif The Method class provides meta information for method.
     */
     class UMOF_EXPORT Method
     {
     public:
-        /*! \breif Constructs a Method with the given table.
-            Method constructor should never be used directly.
-            Please use METHOD() or OVERLOAD() macros instead.
-        */
-        Method(const detail::MethodTable *table);
-
         /*! Checks whether Method is valid object.
             Call to invalid method will result in application crash.
         */
@@ -82,7 +78,17 @@ namespace umof
 
     public:
         template<typename T>
-        struct Holder;
+        struct Holder
+        {
+            static_assert(sizeof(T) == -1, "Methods are not declared");
+        };
+
+    private:
+        template<typename T>
+        friend struct Holder;
+        friend class Api;
+
+        Method(const detail::MethodTable *table);
 
     private:
         const detail::MethodTable *_table;
