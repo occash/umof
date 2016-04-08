@@ -22,6 +22,7 @@ USA.
 #pragma once
 
 #include "table.h"
+#include "utility.h"
 
 #include <typeinfo>
 #include <type_traits>
@@ -36,10 +37,6 @@ struct memfree
     const char *name;
 };
 #endif
-
-//Bool template type
-typedef std::true_type True;
-typedef std::false_type False;
 
 namespace umof
 {

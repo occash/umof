@@ -137,7 +137,7 @@ namespace umof
     template <typename T>
     inline T any_cast(Any& operand)
     {
-        typedef typename std::remove_reference<T>::type nonref;
+        using nonref = typename std::remove_reference<T>::type;
 
         nonref* result = any_cast<nonref>(&operand);
         if (!result)
@@ -156,7 +156,7 @@ namespace umof
     template <typename T>
     inline T const& any_cast(Any const& operand)
     {
-        typedef typename std::remove_reference<T>::type nonref;
+        using nonref = typename std::remove_reference<T>::type;
         return any_cast<nonref const&>(const_cast<Any&>(operand));
     }
 }

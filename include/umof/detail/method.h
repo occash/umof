@@ -21,45 +21,13 @@ USA.
 
 #pragma once
 
+#include "utility.h"
 #include "type.h"
 
 namespace umof
 {
     namespace detail
     {
-        //Helper stuff
-        namespace unpack
-        {
-            template<unsigned...> struct indices {};
-
-            template<unsigned N, unsigned... Is>
-            struct indices_gen : indices_gen <N - 1, N - 1, Is...> {};
-
-            template<unsigned... Is>
-            struct indices_gen<0, Is...> : indices <Is...> {};
-
-            template<unsigned N, typename... R>
-            struct type_at;
-
-            template<unsigned N, typename T, typename... R>
-            struct type_at<N, T, R...>
-            {
-                using type = typename type_at<N - 1, R...>::type;
-            };
-
-            template<typename T, typename... R>
-            struct type_at<0, T, R...>
-            {
-                using type = T;
-            };
-
-            template<unsigned N>
-            struct type_at<N>
-            {
-                using type = void;
-            };
-        }
-
         //Get return type table
         template<typename T, typename Void>
         struct ReturnTable;

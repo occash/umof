@@ -21,30 +21,38 @@ USA.
 
 #pragma once
 
+#include "utility.h"
+
 namespace umof
 {
     namespace detail
     {
         template<typename T, typename F, typename Yes>
-        struct Members
+        struct Members;
+
+        template<typename T, typename F>
+        struct Members<T, F, True>
         {
-            template<typename Has = Yes>
-            static auto table() -> typename std::enable_if<Has::value, F>::type
+            constexpr static F table()
             {
                 return T::table;
             }
-            template<typename Has = Yes>
-            static auto table() -> typename std::enable_if<!Has::value, F>::type
+            
+            constexpr static unsigned int size()
+            {
+                return countof(T::table);
+            }
+        };
+
+        template<typename T, typename F>
+        struct Members<T, F, False>
+        {
+            constexpr static F table()
             {
                 return nullptr;
             }
-            template<typename Has = Yes>
-            static auto size() -> typename std::enable_if<Has::value, unsigned int>::type
-            {
-                return sizeof(T::table) / sizeof(T::table[0]);
-            }
-            template<typename Has = Yes>
-            static auto size() -> typename std::enable_if<!Has::value, unsigned int>::type
+
+            constexpr static unsigned int size()
             {
                 return 0;
             }
