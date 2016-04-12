@@ -68,11 +68,11 @@ namespace umof
         Type parmaeterType(int index) const;
         //ConstString parameterName(int index) const; //Not supported
 
-        /*! Invokes the method with given args.
+        /*! Call the method with given args.
         */
         void call(const void *obj, const void *ret, const void **args) const;
 
-        /*! Invokes the method with given args.
+        /*! Call the method with given args.
         */
         bool call(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
 

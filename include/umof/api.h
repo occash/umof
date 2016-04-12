@@ -120,7 +120,7 @@ namespace umof
 
         //static Object *create(ArgPack args) const; //create new instance of the class
 
-        /*! Invokes the method with the given name and args.
+        /*! Call the method with the given name and args.
         */
         static bool call(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
 

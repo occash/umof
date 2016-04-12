@@ -50,7 +50,7 @@ namespace umof
         {
             auto object = _methods[i].first;
             auto method = _methods[i].second;
-            method.invoke(object, Arg(), { args... });
+            method.call(object, Arg(), { args... });
         }
     }
 
