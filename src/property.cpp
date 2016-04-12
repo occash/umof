@@ -43,13 +43,13 @@ namespace umof
         return Type(_table->type);
     }
 
-    void Property::read(Arg obj, Arg ret) const
+    void Property::get(Arg obj, Arg ret) const
     {
         if (ret.type == _table->type)
             return _table->reader(obj.data, ret.data);
     }
 
-    void Property::write(Arg obj, Arg value) const
+    void Property::set(Arg obj, Arg value) const
     {
         if (value.type == _table->type)
             _table->writer(obj.data, value.data);

@@ -18,6 +18,6 @@ TEST_CASE("Method interface", "[method]")
 
     MTest test;
     double ret;
-    REQUIRE(method.invoke(&test, ret, { 1, 2.0f }));
+    REQUIRE(method.call(&test, ret, { 1, 2.0f }));
     REQUIRE(ret == 3.0);
 }

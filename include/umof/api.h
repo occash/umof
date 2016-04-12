@@ -122,7 +122,7 @@ namespace umof
 
         /*! Invokes the method with the given name and args.
         */
-        static bool invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
+        static bool call(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args);
 
     public:
         template<typename T>

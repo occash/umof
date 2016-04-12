@@ -83,12 +83,12 @@ namespace umof
         return Type(_table->types[index + 1]);
     }
 
-    void Method::invoke(const void *obj, const void *ret, const void **args) const
+    void Method::call(const void *obj, const void *ret, const void **args) const
     {
         _table->invoker(obj, ret, args);
     }
 
-    bool Method::invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const
+    bool Method::call(Arg obj, Arg ret, std::initializer_list<Arg> args) const
     {
         if (args.size() < _table->argc)
             return false;

@@ -207,7 +207,7 @@ namespace umof
         return offset;
     }
 
-    bool Api::invoke(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args)
+    bool Api::call(Arg obj, const char *name, Arg ret, std::initializer_list<Arg> args)
     {
         return false;
         /*const Api *api = obj->api();
@@ -229,12 +229,12 @@ namespace umof
             throw std::runtime_error("No such method");
 
         Method m = api->method(index);
-        return m.invoke(obj, args.size(), args.begin());*/
+        return m.call(obj, args.size(), args.begin());*/
 
         //TODO try to convert parameters 
         /*Method func = api->method(sig.c_str());
         if (func.valid())
-            return func.invoke(obj, args);
+            return func.call(obj, args);
 
         auto mrange = api->data.methods.equal_range(name);
         auto m = api->data.methods.end();
@@ -271,7 +271,7 @@ namespace umof
                 a++;
             }
 
-            return (*m).second.invoke(obj, newArgs);
+            return (*m).second.call(obj, newArgs);
         }*/
     }
 }

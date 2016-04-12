@@ -70,11 +70,11 @@ namespace umof
 
         /*! Invokes the method with given args.
         */
-        void invoke(const void *obj, const void *ret, const void **args) const;
+        void call(const void *obj, const void *ret, const void **args) const;
 
         /*! Invokes the method with given args.
         */
-        bool invoke(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
+        bool call(Arg obj, Arg ret, std::initializer_list<Arg> args) const;
 
     public:
         template<typename T>

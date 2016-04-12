@@ -52,11 +52,11 @@ namespace umof
 
         /*! Return the value of the property.
         */
-        void read(Arg obj, Arg ret) const;
+        void get(Arg obj, Arg ret) const;
 
         /*! Sets the given value to the property.
         */
-        void write(Arg obj, Arg value) const;
+        void set(Arg obj, Arg value) const;
 
     public:
         template<typename T>
