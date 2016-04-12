@@ -62,15 +62,17 @@ namespace umof
         template<typename T>
         struct Holder;
 
+        using Table = detail::PropertyTable;
+
     private:
         template<typename T>
         friend struct Holder;
         friend class Api;
 
-        Property(const detail::PropertyTable *table);
+        Property(const Table *table);
 
     private:
-        const detail::PropertyTable *_table;
+        const Table *_table;
 
     };
 }

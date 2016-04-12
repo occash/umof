@@ -80,15 +80,17 @@ namespace umof
         template<typename T>
         struct Holder;
 
+        using Table = detail::MethodTable;
+
     private:
         template<typename T>
         friend struct Holder;
         friend class Api;
 
-        Method(const detail::MethodTable *table);
+        Method(const Table *table);
 
     private:
-        const detail::MethodTable *_table;
+        const Table *_table;
 
     };
 }

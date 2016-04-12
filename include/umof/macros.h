@@ -70,12 +70,12 @@ namespace umof \
     { \
         #Class, \
         nullptr, \
-        detail::Members<Method::Holder<Class>, const detail::MethodTable *, detail::Has<Method::Holder<Class>>::Table>::table(), \
-        detail::Members<Property::Holder<Class>, const detail::PropertyTable *, detail::Has<Property::Holder<Class>>::Table>::table(), \
-        detail::Members<Enumeration::Holder<Class>, const detail::EnumerationTable *, detail::Has<Enumeration::Holder<Class>>::Table>::table(), \
-        detail::Members<Method::Holder<Class>, const detail::MethodTable *, detail::Has<Method::Holder<Class>>::Table>::size(), \
-        detail::Members<Property::Holder<Class>, const detail::PropertyTable *, detail::Has<Property::Holder<Class>>::Table>::size(), \
-        detail::Members<Enumeration::Holder<Class>, const detail::EnumerationTable *, detail::Has<Enumeration::Holder<Class>>::Table>::size(), \
+        detail::Members<Method::Holder<Class>, const Method::Table *, detail::Has<Method::Holder<Class>>::Table>::table(), \
+        detail::Members<Property::Holder<Class>, const Property::Table *, detail::Has<Property::Holder<Class>>::Table>::table(), \
+        detail::Members<Enumeration::Holder<Class>, const Enumeration::Table *, detail::Has<Enumeration::Holder<Class>>::Table>::table(), \
+        detail::Members<Method::Holder<Class>, const Method::Table *, detail::Has<Method::Holder<Class>>::Table>::size(), \
+        detail::Members<Property::Holder<Class>, const Property::Table *, detail::Has<Property::Holder<Class>>::Table>::size(), \
+        detail::Members<Enumeration::Holder<Class>, const Enumeration::Table *, detail::Has<Enumeration::Holder<Class>>::Table>::size(), \
     }; \
 }
 

@@ -131,14 +131,16 @@ namespace umof
             static_assert(sizeof(T) == -1, "Api is not declared");
         };
 
+        using Table = detail::ApiTable;
+
     private:
         template<typename T>
         friend struct Holder;
 
-        Api(const detail::ApiTable *table);
+        Api(const Table *table);
 
     private:
-        const detail::ApiTable *_table;
+        const Table *_table;
 
     };
 

@@ -78,15 +78,18 @@ namespace umof
         */
         void destroy(void *data) const;
 
+    public:
+        using Table = detail::TypeTable;
+
     private:
         friend class Any;
         friend class Method;
         friend class Property;
 
-        Type(const detail::TypeTable *table);
+        Type(const Table *table);
 
     private:
-        const detail::TypeTable *_table;
+        const Table *_table;
 
     };
 

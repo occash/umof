@@ -46,15 +46,17 @@ namespace umof
         template<typename T>
         struct Holder;
 
+        using Table = detail::EnumerationTable;
+
     private:
         template<typename T>
         friend struct Holder;
         friend class Api;
 
-        Enumeration(const detail::EnumerationTable *table);
+        Enumeration(const Table *table);
 
     private:
-        const detail::EnumerationTable *_table;
+        const Table *_table;
 
     };
 }
