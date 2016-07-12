@@ -10,80 +10,84 @@ The library uses [premake4](http://industriousone.com/premake-quick-start) as th
 See premake4 documentation for full list of supported actions. The project files will be created in ```uMOF/build``` folder. After compiling the project, the library
 file will be in ```uMOF/lib```.
 
-To build static library use ```--static``` option.
+### Options
+ * ```--static``` Build static library instead of shared
+ * ```--tests``` Build unit tests
+ * ```--benchmark``` Build benchmark
+ * ```--docs```  Build doxygen documentation
 
 ## Usage
-To use meta system the class should inherit from class Object. Use OBJECT macro to define metaclass specific api. 
+To use meta system you should declare method and properties of class using macros. 
 
 ```
-class Test : public Object
+class Test
 {
-	U_OBJECT(Test, Object)
-	U_EXPOSE(Test, 
-		U_OVERLOAD(func, Test, int, int, int),
-		U_OVERLOAD(func, Test, float, float, float),
-		U_METHOD(null),
-		U_METHOD(test)
-	)
-	U_PROPERTIES(
-		U_PROPERTY(val, Test::getVal, Test::setVal)
-	)
-
 public:
-	Test() = default;
+    Test() = default;
 
-	int func(int a, int b)
-	{
-		return a + b;
+    int func(int a, int b)
+    {
+        return a + b;
+    }
+
+    float func(float a, float b)
+    {
+        return a + b;
 	}
 
-	float func(float a, float b)
-	{
-		return a + b;
-	}
+    int null()
+    {
+        return 0;
+    }
 
-	int null()
-	{
-		return 0;
-	}
-
-	void test()
-	{
-		std::cout << "test" << std::endl;
-	}
+    void test()
+    {
+        std::cout << "test" << std::endl;
+    }
 	
-	int getVal() const
-	{
-		return _val;
-	}
+    int getVal() const
+    {
+        return _val;
+    }
 
-	void setVal(int v)
-	{
-		_val = v;
-	}
+    void setVal(int v)
+    {
+        _val = v;
+    }
 
+    double prop;
+    
 private:
-	int _val;
+    int _val;
 
 };
+
+U_DECALRE_METHODS(Test)
+{
+    U_OVERLOAD(func, Test, int, int, int),
+    U_OVERLOAD(func, Test, float, float, float),
+    U_METHOD(null),
+    U_METHOD(test)
+};
+U_PROPERTIES(Test)
+{
+    U_PROPERTY(val, READ(getVal), WRITE(setVal))
+    U_PROPERTY(prop, MEMBER(prop))
+}
+U_DECLARE_API(Test)
 ```
 Now you can use exposed api of the class.
 ```
+const Api api = Api::from<Test>();
+Method method = api.method(0);
+
 Test t;
-
-//Api for exact signature
-//Will throw if types are not consistent
-Method m = t.api()->method("func(int,int)");
-int i = any_cast<int>(m.invoke(&t, args));
-
-//This function will try to cast type if possible
-//else will throw
-Any res = Api::invoke(&t, "func", {5.0f, "6.0"});
+int ret;
+m.call(&t, ret, {1, 2});
 
 ```
 
 ## Benchmark
-To build benchmark use ```--benchmark``` option.
 
 Configuration: Windows, Visual Studio 2013, Release x86
 
